@@ -10,7 +10,7 @@ Langkah 2A.1: Rolling Statistics (Jendela Berjalan)
         - temp_mean_24h: Rata-rata suhu 24 jam ke belakang. (Menghaluskan grafik dari noise sesaat).
         - vib_std_24h: Standar deviasi getaran 24 jam ke belakang. (Jika nilai ini tiba-tiba besar, artinya mesin mulai bergetar tidak stabil).
         - pressure_max_24h: Nilai tekanan tertinggi dalam 24 jam terakhir.
-    - Prioritas Sensor Kritis: Berdasarkan hasil simulasi ekstraksi otak AI di Fase 4, noise_level dan vibration adalah indikator paling mematikan. Wajib buat turunan statisnya juga (misal: noise_mean_24h).
+        - Prioritas Sensor Kritis: Berdasarkan hasil simulasi ekstraksi otak AI di Fase 4, noise_level dan vibration adalah indikator paling mematikan. Wajib buat turunan statisnya juga (misal: noise_mean_24h).
 
 Langkah 2A.2: Rate of Change (Kecepatan Perubahan)
     - Konsep: Suhu 80°C mungkin normal. Tapi jika suhu naik dari 60°C ke 80°C hanya dalam 10 menit, itu adalah indikasi kerusakan kritis.

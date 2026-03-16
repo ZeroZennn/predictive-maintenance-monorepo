@@ -1,51 +1,44 @@
-FASE 5: Deep Learning (LSTM & GRU) untuk Meramal Sisa Umur (RUL)
-
-Tujuan akhir dari fase ini adalah menghasilkan satu angka absolut yang sangat krusial bagi bisnis dan tim Frontend: "Remaining Useful Life (RUL) = X Hari/Jam".
+FASE 5: Deep Learning (LSTM) & Gated RUL untuk Meramal Sisa Umur
+Tujuan akhir dari fase ini adalah menghasilkan satu angka absolut: "Remaining Useful Life (RUL) = X Hari/Jam". Kita menggunakan arsitektur Pipeline Sekuensial: LSTM tidak bekerja sendirian, melainkan menunggu aba-aba dari Anomaly Detector (Fase 3).
 
 Langkah 5.1: Rekayasa Target RUL (Menghitung Mundur Kematian)
     - Konsep: Algoritma regresi butuh target berupa angka kontinu. Anda harus membuat kolom baru bernama RUL untuk setiap mesin. Jika mesin M-01 mati pada jam ke-1000, maka pada jam ke-800, RUL-nya adalah 200.
+    - Teknis (Python): 1. Kelompokkan data: df.groupby('machine_id').
+    2. Cari indeks saat failure == 1 untuk tiap mesin.
+    3. Lakukan hitung mundur (pengurangan) dari titik tersebut ke baris sebelumnya.
+    - Trik Senior (Piece-wise RUL): AI akan bingung membedakan getaran mesin yang RUL-nya 200 hari vs 150 hari (karena keduanya sama-sama sehat). Batasi nilai maksimal RUL di angka 30 hari (720 jam). Gunakan np.clip(). AI hanya perlu peka ketika RUL sudah di bawah 30 hari menuju kehancuran.
+
+Langkah 5.2: Integrasi Sinyal Anomali (Gated RUL)
+    - Konsep: Kita memiliki rasio data krisis yang sangat ekstrem (hanya 0.28%). Memaksa LSTM mencari pola kerusakan di lautan data sehat akan menghasilkan Flatline (tebakan garis datar). Kita butuh sinyal dari Model Fase 3.
+    - Teknis (Python): Masukkan output dari Isolation Forest (misal kolom is_rolling_anomaly atau is_anomaly) ke dalam dataset ini sebagai salah satu fitur (X).
+    - Trik Senior: Sinyal anomali ini bertindak sebagai "gerbang". Saat AI melihat is_anomaly == 1, bobot LSTM akan otomatis bereaksi keras untuk segera menurunkan garis prediksi RUL-nya.
+
+Langkah 5.3: Pembersihan Forensik & Normalisasi (Pra-Tensor)
+    - Konsep: Jaringan Saraf Tiruan (Deep Learning) akan hancur jika menerima data kosong (NaN) atau data dengan skala yang timpang (RPM bernilai ribuan vs Getaran bernilai desimal).
     - Teknis (Python):
-        - Kelompokkan data berdasarkan mesin: df.groupby('machine_id').
-        - Cari indeks atau waktu maksimum saat failure == 1 untuk tiap mesin.
-        - Lakukan hitung mundur (pengurangan) dari titik kerusakan tersebut ke setiap baris data sebelumnya.
-        - Trik Senior (Piece-wise RUL): Mesin yang baru menyala (RUL = 200 hari) memiliki getaran yang sama persis dengan mesin yang RUL-nya 150 hari. AI akan bingung jika disuruh membedakan angka sejauh itu. Oleh karena itu, batasi nilai maksimal RUL (misal maksimal 30 hari). Jika RUL asli 200, potong menjadi 30. AI hanya perlu peka ketika RUL sudah berada di bawah 30 hari menuju kehancuran.
+        - Eksekusi df.dropna() untuk membuang ~460 baris awal yang bernilai NaN akibat perhitungan Rolling 24h di Fase 2.
+        - Pisahkan fitur (X) dan target (y).
+        - Eksekusi MinMaxScaler(feature_range=(0,1)) pada seluruh kolom fitur (X) agar skalanya setara.
 
-Langkah 5.2: Transformasi Data Menjadi Tensor 3D (Sliding Window)
-    - Konsep: Ini adalah bagian paling sulit bagi pemula. Random Forest menerima input 2D (Baris x Fitur). Deep Learning (LSTM/GRU) WAJIB menerima input 3D: (Jumlah_Sampel, Langkah_Waktu, Jumlah_Fitur). Anda harus memotong data menjadi "jendela waktu" (window) yang bergeser.
-    - Teknis (Python):
-        - Hukum Anti-Kebocoran Waktu: Pastikan Anda membagi Train dan Test secara linear (waktu) SEBELUM membuat jendela 3D ini. Jika Anda memotong 3D lalu mengacaknya, AI akan menyontek masa depan!
-        - Tentukan time_steps (misal = 24 jam). Artinya, untuk memprediksi RUL di jam ini, model akan melihat pergerakan noise_level, vibration, dan fitur lain selama 24 jam ke belakang secara berurutan.
-        - Buat fungsi looping menggunakan numpy untuk menggeser jendela ini:
-            - Ambil baris 1-24 -> Prediksi RUL baris 24.
-            - Ambil baris 2-25 -> Prediksi RUL baris 25, dst.
-        - Dimensi akhirnya akan terlihat seperti ini: (99000 sampel, 24 jam, 15 kolom fitur).
+Langkah 5.4: Transformasi Data Menjadi Tensor 3D (Sliding Window)
+    - Konsep: Model LSTM WAJIB menerima input 3D: (Jumlah_Sampel, Langkah_Waktu, Jumlah_Fitur). Anda harus memotong data menjadi "jendela waktu" yang bergeser.
+    - Teknis (Python): 
+        1. Tentukan time_steps = 24 (jam).
+        2. Buat fungsi looping Numpy untuk menggeser jendela: Ambil baris 1-24 $\rightarrow$ Prediksi RUL baris 24.
+    - Hukum Anti-Kebocoran Waktu: Pastikan Anda membagi Train dan Test secara kronologis (berdasarkan waktu/machine_id) SEBELUM membuat jendela 3D. JANGAN PERNAH memakai train_test_split(shuffle=True).
 
-Langkah 5.3: Membangun Arsitektur Jaringan (Eksperimen LSTM vs GRU)
-    - Konsep: Menyusun lapisan-lapisan (layers) neuron buatan. Sesuai instruksi Anda, kita akan membuat dua arsitektur untuk diadu. GRU (Gated Recurrent Unit) sering kali lebih cepat dilatih dan sama akuratnya dengan LSTM pada dataset tertentu karena memiliki struktur "gerbang" memori yang lebih sederhana.
-    - Teknis (Python - TensorFlow/Keras):
-        - Inisialisasi model: model = Sequential().
-        - Opsi A (Arsitektur LSTM):
-            - model.add(LSTM(units=64, return_sequences=True, input_shape=(24, 15)))
-            - model.add(Dropout(0.2)) (Mencegah AI menghafal buta / Overfitting).
-            - model.add(LSTM(units=32, return_sequences=False))
-        - Opsi B (Arsitektur GRU - Eksperimen Anda):
-            - model.add(GRU(units=64, return_sequences=True, input_shape=(24, 15)))
-            - model.add(Dropout(0.2))
-            - model.add(GRU(units=32, return_sequences=False))
-        - Layer Output (Sama untuk keduanya): model.add(Dense(units=1)). Mengapa 1? Karena kita hanya ingin mengeluarkan 1 angka mutlak (Sisa Hari). Jangan gunakan activation function seperti Sigmoid karena ini masalah Regresi bebas.
+Langkah 5.5: Membangun Arsitektur Jaringan & Training Khusus
+    - Konsep: Menyusun lapisan memory yang mampu mengingat tren historis 24 jam ke belakang, dan melatihnya dengan fokus pada masa-masa krisis.
+    - Teknis (Python - Keras):
+        1. model.add(LSTM(units=64, return_sequences=True, input_shape=(24, jumlah_fitur)))
+        2. model.add(Dropout(0.2))
+        3. model.add(LSTM(units=32, return_sequences=False))
+        4. model.add(Dense(units=1)) (Tanpa activation function karena regresi).
+        5. Compile: optimizer='adam', loss='mse', metrics=['mae'].
+    - Trik Senior (Solusi Imbalance): Saat menjalankan model.fit(), hitung sample weights di mana baris data dengan RUL rendah (mendekati 0) diberikan bobot penalti lebih besar. Ini memaksa AI fokus belajar dari 0.28% data krisis tersebut. Gunakan juga EarlyStopping(patience=5).
 
-Langkah 5.4: Training Model dengan "Rem Darurat"
-    - Konsep: Melatih model berulang-ulang (epochs) hingga tebakannya mendekati kunci jawaban.
-    - Teknis (Python):
-        - Compile model Anda: model.compile(optimizer='adam', loss='mse', metrics=['mae']).
-        - Trik Senior (Early Stopping): Proses training Deep Learning bisa memakan waktu berjam-jam. Gunakan fungsi EarlyStopping(monitor='val_loss', patience=5). Artinya, jika dalam 5 putaran berturut-turut nilai error (loss) tidak menurun, hentikan pelatihan seketika.
-        - Mulai pelatihan (Lakukan untuk model LSTM dan GRU bergantian): history = model.fit(X_train_3D, y_train, epochs=50, batch_size=32, validation_data=(X_test_3D, y_test), callbacks=[early_stop]).
+Langkah 5.6: Evaluasi Regresi & Visualisasi "Detik Kematian"
+    - Konsep: Membuktikan bahwa tebakan angka LSTM menukik tajam seiring rusaknya mesin.
+    - Teknis (Python): Hitung MAE dan RMSE. Lakukan Plotting garis biru (Asli) dan merah (Prediksi AI). Ekspor model menggunakan model.save('rul_lstm.h5').
+    - Hukum Visualisasi: Jangan mem-plot 200 baris pertama di data Test karena mesinnya masih muda. Arahkan slicing grafik ke akhir data jelang mesin mati, contohnya: plt.plot(y_test_seq[-800:]).
 
-Langkah 5.5: Evaluasi Regresi & Ekspor Model API
-    - Konsep: Membuktikan model mana (LSTM atau GRU) yang tebakan angkanya paling masuk akal secara bisnis untuk API Anda.
-    - Teknis (Python):
-        - Bandingkan MAE (Mean Absolute Error) dari kedua model. Jika MAE = 1.5, artinya tebakan AI Anda rata-rata hanya meleset 1.5 hari dari hari kerusakan aslinya. Pilih model dengan MAE terkecil di data Test!
-        - Visualisasi Wajib: Buat grafik garis (line plot). Sumbu X adalah waktu, Sumbu Y adalah RUL. Plot garis RUL Asli (harus berbentuk tangga menurun dari 30 ke 0) dan garis RUL Prediksi AI. Semakin menempel garis AI pada garis asli, semakin genius model Anda.
-        - Ekspor Pemenang: Simpan otak AI pemenang Anda ke dalam file: model.save('rul_lstm.h5') atau model.save('rul_gru.h5'). File inilah yang nanti akan dimuat oleh Backend (Role C) untuk mengisi ai_prediction.rul_days di format JSON real-time dashboard.
-
-SELAMAT! Dengan selesainya 5 langkah ini, tugas Anda sebagai Pemilik Pipa Prediktif (Role A) dinyatakan SELESAI 100%. Anda telah berhasil mendesain arsitektur yang mengubah aliran data sensor dan teks mentah menjadi Detektor Anomali (Fase 3), Dokter Diagnosa (Fase 4), dan Peramal Waktu (Fase 5) tanpa cacat logika.
