@@ -168,6 +168,40 @@ LABEL_MAP = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
 | DFT-03 | severity_score | Score 2 tidak exist (bimodal) | re-encode Fase 8 jika perlu |
 | DFT-04 | damage_category | M-09 mismatch minor | Acceptable |
 
+---
+
+## FASE 5 — Data Preprocessing & Cleansing ✅
+**Status:** Complete
+**File:** `notebooks/fase_5_preprocessing/05_preprocessing.ipynb`
+**Output:**
+- `data/processed/df_model_ready.parquet` (pipeline resmi — 19.27 MB)
+- `data/processed/df_model_ready_preview.csv` (preview — 137.28 MB)
+- `models/ml_track/scaler.pkl` (StandardScaler — 4.28 KB)
+
+### Defect Resolution:
+| ID | Status | Resolusi |
+|---|---|---|
+| DFT-01 | ✅ CLOSED | parts_replaced tidak di-merge ke df sensor |
+| DFT-02 | ✅ CLOSED | vibration negatif di-clip ke 0 |
+| DFT-03 | 🟡 DEFERRED | severity_score bimodal — re-encode Fase 8 |
+| DFT-04 | ✅ CLOSED | damage_category mismatch minor — acceptable |
+
+### Kolom Final (76 kolom):
+| Grup | Jumlah |
+|---|---|
+| Identifier | 2 |
+| Label | 4 |
+| Categorical | 2 |
+| Numeric (scaled) | 68 |
+
+### Keputusan Scaling:
+- Method: StandardScaler (bukan MinMaxScaler)
+- Alasan: outlier informatif pada periode pre-failure
+  harus dipertahankan jarak relatifnya
+- Kolom yang di-scale: 69 kolom numerik
+- Kolom yang tidak di-scale: identifier, label, categorical asli
+
+
 
 ## TARGET MODEL FINAL
 | Model | Tipe | Output |
