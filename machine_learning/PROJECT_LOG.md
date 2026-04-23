@@ -201,6 +201,52 @@ LABEL_MAP = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
 - Kolom yang di-scale: 69 kolom numerik
 - Kolom yang tidak di-scale: identifier, label, categorical asli
 
+---
+
+## FASE 6 — Imbalance Handling: SSBS ✅
+**Status:** Complete (Refactored — SMOTE dipindah ke Fase 7)
+**File:** `notebooks/fase_6_imbalance/06_imbalance_handling.ipynb`
+**Output:**
+- `data/processed/df_ssbs.parquet` (pipeline resmi — 4.47 MB)
+- `data/processed/df_ssbs_preview.csv` (preview — 27.93 MB)
+
+### Metode: Stratified Sequential Block Sampling (SSBS)
+**Parameter:**
+- Quota per mesin : 1,000 baris (20,000 / 20 mesin)
+- Block size      : 500 baris per blok
+- Safety buffer   : 24 jam sebelum zona WARNING
+- Blok A          : 500 baris pertama (kondisi prima)
+- Blok B          : 500 baris terakhir (pre-warning boundary)
+
+### Distribusi Final df_ssbs (20,423 baris):
+| Kelas | Baris | Persentase |
+|---|---|---|
+| HEALTHY (0) | 17,787 | 87.09% |
+| WARNING (1) | 1,247 | 6.11% |
+| CRITICAL (2) | 1,389 | 6.80% |
+
+### Keputusan Arsitektur Kritis:
+> SMOTE TIDAK dijalankan di Fase 6.
+> Dipindah ke Fase 7 — diaplikasikan HANYA pada X_train
+> setelah time-aware split selesai.
+> Alasan: mencegah Data Leakage temporal.
+> Test set dan Validation set = 100% data natural.
+
+### Mesin dengan HEALTHY < Quota (shortfall karena failure awal):
+| Mesin | Available | Final |
+|---|---|---|
+| M-06 | 523 | 523 |
+| M-10 | 534 | 534 |
+| M-08 | 776 | 776 |
+| M-18 | 673 | 673 |
+| M-14 | 719 | 719 |
+| M-20 | 655 | 655 |
+| M-04 | 952 | 952 |
+| M-19 | 955 | 955 |
+> Shortfall adalah konsekuensi integritas temporal — bukan bug.
+
+---
+
 
 
 ## TARGET MODEL FINAL
