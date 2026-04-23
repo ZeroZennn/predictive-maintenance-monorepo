@@ -45,11 +45,7 @@
 - Baris per mesin: 5,000 (semua sama) ✅
 - Gap > 1 jam: 0 ✅
 
-### Defect Log:
-| ID | Kolom | Dataset | Temuan | Penanganan |
-|---|---|---|---|---|
-| DFT-01 | `parts_replaced` | df_maintenance | 11.8% NaN | Fase 5: fill → 'Unknown' |
-| DFT-02 | `vibration` | df_sensor | Min = -0.09 (negatif, fisik tidak valid) | Fase 5: clip ke 0 |
+
 
 ---
 
@@ -145,6 +141,33 @@ LABEL_MAP = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
 | noise_level | 74.30 |
 
 ---
+
+## FASE 4 — Feature Engineering & Enrichment ✅
+**Status:** Complete
+**File:** `notebooks/fase_4_feature_engineering/04_feature_engineering.ipynb`
+**Output:** 
+- `data/interim/df_sensor_featured.parquet` (pipeline resmi — 18.79 MB)
+- `data/interim/df_sensor_featured_preview.csv` (preview Excel — 72.92 MB)
+
+### Feature Inventory Final (75 kolom):
+| Grup | Jumlah | Keterangan |
+|---|---|---|
+| Original | 11 | Sensor mentah + label biner |
+| Label | 3 | health_label, confirmed, encoded |
+| Rolling | 36 | 6 sensor × 2 window × 3 statistik |
+| Lag | 18 | 6 sensor × 3 lag size |
+| Ratio | 4 | Cross-sensor interaction |
+| Degradation | 1 | hours_since_last_maint |
+| NLP | 2 | damage_category, severity_score |
+
+### Defect Log Aktif (dibawa ke Fase 5):
+| ID | Kolom | Temuan | Penanganan |
+|---|---|---|---|
+| DFT-01 | parts_replaced | 11.8% NaN di maintenance | fill → 'Unknown' |
+| DFT-02 | vibration | Min = -0.09, merambat ke ratio | clip ke 0 |
+| DFT-03 | severity_score | Score 2 tidak exist (bimodal) | re-encode Fase 8 jika perlu |
+| DFT-04 | damage_category | M-09 mismatch minor | Acceptable |
+
 
 ## TARGET MODEL FINAL
 | Model | Tipe | Output |
