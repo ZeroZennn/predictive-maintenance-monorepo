@@ -1,9 +1,78 @@
+# =============================================================
+# Node.js Monorepo — .gitignore
+# Project: Lapis AI — Predictive Maintenance SaaS
+# =============================================================
+
+# ── Dependencies ──────────────────────────────────────────────
 node_modules/
-venv/
-__pycache__/
+**/node_modules/
+
+# ── Environment Variables ─────────────────────────────────────
 .env
-*.pkl
-*.h5
-machine_learning/data/raw/
-machine_learning/data/processed/
-.ipynb_checkpoints/
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+# NOTE: .env.example files ARE tracked (do not add them here)
+
+# ── Docker Volumes & Data Folders ─────────────────────────────
+postgres_data/
+redis_data/
+influxdb_data/
+timescaledb_data/
+
+# ── Build Output ──────────────────────────────────────────────
+dist/
+build/
+**/dist/
+**/build/
+.next/
+out/
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── OS Files ──────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ── IDE & Editor Files ────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Testing & Coverage ────────────────────────────────────────
+coverage/
+**/coverage/
+.nyc_output/
+
+# ── Python (ML/NLP Services) ──────────────────────────────────
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+env/
+.cache/
+
+# ── Misc ──────────────────────────────────────────────────────
+*.tgz
+*.tar.gz
+.turbo/

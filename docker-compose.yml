@@ -1,0 +1,175 @@
+# =============================================================
+# Lapis AI — Predictive Maintenance SaaS
+# Docker Compose — Root Orchestrator v1.0
+# =============================================================
+# CARA PAKAI:
+#   Jalankan infrastructure saja (development):
+#     docker compose up -d
+#
+#   Jalankan SEMUA service termasuk aplikasi (production/staging):
+#     docker compose --profile app up -d
+# =============================================================
+
+services:
+  # ── Application Services (Aktif hanya dengan --profile app) ─
+  # Dinonaktifkan dulu karena Dockerfile belum ada.
+  # Akan dikonfigurasi penuh saat Fase masing-masing tiba.
+
+  backend:
+    profiles: ["app"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lapis_backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      timescaledb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - lapis_network
+
+  frontend:
+    profiles: ["app"]
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lapis_frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+    networks:
+      - lapis_network
+
+  machine_learning:
+    profiles: ["app"]
+    build:
+      context: ./machine_learning
+      dockerfile: Dockerfile
+    container_name: lapis_ml_engine
+    restart: unless-stopped
+    ports:
+      - "${ML_ENGINE_PORT:-8000}:8000"
+    networks:
+      - lapis_network
+
+  nlp:
+    profiles: ["app"]
+    build:
+      context: ./nlp
+      dockerfile: Dockerfile
+    container_name: lapis_nlp_engine
+    restart: unless-stopped
+    ports:
+      - "${NLP_ENGINE_PORT:-8001}:8001"
+    networks:
+      - lapis_network
+
+  # ── Infrastructure Services (Selalu aktif) ──────────────────
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: lapis_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lapis_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lapis_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-lapis_ai_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lapis_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-lapis_user} -d ${POSTGRES_DB:-lapis_ai_db}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: lapis_timescaledb
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lapis_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lapis_secret}
+      # Database TERPISAH khusus time-series sensor
+      POSTGRES_DB: lapis_timeseries_db
+    ports:
+      - "${TIMESCALE_PORT:-5433}:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    networks:
+      - lapis_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-lapis_user} -d lapis_timeseries_db",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: lapis_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-lapis_redis_secret}
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lapis_network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "-a",
+          "${REDIS_PASSWORD:-lapis_redis_secret}",
+          "ping",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# ── Named Volumes ──────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  timescaledb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ── Networks ───────────────────────────────────────────────────
+networks:
+  lapis_network:
+    driver: bridge
