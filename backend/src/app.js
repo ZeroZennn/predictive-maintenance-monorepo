@@ -9,11 +9,13 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const logger = require('./config/logger');
+const telemetryRoutes = require('./routes/telemetryRoutes');
 
 // Database & Cache connections — initialize on startup
 const redisClient = require('./config/redisClient');
 const pgPool = require('./config/postgresClient');
 const timescalePool = require('./config/timescaleClient');
+const { verifyTables } = require('./config/initDb');
 
 // SECTION 2 — App initialization
 const app = express();
@@ -52,6 +54,9 @@ app.get('/health', (req, res) => {
   });
 });
 
+// API Routes
+app.use('/api/telemetry', telemetryRoutes);
+
 // SECTION 5 — 404 handler (catch-all for undefined routes)
 app.use((req, res) => {
   res.status(404).json({
@@ -71,9 +76,10 @@ app.use((err, req, res, next) => {
 });
 
 // SECTION 7 — Server startup
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   logger.info(`🚀 Lapis AI Backend running on port ${PORT}`);
   logger.info(`📊 Environment: ${process.env.NODE_ENV}`);
+  await verifyTables();
 });
 
 // SECTION 8 — Graceful shutdown handlers

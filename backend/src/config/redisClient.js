@@ -24,7 +24,7 @@ const redisClient = new Redis({
 });
 
 redisClient.on('connect', () => {
-  logger.info('🔴 Redis: Connecting...');
+  logger.info('Redis: Connecting...');
 });
 
 redisClient.on('ready', () => {
@@ -36,11 +36,11 @@ redisClient.on('error', (err) => {
 });
 
 redisClient.on('close', () => {
-  logger.warn('⚠️  Redis: Connection closed.');
+  logger.warn('⚠️ Redis: Connection closed.');
 });
 
 redisClient.on('reconnecting', (times) => {
-  logger.warn(`🔄 Redis: Reconnecting... (attempt ${times})`);
+  logger.warn(`Redis: Reconnecting... (attempt ${times})`);
 });
 
 module.exports = redisClient;
