@@ -11,8 +11,7 @@
 | Symbol | Meaning |
 |--------|---------|
 | ✅ | Selesai & diaudit — aman |
-| 🔄 | Sedang dikerjakan |
-| ⏳ | Belum dimulai |
+| ⚠️ | Warning / Peringatan |
 | ❌ | Gagal / perlu rework |
 
 ---
@@ -117,8 +116,19 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
   | PostgreSQL | 5434 | ✅ healthy |
   | TimescaleDB | 5433 | ✅ healthy |
 
-### Langkah 1.D — Ingestion Controller & Async Dispatcher 🔄
+### Langkah 1.D — Ingestion Controller & Async Dispatcher ✅
+- **Tanggal:** 2026-04-29
+- **Files Created:** dispatcherService.js, telemetryController.js, telemetryRoutes.js
+- **Pattern:** Receive-Fast (202 ACK) → setImmediate → Promise.all dispatch
+- **Verified:** Response 202 terkirim SEBELUM DB operations (non-blocking confirmed)
 
+### Langkah 1.E — Database Schema Migration ✅
+- **Tanggal:** 2026-04-29
+- **Files Created:** migrate.js, initDb.js
+- **Tables Created:**
+  - PostgreSQL: maintenance_logs (relasional + 2 indexes)
+  - TimescaleDB: sensor_readings (hypertable + index machine_id+timestamp)
+- **Verified:** Full pipeline M-01 → Redis ✅ + TimescaleDB ✅ tanpa error
 ---
 
 ## FASE 2 — Dual-Write Pipeline ⏳
