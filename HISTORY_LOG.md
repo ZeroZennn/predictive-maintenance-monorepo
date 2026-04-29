@@ -74,14 +74,50 @@
 
 ---
 
-## FASE 1 — Core Ingestion & Dispatcher Layer ⏳
+## FASE 1 — Core Ingestion & Dispatcher Layer 🔄
 **Tujuan:** Membangun Express.js server, endpoint `POST /api/telemetry/ingest`,
 dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 
-### Langkah 1.A — Inisialisasi Backend Node.js ⏳
-### Langkah 1.B — Setup Express Server & Middleware Stack ⏳
-### Langkah 1.C — Koneksi ke Redis & Database ⏳
-### Langkah 1.D — Ingestion Controller & Dispatcher ⏳
+### Langkah 1.A — Inisialisasi Backend Node.js ✅
+- **Tanggal:** 2026-04-29
+- **Dependencies Installed (production):** express, socket.io, ioredis, pg,
+  dotenv, cors, helmet, morgan, express-validator, axios, winston
+- **Dependencies Installed (dev):** nodemon, jest, supertest
+- **Audit Result:**
+  - ⚠️ Bug diperbaiki: jest/nodemon/supertest masuk production deps → dipindah ke devDependencies
+  - ✅ package.json scripts dikonfigurasi: start, dev, test
+  - ✅ main entry point diset ke src/app.js
+
+### Langkah 1.B — Setup .env, Winston Logger & Entry Point app.js ✅
+- **Tanggal:** 2026-04-29
+- **Files Created:**
+  - `backend/.env` (environment variables development)
+  - `backend/src/config/logger.js` (Winston logger, dev+prod format)
+  - `backend/src/app.js` (Express server, middleware stack, graceful shutdown)
+- **Audit Result:**
+  - ✅ Semua middleware terpasang urutan benar: helmet→cors→json→morgan
+  - ✅ Graceful shutdown SIGTERM+SIGINT terpasang
+  - ✅ Health check GET /health → 200 OK terverifikasi via curl
+  - ✅ Helmet security headers aktif terkonfirmasi di response
+
+### Langkah 1.C — Konfigurasi Koneksi Redis & PostgreSQL/TimescaleDB ✅
+- **Tanggal:** 2026-04-29
+- **Files Created:**
+  - `backend/src/config/redisClient.js`
+  - `backend/src/config/postgresClient.js`
+  - `backend/src/config/timescaleClient.js`
+- **Issue & Fix:**
+  - ❌ PostgreSQL auth failed — root cause: port 5432 conflict dengan
+    instalasi PostgreSQL lokal Windows
+  - ✅ Fix: Docker PostgreSQL dipindah ke port 5434 di root .env & backend/.env
+- **Final Connection Status:**
+  | Service | Port | Status |
+  |---------|------|--------|
+  | Redis | 6379 | ✅ healthy |
+  | PostgreSQL | 5434 | ✅ healthy |
+  | TimescaleDB | 5433 | ✅ healthy |
+
+### Langkah 1.D — Ingestion Controller & Async Dispatcher 🔄
 
 ---
 
