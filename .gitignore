@@ -1,9 +1,68 @@
-node_modules/
+# ============================================================
+# LAPIS AI — Monorepo .gitignore
+# ============================================================
+
+# === PYTHON VIRTUAL ENVIRONMENTS ===
+.venv/
 venv/
+env/
+ENV/
+nlp/.venv/
+*/.venv/
+
+# === PYTHON CACHE ===
 __pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# === NLP DATA — RAW & PROCESSED (Generated, tidak di-track) ===
+nlp/data/raw/*.pdf
+nlp/data/raw/*.PDF
+nlp/data/processed/*.txt
+nlp/data/processed/*.json
+nlp/data/processed/*.csv
+# Kecuali gitkeep
+!nlp/data/raw/.gitkeep
+!nlp/data/processed/.gitkeep
+!nlp/data/knowledge_base/.gitkeep
+
+# === VECTOR DATABASE (Bisa gigabytes) ===
+nlp/data/vector_db/
+*.chroma
+chroma.sqlite3
+
+# === ENVIRONMENT VARIABLES (RAHASIA) ===
 .env
-*.pkl
-*.h5
-machine_learning/data/raw/
-machine_learning/data/processed/
+*.env
+!*.env.example
+
+# === MODEL CACHE (Hugging Face, bisa puluhan GB) ===
+.cache/
+nlp/.cache/
+~/.cache/huggingface/
+
+# === IDE & EDITOR ===
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# === LOGS ===
+*.log
+logs/
+nlp/logs/
+
+# === JUPYTER ===
 .ipynb_checkpoints/
+*.ipynb
+
+# === BUILD & DIST ===
+dist/
+build/
+*.egg-info/
+*.egg

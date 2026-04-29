@@ -1,0 +1,54 @@
+# ============================================================
+# LAPIS AI — NLP Pipeline Dependencies
+# ============================================================
+
+# ── Core Framework ───────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
+pyyaml==6.0.2
+httpx==0.28.1
+
+# ── Document Ingestion ───────────────────────────────────────
+pymupdf==1.25.1               # PDF text & table extraction
+pymupdf4llm==0.0.17           # PDF → Markdown conversion
+python-docx==1.1.2            # DOCX support
+pytesseract==0.3.13           # OCR fallback
+Pillow==11.1.0                # Image processing for OCR
+
+# ── Chunking & Text Processing ───────────────────────────────
+nltk==3.9.1
+spacy==3.8.3
+langdetect==1.0.9
+tiktoken==0.8.0               # Token counting (OpenAI-compatible)
+
+# ── Embeddings ───────────────────────────────────────────────
+sentence-transformers==3.3.1
+transformers==4.47.1
+torch==2.5.1                  # CPU build; ganti cu121 untuk GPU
+einops==0.8.0
+
+# ── Vector Database ──────────────────────────────────────────
+chromadb==0.6.3               # Local vector store (default)
+qdrant-client==1.12.1         # Qdrant (opsional/cloud)
+
+# ── Retrieval & Reranking ────────────────────────────────────
+rank-bm25==0.2.2              # BM25 sparse retrieval
+# cross-encoder sudah tersedia via sentence-transformers
+
+# ── LLM Providers ────────────────────────────────────────────
+anthropic==0.43.0             # Claude (primary)
+google-generativeai==0.8.3    # Gemini (fallback)
+
+# ── Caching & Utilities ──────────────────────────────────────
+cachetools==5.5.0
+tenacity==9.0.0               # Retry logic
+structlog==24.4.0             # Structured logging
+
+# ── Testing ──────────────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.25.0
+pytest-cov==6.0.0
+httpx==0.28.1                 # Async test client untuk FastAPI
