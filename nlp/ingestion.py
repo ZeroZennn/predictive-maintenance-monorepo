@@ -79,6 +79,10 @@ class DocumentIngestionPipeline:
             return "schema"
         if "api" in lower or "contract" in lower:
             return "api_contract"
+        if any(kw in lower for kw in ["manual", "buku", "handbook", "panduan_mesin"]):
+            return "manual"
+        if any(kw in lower for kw in ["sop", "prosedur", "standard_operating"]):
+            return "sop"
         return "unknown"
 
     def infer_month(self, filename: str) -> Optional[str]:

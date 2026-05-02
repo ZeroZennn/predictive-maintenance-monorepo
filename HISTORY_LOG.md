@@ -1,4 +1,4 @@
-# 📋 LAPIS AI — NLP Pipeline History Log
+﻿# ðŸ“‹ LAPIS AI â€” NLP Pipeline History Log
 
 > Dokumen ini mencatat progress eksekusi setiap fase pipeline.
 > Diupdate di akhir setiap fase oleh NLP Engineer (Role D).
@@ -6,7 +6,7 @@
 
 ---
 
-## ✅ FASE 1 — Document Ingestion & Pre-processing
+## âœ… FASE 1 â€” Document Ingestion & Pre-processing
 **Status:** SELESAI  
 **Branch:** `fase/1-ingestion`  
 **Tanggal Selesai:** 2026-04-29
@@ -34,52 +34,53 @@
 ### Keputusan Arsitektur
 - **Chunking strategy:** Hybrid Semantic (4 tipe: prose, tabel, anomali, rekomendasi)
 - **Embedding model:** `intfloat/multilingual-e5-large`
-- **Vector DB (dev):** ChromaDB → Qdrant (prod)
+- **Vector DB (dev):** ChromaDB â†’ Qdrant (prod)
 - **PDF Parser:** pdfplumber (primary), PyMuPDF (fallback)
 
 ### Issues & Resolusi
 | Issue | Status | Catatan |
 |-------|--------|---------|
-| 3 PDF tidak ter-copy ke raw/ saat Langkah 3 | ✅ Fixed di Langkah 4 | Copy manual dilakukan |
-| File PDF biner masuk gitignore | ✅ Fixed | .gitignore dibuat di Langkah 4 |
+| 3 PDF tidak ter-copy ke raw/ saat Langkah 3 | âœ… Fixed di Langkah 4 | Copy manual dilakukan |
+| File PDF biner masuk gitignore | âœ… Fixed | .gitignore dibuat di Langkah 4 |
 
 ---
 
-## ⏳ FASE 2 — Semantic Text Chunking
+## â³ FASE 2 â€” Semantic Text Chunking
 **Status:** BELUM DIMULAI  
 **Branch:** `fase/2-chunking` *(akan dibuat)*
 
 ---
 
-## ⏳ FASE 3 — Embedding & Vector Database
+## â³ FASE 3 â€” Embedding & Vector Database
 **Status:** BELUM DIMULAI  
 **Branch:** `fase/3-embedding` *(akan dibuat)*
 
 ---
 
-## ⏳ FASE 4 — Hybrid Retrieval System
+## â³ FASE 4 â€” Hybrid Retrieval System
 **Status:** BELUM DIMULAI
 
 ---
 
-## ⏳ FASE 5 — Live Context Integration
+## â³ FASE 5 â€” Live Context Integration
 **Status:** BELUM DIMULAI
 
 ---
 
-## ⏳ FASE 6 — Prompt Engineering & LLM Generation
+## â³ FASE 6 â€” Prompt Engineering & LLM Generation
 **Status:** BELUM DIMULAI
 
 ---
 
-## ⏳ FASE 7 — API Integration & Orchestration
+## â³ FASE 7 â€” API Integration & Orchestration
 **Status:** BELUM DIMULAI
 
 ---
 
-## ⏳ FASE 8 — Evaluation & Continuous Improvement
+## â³ FASE 8 â€” Evaluation & Continuous Improvement
 **Status:** BELUM DIMULAI
 
 ---
 
 *Log ini di-maintain secara manual. Setiap entri harus diisi sebelum merge ke `main`.*
+
