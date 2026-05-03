@@ -247,6 +247,44 @@ LABEL_MAP = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
 
 ---
 
+## FASE 6.5 — RUL Target Engineering ✅
+**Status:** Complete
+**File:** `notebooks/fase_6_imbalance/06b_rul_engineering.ipynb`
+**Output:**
+- `data/processed/df_ssbs_rul.parquet` (pipeline resmi — 4.50 MB)
+- `data/processed/df_ssbs_rul_preview.csv` (preview — 28.05 MB)
+
+### Kolom Baru: `rul_days`
+- Tipe   : float64
+- Satuan : hari (sesuai RUL_UNIT di config.py)
+- Min    : 0.04 hari
+- Max    : 146.92 hari
+- Mean   : 29.38 hari
+- Median : 18.88 hari
+
+### Catatan Karakteristik Data:
+- WARNING median ~2 hari (sesuai W_WARNING_HRS=48)
+- CRITICAL median ~1 hari (sesuai W_CRITICAL_HRS=24)
+- Outlier di CRITICAL (max=146.92) → CRITICAL rows dari
+  failure terakhir mesin yang tidak punya next failure
+  → Acceptable, bukan bug
+
+### Keputusan Arsitektur:
+- rul_days TIDAK ada di data mentah (sensor_readings.csv)
+- rul_days adalah target variabel yang direkayasa
+  dari data historis — bukan fitur input
+- Di deployment nyata, nilai ini yang diprediksi model
+
+### Target Variabel Final Pipeline:
+| Model | Target | Tipe |
+|---|---|---|
+| Model 1 | health_label_encoded (0/1/2) | Klasifikasi |
+| Model 2 | rul_days (float) | Regresi |
+
+---
+
+
+
 
 
 ## TARGET MODEL FINAL

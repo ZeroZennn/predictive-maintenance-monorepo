@@ -30,6 +30,9 @@ Menangani missing values secara strategis (bukan sekedar *drop* atau *mean-fill*
 **FASE 6 — Imbalance Handling: SSBS (Stratified Sequential Block Sampling)**
 Mengatasi dominasi kelas HEALTHY (97.4%) menggunakan teknik Stratified Sequential Block Sampling — mengambil dua blok kronologis per mesin (kondisi prima & pre-warning boundary) dengan safety buffer 24 jam. Output fase ini adalah dataset SSBS bersih (±20,423 baris) TANPA augmentasi sintetis — menjaga integritas temporal sepenuhnya. SMOTE TIDAK dijalankan di fase ini untuk mencegah Data Leakage. 
 
+**FASE 6.5 — RUL Target Engineering**
+Membuat kolom 'rul_days' di df_ssbsm Karena Model 2 membutuhkan target variabel numerik RUL dalam satuan hari.
+
 **FASE 7 — Dataset Splitting & SMOTE on Train Only**
 Membagi dataset SSBS menggunakan strategi time-aware split (bukan random split) menjadi Train/Validation/Test set. SMOTE diaplikasikan HANYA pada X_train setelah splitting selesai — menggunakan imblearn Pipeline agar Test dan Validation set tetap 100% natural tanpa data sintetis. Ini adalah standar enterprise untuk mencegah Data Leakage temporal pada time-series modeling. 
 
