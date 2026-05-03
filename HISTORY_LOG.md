@@ -131,8 +131,28 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 - **Verified:** Full pipeline M-01 → Redis ✅ + TimescaleDB ✅ tanpa error
 ---
 
-## FASE 2 — Dual-Write Pipeline ⏳
-**Tujuan:** Implementasi parallel write ke Redis (cache) dan TimescaleDB (time-series).
+## FASE 2 — Database Schema Completion ✅
+**Tujuan:** Melengkapi skema database sesuai Blueprint V3.0.
+
+### Langkah 2.A — Migration V2 & Seed Data ✅
+- **Tanggal:** 2026-05-03
+- **Files Created/Modified:**
+  - `backend/src/config/migrate2.js` (migration V2)
+  - `backend/src/config/initDb.js` (upgraded V2 verify)
+- **Tables Created (PostgreSQL):**
+  | Tabel | Fungsi |
+  |-------|--------|
+  | users | Akun teknisi & admin (role-based) |
+  | machines | Master data 20 mesin M-01 s/d M-20 |
+  | maintenance_schedules | Output Safety Margin Calculator |
+  | documents | Metadata SOP/Manual yang diupload admin |
+  | alerts | Riwayat alert kritis sistem |
+- **Tables Created (TimescaleDB):**
+  | Tabel | Fungsi |
+  |-------|--------|
+  | ml_predictions | Hasil prediksi ML (hypertable) |
+- **Seed Data:** 20 machines inserted (idempotent — skip if exists)
+- **Verified:** DB Verify startup → "All tables confirmed. 20 machines seeded."
 
 ---
 
