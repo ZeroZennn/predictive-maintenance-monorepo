@@ -156,8 +156,30 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 
 ---
 
-## FASE 3 — ML Orchestration Layer ⏳
-**Tujuan:** Fire-and-collect async request ke ML Engine API.
+## FASE 3 — Authentication System ✅
+**Tujuan:** JWT middleware, login endpoint, role-based access control.
+
+### Langkah 3.A — JWT Auth System ✅
+- **Tanggal:** 2026-05-03
+- **Packages Added:** bcryptjs, jsonwebtoken
+- **Files Created:**
+  - `src/services/authService.js` — bcrypt + JWT logic
+  - `src/middlewares/authMiddleware.js` — authenticate + requireRole
+  - `src/controllers/authController.js` — login, logout, getMe
+  - `src/routes/authRoutes.js` — auth endpoints
+  - `src/config/seedUsers.js` — seed 2 users
+- **Endpoints:**
+  | Method | Endpoint | Access | Fungsi |
+  |--------|----------|--------|--------|
+  | POST | /api/auth/login | Public | Login → JWT token |
+  | GET | /api/auth/me | Protected | Get current user |
+  | POST | /api/auth/logout | Protected | Logout (stateless) |
+- **Seed Accounts:**
+  | Email | Role |
+  |-------|------|
+  | admin@lapis-ai.com | admin |
+  | tech01@lapis-ai.com | technician |
+- **Verified:** JWT valid 229 chars, 7d expiry, role RBAC confirmed
 
 ---
 
