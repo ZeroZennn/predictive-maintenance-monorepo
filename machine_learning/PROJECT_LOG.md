@@ -283,7 +283,45 @@ LABEL_MAP = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
 
 ---
 
+## FASE 7 — Dataset Splitting & SMOTE on Train Only ✅
+**Status:** Complete
+**File:** `notebooks/fase_7_splitting/07_dataset_splitting.ipynb`
+**Output:** 13 files di `data/processed/`
 
+### Split Strategy: Machine-Based Split
+| Split | Mesin | Baris | % Total |
+|---|---|---|---|
+| Train | M-01 s/d M-14 (14 mesin) | 14,419 | 70.60% |
+| Val | M-15, M-16, M-17 (3 mesin) | 3,288 | 16.10% |
+| Test | M-18, M-19, M-20 (3 mesin) | 2,716 | 13.30% |
+
+### Alasan Machine-Based Split (bukan Global Temporal):
+- Data run-to-failure: WARNING/CRITICAL di ujung timeline
+- Global temporal split akan mengkonsentrasi minority class
+  ke Test set — Train set tidak belajar pola degradasi
+- Machine-based split: setiap split punya full run-to-failure
+- Model belajar generalisasi antar mesin (lebih realistis)
+
+### SMOTE — Hanya pada X_train_clf:
+| Kelas | Sebelum | Sesudah |
+|---|---|---|
+| HEALTHY | 12,504 | 12,504 (tidak berubah) |
+| WARNING | 901 | 4,000 (+3,099 sintetis) |
+| CRITICAL | 1,014 | 4,000 (+2,986 sintetis) |
+| Total | 14,419 | 20,504 |
+
+### Keputusan Kritis:
+- X_train_rul TIDAK melalui SMOTE (regression = natural)
+- Val & Test = 100% natural, tanpa data sintetis
+- Zero Data Leakage ✅ terkonfirmasi
+
+### Artifacts Final:
+| Model | Train X | Train y | Val X | Test X |
+|---|---|---|---|---|
+| CLF (M1) | 20,504×69 | 20,504 | 3,288×69 | 2,716×69 |
+| RUL (M2) | 14,419×69 | 14,419 | 3,288×69 | 2,716×69 |
+
+---
 
 
 
