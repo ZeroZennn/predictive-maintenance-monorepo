@@ -147,4 +147,4 @@ class BaseChunker(ABC):
             m_clean = re.sub(r"M_?(\d{2})", r"M-\1", m.upper())
             normalized.append(m_clean)
 
-        return sorted(normalized) if normalized else ["ALL"]
+        return sorted(set(normalized)) if normalized else ["ALL"]
