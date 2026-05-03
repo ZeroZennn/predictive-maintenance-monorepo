@@ -7,7 +7,7 @@ const timescalePool = require('../config/timescaleClient');
 class Dispatcher {
   /**
    * Writes the latest machine reading to Redis with a 15-minute TTL.
-   * Errors are contained — this method never throws.
+   * Errors are contained - this method never throws.
    * @param {Object} payload - The validated IoT telemetry payload.
    */
   async writeToRedis(payload) {
@@ -30,7 +30,7 @@ class Dispatcher {
 
   /**
    * Persists sensor readings to TimescaleDB using a parameterized query.
-   * Errors are contained — this method never throws.
+   * Errors are contained - this method never throws.
    * @param {Object} payload - The validated IoT telemetry payload.
    */
   async writeToTimescale(payload) {
@@ -64,8 +64,8 @@ class Dispatcher {
   }
 
   /**
-   * Main orchestrator — runs Redis and TimescaleDB writes in parallel.
-   * Errors are contained — this method never throws.
+   * Main orchestrator - runs Redis and TimescaleDB writes in parallel.
+   * Errors are contained - this method never throws.
    * @param {Object} payload - The validated IoT telemetry payload.
    */
   async dispatch(payload) {
@@ -84,5 +84,5 @@ class Dispatcher {
   }
 }
 
-// Export singleton instance — one dispatcher shared across the entire process
+// Export singleton instance - one dispatcher shared across the entire process
 module.exports = new Dispatcher();

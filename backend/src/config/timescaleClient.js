@@ -9,7 +9,7 @@ const pool = new Pool({
   user: process.env.TIMESCALE_USER,
   password: process.env.TIMESCALE_PASSWORD,
   database: process.env.TIMESCALE_DB,
-  max: 30, // higher than postgres — time-series has more write volume
+  max: 30, // higher than postgres - time-series has more write volume
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });

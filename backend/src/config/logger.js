@@ -25,7 +25,7 @@ const logger = createLogger({
   level: isDevelopment ? 'debug' : 'info',
   format: isDevelopment ? devFormat : prodFormat,
   transports: [
-    // 1. Console — always active
+    // 1. Console - always active
     new transports.Console(),
 
     // 2. Error-only file transport
@@ -34,7 +34,7 @@ const logger = createLogger({
       level: 'error',
     }),
 
-    // 3. Combined file transport — all levels
+    // 3. Combined file transport - all levels
     new transports.File({
       filename: 'logs/combined.log',
     }),

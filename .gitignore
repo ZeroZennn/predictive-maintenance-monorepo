@@ -1,27 +1,23 @@
-# =============================================================
 # Node.js Monorepo — .gitignore
-# Project: Lapis AI — Predictive Maintenance SaaS
-# =============================================================
 
-# ── Dependencies ──────────────────────────────────────────────
+# Dependencies 
 node_modules/
 **/node_modules/
 
-# ── Environment Variables ─────────────────────────────────────
+# Environment Variables
 .env
 .env.local
 .env.*.local
 **/.env
 **/.env.local
-# NOTE: .env.example files ARE tracked (do not add them here)
 
-# ── Docker Volumes & Data Folders ─────────────────────────────
+# Docker Volumes & Data Folders
 postgres_data/
 redis_data/
 influxdb_data/
 timescaledb_data/
 
-# ── Build Output ──────────────────────────────────────────────
+# Build Output 
 dist/
 build/
 **/dist/
@@ -29,7 +25,7 @@ build/
 .next/
 out/
 
-# ── Logs ──────────────────────────────────────────────────────
+# Logs
 *.log
 logs/
 **/logs/
@@ -38,7 +34,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# ── OS Files ──────────────────────────────────────────────────
+# OS Files
 .DS_Store
 .DS_Store?
 ._*
@@ -47,19 +43,19 @@ pnpm-debug.log*
 ehthumbs.db
 Thumbs.db
 
-# ── IDE & Editor Files ────────────────────────────────────────
+# IDE & Editor Files 
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# ── Testing & Coverage ────────────────────────────────────────
+# Testing & Coverage
 coverage/
 **/coverage/
 .nyc_output/
 
-# ── Python (ML/NLP Services) ──────────────────────────────────
+# Python (ML/NLP Services)
 __pycache__/
 **/__pycache__/
 *.py[cod]
@@ -72,7 +68,7 @@ venv/
 env/
 .cache/
 
-# ── Misc ──────────────────────────────────────────────────────
+# Misc
 *.tgz
 *.tar.gz
 .turbo/

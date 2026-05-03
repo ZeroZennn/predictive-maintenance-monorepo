@@ -1,6 +1,6 @@
 'use strict';
 
-// SECTION 1 — Imports (dotenv MUST be first)
+// SECTION 1 - Imports
 require('dotenv').config();
 
 const express = require('express');
@@ -11,25 +11,25 @@ const morgan = require('morgan');
 const logger = require('./config/logger');
 const telemetryRoutes = require('./routes/telemetryRoutes');
 
-// Database & Cache connections — initialize on startup
+// Database & Cache connections - initialize on startup
 const redisClient = require('./config/redisClient');
 const pgPool = require('./config/postgresClient');
 const timescalePool = require('./config/timescaleClient');
 const { verifyTables } = require('./config/initDb');
 
-// SECTION 2 — App initialization
+// SECTION 2 - App initialization
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.BACKEND_PORT || 3000;
 
-// SECTION 3 — Middleware stack
+// SECTION 3 - Middleware stack
 // 1. Security headers
 app.use(helmet());
 
-// 2. CORS — open for development, restrict in production
+// 2. CORS - open for development, restrict in production
 app.use(cors({ origin: '*' }));
 
-// 3. JSON body parser — large limit for IoT batch payloads
+// 3. JSON body parser - large limit for IoT batch payloads
 app.use(express.json({ limit: '10mb' }));
 
 // 4. URL-encoded body parser
@@ -44,7 +44,7 @@ app.use(
   })
 );
 
-// SECTION 4 — Health check route
+// SECTION 4 - Health check route
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
@@ -57,7 +57,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/telemetry', telemetryRoutes);
 
-// SECTION 5 — 404 handler (catch-all for undefined routes)
+// SECTION 5 - 404 handler (catch-all for undefined routes)
 app.use((req, res) => {
   res.status(404).json({
     status: 'error',
@@ -75,14 +75,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// SECTION 7 — Server startup
+// SECTION 7 - Server startup
 server.listen(PORT, async () => {
-  logger.info(`🚀 Lapis AI Backend running on port ${PORT}`);
-  logger.info(`📊 Environment: ${process.env.NODE_ENV}`);
+  logger.info(`Lapis AI Backend running on port ${PORT}`);
+  logger.info(`Environment: ${process.env.NODE_ENV}`);
   await verifyTables();
 });
 
-// SECTION 8 — Graceful shutdown handlers
+// SECTION 8 - Graceful shutdown handlers
 const shutdown = (signal) => {
   logger.warn(`⚠️  ${signal} received — shutting down gracefully...`);
   server.close(() => {
@@ -94,5 +94,5 @@ const shutdown = (signal) => {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-// SECTION 9 — Export
+// SECTION 9 - Export
 module.exports = { app, server };

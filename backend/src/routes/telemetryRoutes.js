@@ -58,9 +58,7 @@ const validateTelemetry = [
     .withMessage('operating_hours must be a number'),
 ];
 
-// ---------------------------------------------------------------------------
 // Router
-// ---------------------------------------------------------------------------
 const router = Router();
 
 router.post('/ingest', validateTelemetry, telemetryController.ingest);

@@ -1,15 +1,12 @@
 'use strict';
 
-// dotenv MUST be first — this script runs standalone, outside Express
 require('dotenv').config();
 
 const logger = require('./logger');
 const pgPool = require('./postgresClient');
 const timescalePool = require('./timescaleClient');
 
-// ---------------------------------------------------------------------------
-// migratePostgres — creates the maintenance_logs table in PostgreSQL
-// ---------------------------------------------------------------------------
+// migratePostgres - creates the maintenance_logs table in PostgreSQL
 async function migratePostgres() {
   try {
     await pgPool.query(`
@@ -39,12 +36,10 @@ async function migratePostgres() {
   }
 }
 
-// ---------------------------------------------------------------------------
-// migrateTimescale — creates sensor_readings hypertable in TimescaleDB
-// ---------------------------------------------------------------------------
+// migrateTimescale - creates sensor_readings hypertable in TimescaleDB
 async function migrateTimescale() {
   try {
-    // STATEMENT 1 — Base table
+    // Base table
     await timescalePool.query(`
       CREATE TABLE IF NOT EXISTS sensor_readings (
         timestamp         TIMESTAMPTZ NOT NULL,
@@ -61,13 +56,13 @@ async function migrateTimescale() {
       );
     `);
 
-    // STATEMENT 2 — Convert to hypertable (safe to re-run)
+    // Convert to hypertable (safe to re-run)
     await timescalePool.query(`
       SELECT create_hypertable('sensor_readings', 'timestamp',
         if_not_exists => TRUE);
     `);
 
-    // STATEMENT 3 — Composite index for fast per-machine time-series queries
+    // Composite index for fast per-machine time-series queries
     await timescalePool.query(`
       CREATE INDEX IF NOT EXISTS idx_sensor_machine_id
         ON sensor_readings(machine_id, timestamp DESC);
@@ -80,9 +75,7 @@ async function migrateTimescale() {
   }
 }
 
-// ---------------------------------------------------------------------------
-// runMigrations — top-level orchestrator (sequential for error isolation)
-// ---------------------------------------------------------------------------
+// runMigrations - top-level orchestrator (sequential for error isolation)
 async function runMigrations() {
   logger.info('Starting database migrations...');
 
@@ -96,11 +89,12 @@ async function runMigrations() {
     logger.error('❌ Migration failed. Fix the error above and re-run.');
     process.exit(1);
   } finally {
-    // Always close pools — even on success — so the process exits cleanly
+    // Always close pools - even on success - so the process exits cleanly
     await pgPool.end();
     await timescalePool.end();
   }
 }
 
-// Entry point — called directly when running: node src/config/migrate.js
+// Entry point - called directly when running: node src/config/migrate.js
+// How to run migrate: node src/config/migrate.js
 runMigrations();
