@@ -324,6 +324,36 @@ LABEL_MAP = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
 ---
 
 
+### Eksperimen 08A — Random Forest Classifier ✅
+**File:** `notebooks/fase_8_modeling/08a_clf_random_forest.ipynb`
+**Model tersimpan:** `models/ml_track/rf_classifier.pkl` (3.15 MB)
+
+#### Hyperparameters:
+- n_estimators=300, max_depth=20
+- min_samples_split=5, min_samples_leaf=2
+- max_features='sqrt', class_weight='balanced'
+
+#### Hasil Evaluasi:
+| Split | F1 Macro | Accuracy |
+|---|---|---|
+| Train | 1.0000 | - |
+| Val | 0.9292 | 0.9808 |
+| Test | 0.9914 | 0.9978 |
+
+#### Overfitting Test: PASSED
+- Gap Train-Val = 0.0708 → Slight overfit, acceptable
+- Learning Curve: konvergen di data penuh (gap=0.001)
+- Generalisasi ke 6 mesin baru terbukti formal
+
+#### Temuan Kritis:
+- Zero CRITICAL→HEALTHY error di Val dan Test
+- WARNING Precision Val = 0.692 (59 false alarm)
+- Top feature: temperature_roll_max_24h (0.077)
+- Rolling 48h mendominasi — konfirmasi W_WARNING_HRS=48
+
+#### Status: BASELINE TERKUNCI
+
+
 
 ## TARGET MODEL FINAL
 | Model | Tipe | Output |
