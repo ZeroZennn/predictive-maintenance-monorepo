@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lapis AI — Predictive Maintenance Dashboard",
-  description:
-    "Industrial predictive maintenance platform powered by AI. Monitor machine health, detect anomalies, and prevent downtime in real time.",
+  title: "Lapis AI",
+  description: "Predictive Maintenance Dashboard",
 };
 
 export default function RootLayout({
@@ -13,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="id">
       <body>{children}</body>
     </html>
   );
