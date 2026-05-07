@@ -353,7 +353,75 @@ LABEL_MAP = {"HEALTHY": 0, "WARNING": 1, "CRITICAL": 2}
 
 #### Status: BASELINE TERKUNCI
 
+---
 
+## REFACTORING — Scaler Leakage Fix ✅
+**Tanggal:** [isi tanggal]
+**Trigger:** Forensic Investigation Fase 8A
+
+### Root Cause:
+StandardScaler di Fase 5 sebelumnya di-fit pada
+100,000 baris penuh (semua 20 mesin) — termasuk
+Val & Test machines (M-15–M-20).
+
+### Fix:
+Scaler di-refit hanya pada training machines (M-01–M-14)
+= 70,000 baris.
+
+### Artifacts yang Di-regenerate:
+- models/ml_track/scaler.pkl (refit)
+- data/processed/df_model_ready.parquet
+- Semua 12 split artifacts di data/processed/
+- models/ml_track/rf_classifier.pkl
+
+### Dampak pada Performa:
+- F1 Val : 0.9292 → 0.9292 (tidak berubah)
+- F1 Test: 0.9914 → 0.9914 (tidak berubah)
+
+### Kesimpulan:
+Scaler leakage terkonfirmasi minimal karena
+homogenitas operasional 20 mesin (pabrik sama,
+tipe mesin sama). Pipeline kini enterprise-grade
+zero leakage secara formal.
+
+---
+
+### Eksperimen 08B — XGBoost Classifier ✅
+**File:** `notebooks/fase_8_modeling/08b_clf_xgboost.ipynb`
+**Model tersimpan:** `models/ml_track/xgb_classifier.pkl` (1.68 MB)
+
+#### Perjalanan Tuning:
+| Versi | F1 Val | F1 Test | WARNING F1 Val |
+|---|---|---|---|
+| V1 Original | 0.6721 | 0.9899 | 0.2186 |
+| V2 Adjusted | 0.9786 | 0.9899 | 0.9507 |
+| V2 + Threshold | **0.9894** | **0.9906** | **0.9818** |
+
+#### Hyperparameters Final (V2):
+- n_estimators=499 (early stopping), max_depth=4
+- learning_rate=0.01, subsample=0.8
+- reg_alpha=0.5, reg_lambda=2.0
+- Optimal WARNING threshold = 0.60
+
+#### Key Findings:
+- V1 gagal karena early stopping terlalu agresif (iter 40)
+- V2 berjalan 499 iterasi → mlogloss 0.121 vs 0.317
+- Threshold 0.60 eliminasi false alarm: 954→1 baris
+- PENTING: threshold=0.60 harus digunakan saat deployment
+
+#### Perbandingan dengan Random Forest:
+| Metrik | RF | XGBoost | Winner |
+|---|---|---|---|
+| F1 Val | 0.9292 | **0.9894** | XGBoost |
+| F1 Test | **0.9914** | 0.9906 | RF (tipis) |
+| WARNING F1 | 0.811 | **0.9818** | XGBoost |
+
+---
+
+
+
+
+---
 
 ## TARGET MODEL FINAL
 | Model | Tipe | Output |
