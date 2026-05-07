@@ -183,8 +183,30 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 
 ---
 
-## FASE 4 — WebSocket Broadcast Engine ⏳
-**Tujuan:** Real-time broadcast ke Frontend via Socket.IO.
+## FASE 4 — WebSocket Broadcast Engine ✅
+**Tujuan:** Socket.IO server, channel per machine_id, global alert broadcast.
+
+### Langkah 4.A — Socket.IO Implementation ✅
+- **Tanggal:** 2026-05-07
+- **Files Created/Modified:**
+  - `src/websockets/socketManager.js` — Socket.IO singleton
+  - `src/websockets/broadcastService.js` — broadcast methods
+  - `src/app.js` — socketManager.initialize() on startup
+  - `src/services/dispatcherService.js` — broadcast after dispatch
+- **WebSocket Events:**
+  | Event (Server → Client) | Channel | Trigger |
+  |--------------------------|---------|---------|
+  | sensor:update | machine:{id} | Setiap data IoT masuk |
+  | alert:new | machine:{id} + global | Status kritis terdeteksi |
+  | machine:status_update | global | Status mesin berubah |
+- **Client Events (Client → Server):**
+  | Event | Fungsi |
+  |-------|--------|
+  | join:machine | Subscribe ke room mesin tertentu |
+  | leave:machine | Unsubscribe dari room mesin |
+  | join:global | Subscribe ke channel alert global |
+- **Verified:** Socket.IO polling handshake OK
+  → sid generated, upgrades: websocket confirmed
 
 ---
 
