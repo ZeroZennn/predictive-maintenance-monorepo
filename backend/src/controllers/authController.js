@@ -17,21 +17,21 @@ const authController = {
       logger.info(`[Auth] Login successful: ${result.user.email} (${result.user.role})`);
 
       return res.status(200).json({
-        status:  'success',
+        status: 'success',
         message: 'Login successful',
-        data:    result,
+        data: result,
       });
     } catch (err) {
       if (err.message === 'INVALID_CREDENTIALS') {
         return res.status(401).json({
-          status:  'error',
+          status: 'error',
           message: 'Invalid email or password.',
         });
       }
 
       if (err.message === 'ACCOUNT_DISABLED') {
         return res.status(403).json({
-          status:  'error',
+          status: 'error',
           message: 'Account is disabled.',
         });
       }
@@ -48,7 +48,7 @@ const authController = {
   getMe(req, res) {
     return res.status(200).json({
       status: 'success',
-      data:   { user: req.user },
+      data: { user: req.user },
     });
   },
 
@@ -60,7 +60,7 @@ const authController = {
   logout(req, res) {
     logger.info(`[Auth] Logout: ${req.user.email}`);
     return res.status(200).json({
-      status:  'success',
+      status: 'success',
       message: 'Logged out successfully.',
     });
   },

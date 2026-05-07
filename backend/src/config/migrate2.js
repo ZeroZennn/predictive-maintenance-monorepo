@@ -162,26 +162,26 @@ async function seedMachines() {
 
     await pgPool.query(`
       INSERT INTO machines (machine_id, name, location, description, status, installed_at) VALUES
-        ('M-01', 'Centrifugal Pump A1',     'Production Line 1', 'Primary coolant circulation pump',       'healthy', '2023-01-15'),
-        ('M-02', 'Centrifugal Pump A2',     'Production Line 1', 'Secondary coolant circulation pump',     'healthy', '2023-01-15'),
-        ('M-03', 'Hydraulic Press B1',      'Production Line 2', 'Main hydraulic forming press',           'healthy', '2023-01-15'),
-        ('M-04', 'Hydraulic Press B2',      'Production Line 2', 'Secondary hydraulic forming press',      'healthy', '2023-01-15'),
-        ('M-05', 'Conveyor Belt C1',        'Assembly Area',     'Main assembly line conveyor',            'healthy', '2023-01-15'),
-        ('M-06', 'Conveyor Belt C2',        'Assembly Area',     'Secondary assembly line conveyor',       'healthy', '2023-01-15'),
-        ('M-07', 'Air Compressor D1',       'Utility Room',      'Primary pneumatic system compressor',    'healthy', '2023-01-15'),
-        ('M-08', 'Air Compressor D2',       'Utility Room',      'Backup pneumatic system compressor',     'healthy', '2023-01-15'),
-        ('M-09', 'CNC Milling Machine E1',  'Machining Center',  'Precision milling unit 1',               'healthy', '2023-01-15'),
-        ('M-10', 'CNC Milling Machine E2',  'Machining Center',  'Precision milling unit 2',               'healthy', '2023-01-15'),
-        ('M-11', 'Rotary Kiln F1',          'Furnace Area',      'Primary rotary kiln unit',               'healthy', '2023-01-15'),
-        ('M-12', 'Rotary Kiln F2',          'Furnace Area',      'Secondary rotary kiln unit',             'healthy', '2023-01-15'),
-        ('M-13', 'Steam Turbine G1',        'Power Generation',  'Primary steam turbine generator',        'healthy', '2023-01-15'),
-        ('M-14', 'Steam Turbine G2',        'Power Generation',  'Backup steam turbine generator',         'healthy', '2023-01-15'),
-        ('M-15', 'Industrial Fan H1',       'HVAC System',       'Main ventilation fan unit',              'healthy', '2023-01-15'),
-        ('M-16', 'Industrial Fan H2',       'HVAC System',       'Secondary ventilation fan unit',         'healthy', '2023-01-15'),
-        ('M-17', 'Robotic Arm I1',          'Welding Station',   'Automated welding robotic arm 1',        'healthy', '2023-01-15'),
-        ('M-18', 'Robotic Arm I2',          'Welding Station',   'Automated welding robotic arm 2',        'healthy', '2023-01-15'),
-        ('M-19', 'Water Treatment Pump J1', 'Utility Room',      'Primary water treatment pump',           'healthy', '2023-01-15'),
-        ('M-20', 'Water Treatment Pump J2', 'Utility Room',      'Secondary water treatment pump',         'healthy', '2023-01-15');
+        ('M-01', 'Centrifugal Pump A1', 'Production Line 1', 'Primary coolant circulation pump', 'healthy', '2023-01-15'),
+        ('M-02', 'Centrifugal Pump A2', 'Production Line 1', 'Secondary coolant circulation pump', 'healthy', '2023-01-15'),
+        ('M-03', 'Hydraulic Press B1', 'Production Line 2', 'Main hydraulic forming press', 'healthy', '2023-01-15'),
+        ('M-04', 'Hydraulic Press B2', 'Production Line 2', 'Secondary hydraulic forming press', 'healthy', '2023-01-15'),
+        ('M-05', 'Conveyor Belt C1', 'Assembly Area', 'Main assembly line conveyor', 'healthy', '2023-01-15'),
+        ('M-06', 'Conveyor Belt C2', 'Assembly Area', 'Secondary assembly line conveyor', 'healthy', '2023-01-15'),
+        ('M-07', 'Air Compressor D1' 'Utility Room', 'Primary pneumatic system compressor', 'healthy', '2023-01-15'),
+        ('M-08', 'Air Compressor D2', 'Utility Room', 'Backup pneumatic system compressor', 'healthy', '2023-01-15'),
+        ('M-09', 'CNC Milling Machine E1', 'Machining Center', 'Precision milling unit 1', 'healthy', '2023-01-15'),
+        ('M-10', 'CNC Milling Machine E2', 'Machining Center', 'Precision milling unit 2', 'healthy', '2023-01-15'),
+        ('M-11', 'Rotary Kiln F1', 'Furnace Area', 'Primary rotary kiln unit', 'healthy', '2023-01-15'),
+        ('M-12', 'Rotary Kiln F2', 'Furnace Area', 'Secondary rotary kiln unit', 'healthy', '2023-01-15'),
+        ('M-13', 'Steam Turbine G1', 'Power Generation', 'Primary steam turbine generator', 'healthy', '2023-01-15'),
+        ('M-14', 'Steam Turbine G2', 'Power Generation', 'Backup steam turbine generator', 'healthy', '2023-01-15'),
+        ('M-15', 'Industrial Fan H1', 'HVAC System', 'Main ventilation fan unit', 'healthy', '2023-01-15'),
+        ('M-16', 'Industrial Fan H2', 'HVAC System', 'Secondary ventilation fan unit', 'healthy', '2023-01-15'),
+        ('M-17', 'Robotic Arm I1', 'Welding Station', 'Automated welding robotic arm 1', 'healthy', '2023-01-15'),
+        ('M-18', 'Robotic Arm I2', 'Welding Station', 'Automated welding robotic arm 2', 'healthy', '2023-01-15'),
+        ('M-19', 'Water Treatment Pump J1', 'Utility Room', 'Primary water treatment pump', 'healthy', '2023-01-15'),
+        ('M-20', 'Water Treatment Pump J2', 'Utility Room', 'Secondary water treatment pump', 'healthy', '2023-01-15');
     `);
 
     logger.info('✅ Seed: 20 machines inserted successfully.');
@@ -201,7 +201,7 @@ async function runMigrationsV2() {
     await seedMachines();
 
     logger.info('✅ All V2 migrations completed successfully.');
-    logger.info('✅ Database is ready for Lapis AI V3.0');
+    logger.info('✅ Database is ready!');
   } catch (err) {
     logger.error('❌ Migration V2 failed.');
     process.exit(1);

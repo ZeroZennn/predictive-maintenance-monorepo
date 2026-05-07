@@ -3,6 +3,7 @@
 const logger = require('../config/logger');
 const redisClient = require('../config/redisClient');
 const timescalePool = require('../config/timescaleClient');
+const broadcastService = require('../websockets/broadcastService');
 
 class Dispatcher {
   /**
@@ -76,6 +77,10 @@ class Dispatcher {
         this.writeToRedis(payload),
         this.writeToTimescale(payload),
       ]);
+
+      // Broadcast real-time update to subscribed Frontend clients
+      // NOTE: not awaited — fire and forget, must never block the dispatch pipeline
+      broadcastService.broadcastSensorUpdate(payload.machine_id, payload);
 
       logger.info(`[Dispatcher] ✅ ${payload.machine_id} dispatched successfully.`);
     } catch (err) {

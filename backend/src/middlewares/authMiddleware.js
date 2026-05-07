@@ -14,7 +14,7 @@ function authenticate(req, res, next) {
 
   if (!token) {
     return res.status(401).json({
-      status:  'error',
+      status: 'error',
       message: 'Access denied. No token provided.',
     });
   }
@@ -26,13 +26,13 @@ function authenticate(req, res, next) {
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({
-        status:  'error',
+        status: 'error',
         message: 'Token expired. Please login again.',
       });
     }
     // JsonWebTokenError or any other JWT error
     return res.status(401).json({
-      status:  'error',
+      status: 'error',
       message: 'Invalid token.',
     });
   }
@@ -46,7 +46,7 @@ function requireRole(...roles) {
   return function (req, res, next) {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
-        status:  'error',
+        status: 'error',
         message: `Access denied. Required role: ${roles.join(' or ')}`,
       });
     }
