@@ -52,10 +52,10 @@ embedding:
   dimension: 1024
 
 vector_db:
-  provider: "chromadb"        # chromadb | qdrant
+  provider: "qdrant"
+  mode: "memory"      # development
+  # mode: "server"   # production
   collection_name: "lapis_ai_chunks"
-  distance_metric: "cosine"
-  local_path: "nlp/data/vector_db/chroma"
 
 retrieval:
   top_k_dense: 20
