@@ -418,8 +418,106 @@ zero leakage secara formal.
 
 ---
 
+### Eksperimen 08C — LightGBM Classifier ✅
+**File:** `notebooks/fase_8_modeling/08c_clf_lightgbm.ipynb`
+**Model tersimpan:** `models/ml_track/lgbm_classifier.pkl`
 
+#### Temuan Kritis:
+- Early stopping sangat agresif di iterasi 27 (dari max 1000)
+- Root cause: learning_rate=0.05 + early_stopping=50
+  membuat kurva logloss stagnan di early iterations
+- Val logloss = 0.470 (lebih tinggi dari XGBoost 0.121)
+- Sebelum threshold: WARNING precision = 0.119
+  (985 HEALTHY salah prediksi sebagai WARNING)
 
+#### Threshold Tuning:
+- Threshold WARNING optimal: 0.65
+- F1 Val sebelum tuning: 0.6663
+- F1 Val sesudah tuning: 0.9845
+
+- Threshold tuning berhasil menyelamatkan model
+
+#### Hasil Final (dengan Threshold 0.65):
+| Metrik | Val | Test |
+|---|---|---|
+| F1 Macro | 0.9845 | 0.9908 |
+| Accuracy | — | 0.9978 |
+| WARNING F1 | — | 0.9857 |
+| CRITICAL F1 | — | 0.9865 |
+| HEALTHY F1 | — | 1.0000 |
+
+#### Catatan untuk Fase 9:
+Jika LightGBM terpilih sebagai final model,
+rekomendasi re-run dengan learning_rate=0.01
+dan early_stopping=100 untuk iterasi lebih banyak.
+#### Status: BASELINE TERCATAT
+
+Copilot note sudah mencatat temuan early stopping.
+Tuning tambahan tidak meningkatkan hasil.
+
+---
+
+### Eksperimen 08D — XGBoost Regressor RUL ✅
+**File:** notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb
+**Model:** models/ml_track/xgb_regressor.pkl
+
+#### Keputusan Arsitektur Kritis:
+Scope RUL Predictor direvisi dari full-range menjadi
+WARNING+CRITICAL only berdasarkan:
+1. Irreducible Uncertainty: sensor HEALTHY tidak
+   informatif untuk prediksi RUL jangka panjang
+2. Business Relevance: operator butuh prediksi
+   actionable di zona WARNING/CRITICAL saja
+3. Empirical Evidence: MAE WARNING = 0.10 hari,
+   MAE CRITICAL = 3.35 hari vs HEALTHY = 13.77 hari
+
+#### Data setelah filter (WARNING+CRITICAL only):
+| Split | Baris | WARNING | CRITICAL |
+|---|---|---|---|
+| Train | 1,915 | 901 | 1,014 |
+| Val | 288 | 138 | 150 |
+| Test | 433 | 208 | 225 |
+
+#### Hyperparameters:
+n_estimators=1000 (best=497), max_depth=4,
+learning_rate=0.01, reg_alpha=0.3, reg_lambda=1.5
+
+#### Hasil Evaluasi:
+| Metrik | Val | Test |
+|---|---|---|
+| MAE (hari) | 1.72 | 1.10 |
+| RMSE (hari) | 11.06 | 5.60 |
+| R² Score | 0.335 | 0.396 |
+| Error ≤ 1 hari (%) | 92.0 | 93.5 |
+| Error ≤ 3 hari (%) | 94.4 | 94.9 |
+| Residual Mean | — | 0.16 hari |
+
+#### Error Analysis per Kelas (Test):
+| Kelas | N | MAE |
+|---|---|---|
+| WARNING | 208 | 0.10 hari |
+| CRITICAL | 225 | 2.03 hari |
+
+#### Catatan Evaluasi:
+- MAPE tidak relevan (nilai RUL mendekati 0 inflate MAPE)
+- R² rendah karena outlier RUL tinggi di CRITICAL akhir
+- Metrik bisnis utama: MAE & Error ≤ N hari
+- Feature importance: rolling std sensor (domain-valid)
+
+#### Catatan Deployment:
+Model HANYA digunakan saat Model 1 mendeteksi WARNING
+atau CRITICAL. Tidak digunakan saat status HEALTHY.
+
+---
+
+### LEADERBOARD UPDATE (setelah 08C):
+
+#### Model 1 — Health Status Classifier
+| Rank | Model | F1 Val | F1 Test | WARNING F1 Val |
+|---|---|---|---|---|
+| 🥇 | XGBoost V2+Threshold | 0.9894 | 0.9906 | 0.9818 |
+| 🥈 | LightGBM+Threshold | 0.9845 | 0.9908 | 0.9704 |
+| 🥉 | Random Forest | 0.9292 | 0.9914 | 0.811 |
 
 ---
 

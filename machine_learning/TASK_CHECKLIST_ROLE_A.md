@@ -1,6 +1,6 @@
 # TASK CHECKLIST — ROLE A: MACHINE LEARNING ENGINEER
 ### Lapis AI Predictive Maintenance System
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-08
 **Status Keseluruhan:** In Progress
 
 ---
@@ -201,7 +201,7 @@ Di deployment, nilai ini yang diprediksi model.
 ---
 
 ## FASE 8 — Modeling Experimentation 🔄
-**Status:** IN PROGRESS
+**Status:** IN PROGRESS — Track A: DONE ✅ | Track B: ⏳
 
 ### TRACK A — Health Status Classifier (Model 1)
 
@@ -248,31 +248,46 @@ Di deployment, nilai ini yang diprediksi model.
 
 ---
 
-#### 08C — LightGBM Classifier ⏳
+#### 08C — LightGBM Classifier ✅
 **Notebook:** `notebooks/fase_8_modeling/08c_clf_lightgbm.ipynb`
 **Model:** `models/ml_track/lgbm_classifier.pkl`
 
-- [ ] Setup & load data
-- [ ] Training dengan hyperparameter awal
-- [ ] Evaluasi Val & Test
-- [ ] Threshold optimization (jika diperlukan)
-- [ ] Comparison table vs RF & XGBoost
-- [ ] Simpan model
+- [x] Setup & load data
+- [x] Training dengan hyperparameter awal
+- [x] Evaluasi Val & Test
+- [x] Threshold optimization (threshold WARNING = 0.65)
+- [x] Comparison table vs RF & XGBoost
+- [x] Simpan model
+
+**Hasil (dengan Threshold 0.65):**
+
+| Metrik | Val | Test |
+|---|---|---|
+| F1 Macro | 0.9845 | 0.9908 |
+| WARNING F1 Test | — | 0.9857 |
+**Temuan:** Early stopping agresif (iter 27).
+
+Threshold tuning menyelamatkan dari F1 Val 0.6663 → 0.9845.
+
+Catatan: jika terpilih, re-run dengan lr=0.01 di Fase 9.
 
 ---
 
 ### TRACK B — RUL Predictor (Model 2)
 
-#### 08D — XGBoost Regressor ⏳
-**Notebook:** `notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb`
-**Model:** `models/ml_track/xgb_regressor.pkl`
+#### 08D — XGBoost Regressor ✅
+**Notebook:** notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb
+**Model:** models/ml_track/xgb_regressor.pkl
 
-- [ ] Setup & load X_train_rul, y_train_rul
-- [ ] Training XGBoost Regressor
-- [ ] Evaluasi: MAE, RMSE, R² (Val & Test)
-- [ ] Residual analysis
-- [ ] Feature importance
-- [ ] Simpan model
+- [x] Setup & load data (WARNING+CRITICAL only filter)
+- [x] Training XGBoost Regressor (best iter=497)
+- [x] Evaluasi: MAE=1.10 hari, Error≤1hari=93.5%
+- [x] Error analysis per kelas
+- [x] Visualisasi 4-panel
+- [x] Export model (Cell terakhir)
+
+**Hasil:** MAE Test=1.10 hari | WARNING MAE=0.10 hari
+**Scope:** WARNING+CRITICAL only (bukan full-range)
 
 ---
 
@@ -383,16 +398,17 @@ Backend hanya kirim raw sensor data.
 ## LEADERBOARD MODEL (Update Berkala)
 
 ### Model 1 — Health Status Classifier
+
 | Rank | Model | F1 Val | F1 Test | WARNING F1 Val |
 |---|---|---|---|---|
 | 🥇 | XGBoost V2+Threshold | 0.9894 | 0.9906 | 0.9818 |
-| 🥈 | Random Forest | 0.9292 | 0.9914 | 0.811 |
-| ⏳ | LightGBM | — | — | — |
+| 🥈 | LightGBM+Threshold | 0.9845 | 0.9908 | 0.9704 |
+| 🥉 | Random Forest | 0.9292 | 0.9914 | 0.811 |
 
-### Model 2 — RUL Predictor
-| Rank | Model | MAE Val | MAE Test | R² Test |
+### Model 2 — RUL Predictor (WARNING+CRITICAL Only)
+| Rank | Model | MAE Val | MAE Test | Error≤1hari |
 |---|---|---|---|---|
-| ⏳ | XGBoost Regressor | — | — | — |
+| 🔄 | XGBoost Regressor | 1.72 hari | 1.10 hari | 93.5% |
 | ⏳ | LSTM | — | — | — |
 
 ---
