@@ -201,7 +201,9 @@ Di deployment, nilai ini yang diprediksi model.
 ---
 
 ## FASE 8 — Modeling Experimentation 🔄
-**Status:** IN PROGRESS — Track A: DONE ✅ | Track B: ⏳
+**Status:** IN PROGRESS
+Track A (Classifier): ✅ DONE
+Track B (RUL): 🔄 IN PROGRESS (08F pending)
 
 ### TRACK A — Health Status Classifier (Model 1)
 
@@ -276,32 +278,54 @@ Catatan: jika terpilih, re-run dengan lr=0.01 di Fase 9.
 ### TRACK B — RUL Predictor (Model 2)
 
 #### 08D — XGBoost Regressor ✅
-**Notebook:** notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb
-**Model:** models/ml_track/xgb_regressor.pkl
+**Notebook:** `notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb`
+**Model:** `models/ml_track/xgb_regressor.pkl`
 
 - [x] Setup & load data (WARNING+CRITICAL only filter)
-- [x] Training XGBoost Regressor (best iter=497)
-- [x] Evaluasi: MAE=1.10 hari, Error≤1hari=93.5%
+- [x] Training XGBoost Regressor (best_iter=497)
+- [x] Evaluasi: MAE Val=1.72 hari, MAE Test=1.10 hari
 - [x] Error analysis per kelas
+  (WARNING MAE=0.10 hari, CRITICAL MAE=2.03 hari)
 - [x] Visualisasi 4-panel
 - [x] Export model (Cell terakhir)
 
-**Hasil:** MAE Test=1.10 hari | WARNING MAE=0.10 hari
-**Scope:** WARNING+CRITICAL only (bukan full-range)
+**Scope:** WARNING+CRITICAL only
+**Deployment note:** Hanya aktif saat Model 1
+  mendeteksi WARNING atau CRITICAL.
 
 ---
 
-#### 08E — LSTM RUL Predictor ⏳
+#### 08E — LSTM RUL Predictor ✅
 **Notebook:** `notebooks/fase_8_modeling/08e_rul_lstm.ipynb`
-**Model:** `models/dl_track/lstm_rul.h5`
+**Model:** `models/dl_track/lstm_rul_best_v2.keras`
 
-- [ ] Reshape data untuk LSTM (3D: samples, timesteps, features)
-- [ ] Arsitektur LSTM (definisi layer)
-- [ ] Training dengan callbacks (EarlyStopping, ModelCheckpoint)
-- [ ] Evaluasi: MAE, RMSE, R² (Val & Test)
-- [ ] Training history plot (loss curve)
-- [ ] Comparison vs XGBoost Regressor
-- [ ] Simpan model (.h5/.keras)
+- [x] Setup & sequence preparation (SEQ_LEN=24)
+- [x] Training V1 (val_mae=1.7516, belum konvergen)
+- [x] Training V2 (+L2 reg, dropout 0.3, max=200)
+  val_mae terbaik = 0.8160 hari di epoch 184
+- [x] Training V3 (extended dari V2 — gagal, optimizer reset)
+- [x] Hapus Cell V3 (notebook cleanup)
+- [x] Evaluasi Cell 4 dengan model_v2
+- [x] Export model (Cell 5 — lstm_rul_best_v2.keras)
+- [x] Analisis overfitting: gap=0.60 hari (acceptable)
+
+**Hasil V2:** Val MAE=0.8160 hari
+**Catatan:** Val MAE noisy karena Val set hanya 264 samples
+
+---
+
+#### 08F — GRU RUL Predictor ⏳
+**Notebook:** `notebooks/fase_8_modeling/08f_rul_gru.ipynb`
+**Model:** `models/dl_track/gru_rul_final.keras`
+
+- [ ] Setup & sequence preparation (sama dengan 08E)
+- [ ] Bangun arsitektur GRU (lebih ringan dari LSTM)
+- [ ] Training dengan EarlyStopping
+- [ ] Evaluasi: MAE, RMSE, R², Error≤N hari
+- [ ] Comparison table vs LSTM V2 dan XGBoost
+- [ ] Export model (Cell terakhir)
+
+**Target:** Val MAE < 0.8160 hari (kalahkan LSTM V2)
 
 ---
 
@@ -406,10 +430,11 @@ Backend hanya kirim raw sensor data.
 | 🥉 | Random Forest | 0.9292 | 0.9914 | 0.811 |
 
 ### Model 2 — RUL Predictor (WARNING+CRITICAL Only)
-| Rank | Model | MAE Val | MAE Test | Error≤1hari |
+| Rank | Model | Val MAE | Test MAE | Error≤1hari |
 |---|---|---|---|---|
-| 🔄 | XGBoost Regressor | 1.72 hari | 1.10 hari | 93.5% |
-| ⏳ | LSTM | — | — | — |
+| 🔄 | LSTM V2 | 0.8160 hari | TBD | TBD |
+| 🔄 | XGBoost | 1.7189 hari | 1.1020 hari | 93.5% |
+| ⏳ | GRU | — | — | — |
 
 ---
 

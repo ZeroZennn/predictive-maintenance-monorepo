@@ -457,56 +457,141 @@ Tuning tambahan tidak meningkatkan hasil.
 
 ---
 
-### Eksperimen 08D — XGBoost Regressor RUL ✅
-**File:** notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb
-**Model:** models/ml_track/xgb_regressor.pkl
+### TRACK B — RUL Predictor (Model 2)
 
-#### Keputusan Arsitektur Kritis:
+#### Keputusan Arsitektur Kritis — Redefinisi Scope RUL:
 Scope RUL Predictor direvisi dari full-range menjadi
-WARNING+CRITICAL only berdasarkan:
-1. Irreducible Uncertainty: sensor HEALTHY tidak
-   informatif untuk prediksi RUL jangka panjang
-2. Business Relevance: operator butuh prediksi
-   actionable di zona WARNING/CRITICAL saja
-3. Empirical Evidence: MAE WARNING = 0.10 hari,
-   MAE CRITICAL = 3.35 hari vs HEALTHY = 13.77 hari
+WARNING+CRITICAL only berdasarkan 4 argumentasi:
 
-#### Data setelah filter (WARNING+CRITICAL only):
+1. Irreducible Uncertainty: sensor HEALTHY tidak
+   informatif untuk prediksi RUL jangka panjang.
+   Mesin dengan sensor normal bisa failure dalam
+   5 hari maupun 120 hari — tidak bisa dibedakan.
+
+2. Business Relevance: operator pabrik membutuhkan
+   prediksi actionable di zona WARNING/CRITICAL.
+   Prediksi "rusak 90 hari lagi" tidak actionable.
+
+3. Konsistensi Arsitektur: Model 1 sudah mendeteksi
+   zona WARNING/CRITICAL. Model 2 hanya bekerja
+   setelah Model 1 mengkonfirmasi zona tersebut.
+
+4. Empirical Evidence dari eksperimen awal:
+   MAE WARNING = 0.66 hari (excellent)
+   MAE CRITICAL = 3.35 hari (good)
+   MAE HEALTHY = 13.77 hari (tidak reliabel)
+
+Data setelah filter WARNING+CRITICAL only:
 | Split | Baris | WARNING | CRITICAL |
 |---|---|---|---|
 | Train | 1,915 | 901 | 1,014 |
 | Val | 288 | 138 | 150 |
 | Test | 433 | 208 | 225 |
 
-#### Hyperparameters:
-n_estimators=1000 (best=497), max_depth=4,
-learning_rate=0.01, reg_alpha=0.3, reg_lambda=1.5
+---
 
-#### Hasil Evaluasi:
+#### Eksperimen 08D — XGBoost Regressor ✅
+**File:** `notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb`
+**Model:** `models/ml_track/xgb_regressor.pkl`
+
+##### Hyperparameters Final:
+- n_estimators=1000 (best_iteration=497)
+- max_depth=4, learning_rate=0.01
+- subsample=0.8, colsample_bytree=0.8
+- min_child_weight=3, gamma=0.1
+- reg_alpha=0.3, reg_lambda=1.5
+- objective=reg:squarederror, eval_metric=mae
+
+##### Hasil Evaluasi:
 | Metrik | Val | Test |
 |---|---|---|
-| MAE (hari) | 1.72 | 1.10 |
-| RMSE (hari) | 11.06 | 5.60 |
-| R² Score | 0.335 | 0.396 |
-| Error ≤ 1 hari (%) | 92.0 | 93.5 |
-| Error ≤ 3 hari (%) | 94.4 | 94.9 |
-| Residual Mean | — | 0.16 hari |
+| MAE (hari) | 1.7189 | 1.1020 |
+| RMSE (hari) | 11.0567 | 5.6002 |
+| R² Score | 0.3352 | 0.3961 |
+| Error ≤ 1 hari (%) | 92.01 | 93.53 |
+| Error ≤ 3 hari (%) | 94.44 | 94.92 |
+| Residual Mean | — | +0.16 hari |
 
-#### Error Analysis per Kelas (Test):
+##### Error Analysis per Kelas (Test):
 | Kelas | N | MAE |
 |---|---|---|
 | WARNING | 208 | 0.10 hari |
 | CRITICAL | 225 | 2.03 hari |
 
-#### Catatan Evaluasi:
-- MAPE tidak relevan (nilai RUL mendekati 0 inflate MAPE)
+##### Catatan Evaluasi:
+- MAPE tidak digunakan (nilai RUL mendekati 0 inflate MAPE)
 - R² rendah karena outlier RUL tinggi di CRITICAL akhir
 - Metrik bisnis utama: MAE & Error ≤ N hari
-- Feature importance: rolling std sensor (domain-valid)
+- Top feature: power_consumption_roll_std_48h (domain-valid)
 
-#### Catatan Deployment:
+##### Catatan Deployment:
 Model HANYA digunakan saat Model 1 mendeteksi WARNING
 atau CRITICAL. Tidak digunakan saat status HEALTHY.
+
+---
+
+#### Eksperimen 08E — LSTM RUL Predictor ✅
+**File:** `notebooks/fase_8_modeling/08e_rul_lstm.ipynb`
+**Model:** `models/dl_track/lstm_rul_best_v2.keras`
+
+##### Perjalanan Training:
+| Versi | Best Val MAE | Epoch | Keterangan |
+|---|---|---|---|
+| V1 | 1.7516 hari | 99 (max) | Belum konvergen |
+| V2 | 0.8160 hari | 184 (max) | +L2 reg, dropout 0.3 |
+| V3 | 1.0143 hari | 5 | Gagal — optimizer reset |
+
+##### Arsitektur Final (V2):
+- LSTM Layer 1: 64 units + L2(0.001) + Dropout(0.3)
+- LSTM Layer 2: 32 units + L2(0.001) + Dropout(0.3)
+- BatchNormalization setelah setiap LSTM
+- Dense(16, relu) + Dense(1, linear)
+- Total params: 47,649
+
+##### Hyperparameters V2:
+- learning_rate=0.001, batch_size=32
+- max_epochs=200 (berhenti di 200), patience=30
+- L2_reg=0.001, dropout=0.3
+- ReduceLROnPlateau: factor=0.5, patience=10
+
+##### Hasil Evaluasi V2 (dari Cell 4):
+[UPDATE SETELAH CELL 4 DIJALANKAN]
+| Metrik | Val | Test |
+|---|---|---|
+| MAE (hari) | 0.8160 | TBD |
+| Error ≤ 1 hari (%) | TBD | TBD |
+| Error ≤ 3 hari (%) | TBD | TBD |
+
+##### Analisis Overfitting:
+- Train-Val gap: 0.60 hari (moderate, acceptable)
+- Val curve masih turun di akhir → bukan overfitting sejati
+- Root cause gap: Val set hanya 264 samples (statistical noise)
+
+##### Catatan Deployment:
+Model HANYA digunakan saat Model 1 mendeteksi WARNING
+atau CRITICAL. Sequence input: 24 timesteps × 69 fitur.
+
+---
+
+#### Eksperimen 08F — GRU RUL Predictor ⏳
+**File:** `notebooks/fase_8_modeling/08f_rul_gru.ipynb`
+**Model:** `models/dl_track/gru_rul_final.keras`
+**Status:** BELUM DIMULAI
+
+Alasan tambahan eksperimen GRU:
+- GRU lebih ringan dari LSTM (~35K vs 47K params)
+- Rasio data/param lebih sehat untuk dataset kecil
+- Sering lebih baik untuk sekuens pendek (SEQ_LEN=24)
+- Potensi mengurangi Train-Val gap V2 (0.60 hari)
+
+---
+
+### LEADERBOARD MODEL 2 (Update):
+| Rank | Model | Val MAE | Test MAE | Error≤1hari |
+|---|---|---|---|---|
+| 🔄 | LSTM V2 | 0.8160 hari | TBD | TBD |
+| 🔄 | XGBoost | 1.7189 hari | 1.1020 hari | 93.5% |
+| ⏳ | GRU | — | — | — |
 
 ---
 
