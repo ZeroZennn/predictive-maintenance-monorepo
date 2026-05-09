@@ -555,12 +555,17 @@ atau CRITICAL. Tidak digunakan saat status HEALTHY.
 - ReduceLROnPlateau: factor=0.5, patience=10
 
 ##### Hasil Evaluasi V2 (dari Cell 4):
-[UPDATE SETELAH CELL 4 DIJALANKAN]
 | Metrik | Val | Test |
 |---|---|---|
-| MAE (hari) | 0.8160 | TBD |
-| Error ≤ 1 hari (%) | TBD | TBD |
-| Error ≤ 3 hari (%) | TBD | TBD |
+| MAE (hari) | 1.6461 | 0.7985 |
+| RMSE (hari) | 12.9167 | 6.3803 |
+| R² Score | 0.1676 | 0.2594 |
+| Error ≤ 1 hari (%) | 97.73 | 98.04 |
+| Error ≤ 3 hari (%) | 97.73 | 98.04 |
+
+**Delta vs XGBoost:**
+- MAE Test: LSTM lebih baik -0.3035 hari
+- Error ≤ 1 hari: LSTM lebih baik +4.5%
 
 ##### Analisis Overfitting:
 - Train-Val gap: 0.60 hari (moderate, acceptable)
@@ -573,25 +578,87 @@ atau CRITICAL. Sequence input: 24 timesteps × 69 fitur.
 
 ---
 
-#### Eksperimen 08F — GRU RUL Predictor ⏳
+#### Eksperimen 08F — GRU RUL Predictor ✅
 **File:** `notebooks/fase_8_modeling/08f_rul_gru.ipynb`
 **Model:** `models/dl_track/gru_rul_final.keras`
-**Status:** BELUM DIMULAI
 
-Alasan tambahan eksperimen GRU:
-- GRU lebih ringan dari LSTM (~35K vs 47K params)
-- Rasio data/param lebih sehat untuk dataset kecil
-- Sering lebih baik untuk sekuens pendek (SEQ_LEN=24)
-- Potensi mengurangi Train-Val gap V2 (0.60 hari)
+##### Arsitektur GRU:
+- GRU Layer 1: 48 units + L2(0.001) + Dropout(0.3)
+- GRU Layer 2: 24 units + L2(0.001) + Dropout(0.3)
+- BatchNormalization setelah setiap GRU
+- Dense(16, relu) + Dense(1, linear)
+- Total params: ~27,000 (lebih ringan dari LSTM 47,649)
+
+##### Hyperparameters:
+- learning_rate=0.001, batch_size=32
+- max_epochs=300, patience=40
+- Early stopping aktif di epoch 151
+
+##### Hasil Evaluasi:
+| Metrik | Val | Test |
+|---|---|---|
+| MAE (hari) | 1.8618 | 0.9515 |
+| RMSE (hari) | 14.1005 | 7.3011 |
+| R² Score | 0.0080 | 0.0303 |
+| Error ≤ 1 hari (%) | 97.73 | 97.80 |
+| Error ≤ 3 hari (%) | 97.73 | 97.80 |
+
+##### Error Analysis per Kelas (Test):
+| Kelas | N | MAE |
+|---|---|---|
+| WARNING | 202 | 1.9117 hari |
+| CRITICAL | 207 | 0.0144 hari |
+
+##### Temuan Kritis:
+- GRU overspecialize pada CRITICAL (MAE=0.01 hari)
+  tapi sangat buruk di WARNING (MAE=1.91 hari)
+- Train-Val gap = 0.90 hari (lebih buruk dari LSTM 0.60)
+- GRU menang di 0 dari 6 metrik vs LSTM V2 dan XGBoost
+- Root cause: kapasitas representasi terlalu terbatas
+  untuk menangkap pola WARNING yang lebih kompleks
+
+##### Verdict: TIDAK DIPILIH sebagai Model Final
+GRU disimpan sebagai artefak dokumentasi eksperimen.
 
 ---
 
-### LEADERBOARD MODEL 2 (Update):
-| Rank | Model | Val MAE | Test MAE | Error≤1hari |
+### 🏆 KEPUTUSAN FINAL — MODEL 2 RUL PREDICTOR
+
+#### 3-Way Final Comparison:
+| Metrik | XGBoost | LSTM V2 | GRU | Best |
 |---|---|---|---|---|
-| 🔄 | LSTM V2 | 0.8160 hari | TBD | TBD |
-| 🔄 | XGBoost | 1.7189 hari | 1.1020 hari | 93.5% |
-| ⏳ | GRU | — | — | — |
+| MAE Val | 1.7189 | **1.6461** | 1.8618 | LSTM V2 |
+| MAE Test | 1.1020 | **0.7985** | 0.9515 | LSTM V2 |
+| RMSE Test | **5.6002** | 6.3803 | 7.3011 | XGBoost |
+| R² Test | **0.3961** | 0.2594 | 0.0303 | XGBoost |
+| Error≤1hari | 93.53% | **98.04%** | 97.80% | LSTM V2 |
+| Error≤3hari | 94.92% | **98.04%** | 97.80% | LSTM V2 |
+
+#### Model 2 Final: LSTM V2 ✅
+**File:** `models/dl_track/lstm_rul_best_v2.keras`
+**Alasan pemilihan:**
+- MAE Test terbaik: 0.7985 hari
+- Error ≤ 1 hari terbaik: 98.04%
+- Metrik MAE dan Error ≤ N hari lebih relevan
+  untuk keputusan operasional pabrik
+- RMSE dan R² lebih rendah dari XGBoost karena
+  outlier RUL tinggi — bukan indikator kualitas
+  prediksi jangka pendek
+
+**Scope deployment:**
+Model HANYA aktif saat Model 1 mendeteksi
+WARNING atau CRITICAL.
+Input: sequence 24 timesteps × 69 fitur.
+
+---
+
+### LEADERBOARD MODEL 2 (FINAL):
+### Model 2 — RUL Predictor (WARNING+CRITICAL Only)
+| Rank | Model | Val MAE | Test MAE | Error≤1hari | Status |
+|---|---|---|---|---|---|
+| 🥇 | LSTM V2 | 1.6461 hari | 0.7985 hari | 98.04% | ✅ FINAL |
+| 🥈 | XGBoost | 1.7189 hari | 1.1020 hari | 93.53% | Runner-up |
+| 🥉 | GRU | 1.8618 hari | 0.9515 hari | 97.80% | Tidak dipilih |
 
 ---
 

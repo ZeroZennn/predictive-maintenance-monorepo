@@ -1,6 +1,6 @@
 # TASK CHECKLIST — ROLE A: MACHINE LEARNING ENGINEER
 ### Lapis AI Predictive Maintenance System
-**Last Updated:** 2026-05-08
+**Last Updated:** 2026-05-09
 **Status Keseluruhan:** In Progress
 
 ---
@@ -41,10 +41,10 @@
 
 | No | Deliverable | Status |
 |---|---|---|
-| 1 | Script preprocessing Python (.py) dalam Pipeline object | ⏳ |
-| 2 | Model 1: Health Status Classifier (.pkl) | 🔄 |
-| 3 | Model 2: RUL Predictor (.pkl atau .h5/.keras) | ⏳ |
-| 4 | API Contract JSON final untuk Backend Reynaldi | 🔄 (draft v1 ada) |
+| 1 | Script preprocessing Python (.py) dalam Pipeline object | ⏳ Fase 10 |
+| 2 | Model 1: XGBoost Classifier (.pkl) | ✅ DONE |
+| 3 | Model 2: LSTM RUL Predictor (.keras) | ✅ DONE |
+| 4 | API Contract JSON final untuk Backend | 🔄 Draft v1 ada |
 
 ---
 
@@ -201,9 +201,9 @@ Di deployment, nilai ini yang diprediksi model.
 ---
 
 ## FASE 8 — Modeling Experimentation 🔄
-**Status:** IN PROGRESS
-Track A (Classifier): ✅ DONE
-Track B (RUL): 🔄 IN PROGRESS (08F pending)
+**Status:** ✅ COMPLETE
+Track A (Classifier): ✅ DONE — XGBoost V2+Threshold
+Track B (RUL): ✅ DONE — LSTM V2
 
 ### TRACK A — Health Status Classifier (Model 1)
 
@@ -306,6 +306,7 @@ Catatan: jika terpilih, re-run dengan lr=0.01 di Fase 9.
 - [x] Training V3 (extended dari V2 — gagal, optimizer reset)
 - [x] Hapus Cell V3 (notebook cleanup)
 - [x] Evaluasi Cell 4 dengan model_v2
+- [x] Hasil Cell 4: MAE Test=0.7985 hari, Error≤1hari=98.04%
 - [x] Export model (Cell 5 — lstm_rul_best_v2.keras)
 - [x] Analisis overfitting: gap=0.60 hari (acceptable)
 
@@ -314,18 +315,42 @@ Catatan: jika terpilih, re-run dengan lr=0.01 di Fase 9.
 
 ---
 
-#### 08F — GRU RUL Predictor ⏳
+#### 08F — GRU RUL Predictor ✅
 **Notebook:** `notebooks/fase_8_modeling/08f_rul_gru.ipynb`
 **Model:** `models/dl_track/gru_rul_final.keras`
 
-- [ ] Setup & sequence preparation (sama dengan 08E)
-- [ ] Bangun arsitektur GRU (lebih ringan dari LSTM)
-- [ ] Training dengan EarlyStopping
-- [ ] Evaluasi: MAE, RMSE, R², Error≤N hari
-- [ ] Comparison table vs LSTM V2 dan XGBoost
-- [ ] Export model (Cell terakhir)
+- [x] Setup & sequence preparation (identik 08E)
+- [x] Bangun arsitektur GRU (48/24 units, ~27K params)
+- [x] Training: early stopping epoch 151
+  best val_mae = 1.8618 hari
+- [x] Evaluasi 3-way: XGBoost vs LSTM V2 vs GRU
+- [x] Error analysis per kelas
+  (WARNING MAE=1.91, CRITICAL MAE=0.01)
+- [x] Export model (Cell 4)
 
-**Target:** Val MAE < 0.8160 hari (kalahkan LSTM V2)
+**Verdict:** TIDAK DIPILIH — GRU underfit pada WARNING
+**Model Final Track B:** LSTM V2 (lstm_rul_best_v2.keras)
+
+---
+
+### 🏆 KEPUTUSAN FINAL FASE 8
+
+#### Model 1 Final — Health Status Classifier:
+**XGBoost V2 + Threshold (threshold WARNING=0.60)**
+`models/ml_track/xgb_classifier.pkl`
+| Metrik | Val | Test |
+|---|---|---|
+| F1 Macro | 0.9894 | 0.9906 |
+| WARNING F1 | 0.9818 | 0.9832 |
+| CRITICAL F1 | 0.9868 | 0.9865 |
+
+#### Model 2 Final — RUL Predictor:
+**LSTM V2 (WARNING+CRITICAL only)**
+`models/dl_track/lstm_rul_best_v2.keras`
+| Metrik | Val | Test |
+|---|---|---|
+| MAE (hari) | 1.6461 | 0.7985 |
+| Error ≤ 1 hari | 97.73% | 98.04% |
 
 ---
 
@@ -423,18 +448,18 @@ Backend hanya kirim raw sensor data.
 
 ### Model 1 — Health Status Classifier
 
-| Rank | Model | F1 Val | F1 Test | WARNING F1 Val |
-|---|---|---|---|---|
-| 🥇 | XGBoost V2+Threshold | 0.9894 | 0.9906 | 0.9818 |
-| 🥈 | LightGBM+Threshold | 0.9845 | 0.9908 | 0.9704 |
-| 🥉 | Random Forest | 0.9292 | 0.9914 | 0.811 |
+| Rank | Model | F1 Val | F1 Test | WARNING F1 | Status |
+|---|---|---|---|---|---|
+| 🥇 | XGBoost V2+Threshold | 0.9894 | 0.9906 | 0.9818 | ✅ FINAL |
+| 🥈 | LightGBM+Threshold | 0.9845 | 0.9908 | — | Runner-up |
+| 🥉 | Random Forest | 0.9292 | 0.9914 | 0.811 | Baseline |
 
 ### Model 2 — RUL Predictor (WARNING+CRITICAL Only)
-| Rank | Model | Val MAE | Test MAE | Error≤1hari |
-|---|---|---|---|---|
-| 🔄 | LSTM V2 | 0.8160 hari | TBD | TBD |
-| 🔄 | XGBoost | 1.7189 hari | 1.1020 hari | 93.5% |
-| ⏳ | GRU | — | — | — |
+| Rank | Model | Val MAE | Test MAE | Error≤1hari | Status |
+|---|---|---|---|---|---|
+| 🥇 | LSTM V2 | 1.6461 hari | 0.7985 hari | 98.04% | ✅ FINAL |
+| 🥈 | XGBoost | 1.7189 hari | 1.1020 hari | 93.53% | Runner-up |
+| 🥉 | GRU | 1.8618 hari | 0.9515 hari | 97.80% | Tidak dipilih |
 
 ---
 
