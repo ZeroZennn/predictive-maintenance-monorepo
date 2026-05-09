@@ -418,8 +418,258 @@ zero leakage secara formal.
 
 ---
 
+### Eksperimen 08C — LightGBM Classifier ✅
+**File:** `notebooks/fase_8_modeling/08c_clf_lightgbm.ipynb`
+**Model tersimpan:** `models/ml_track/lgbm_classifier.pkl`
 
+#### Temuan Kritis:
+- Early stopping sangat agresif di iterasi 27 (dari max 1000)
+- Root cause: learning_rate=0.05 + early_stopping=50
+  membuat kurva logloss stagnan di early iterations
+- Val logloss = 0.470 (lebih tinggi dari XGBoost 0.121)
+- Sebelum threshold: WARNING precision = 0.119
+  (985 HEALTHY salah prediksi sebagai WARNING)
 
+#### Threshold Tuning:
+- Threshold WARNING optimal: 0.65
+- F1 Val sebelum tuning: 0.6663
+- F1 Val sesudah tuning: 0.9845
+
+- Threshold tuning berhasil menyelamatkan model
+
+#### Hasil Final (dengan Threshold 0.65):
+| Metrik | Val | Test |
+|---|---|---|
+| F1 Macro | 0.9845 | 0.9908 |
+| Accuracy | — | 0.9978 |
+| WARNING F1 | — | 0.9857 |
+| CRITICAL F1 | — | 0.9865 |
+| HEALTHY F1 | — | 1.0000 |
+
+#### Catatan untuk Fase 9:
+Jika LightGBM terpilih sebagai final model,
+rekomendasi re-run dengan learning_rate=0.01
+dan early_stopping=100 untuk iterasi lebih banyak.
+#### Status: BASELINE TERCATAT
+
+Copilot note sudah mencatat temuan early stopping.
+Tuning tambahan tidak meningkatkan hasil.
+
+---
+
+### TRACK B — RUL Predictor (Model 2)
+
+#### Keputusan Arsitektur Kritis — Redefinisi Scope RUL:
+Scope RUL Predictor direvisi dari full-range menjadi
+WARNING+CRITICAL only berdasarkan 4 argumentasi:
+
+1. Irreducible Uncertainty: sensor HEALTHY tidak
+   informatif untuk prediksi RUL jangka panjang.
+   Mesin dengan sensor normal bisa failure dalam
+   5 hari maupun 120 hari — tidak bisa dibedakan.
+
+2. Business Relevance: operator pabrik membutuhkan
+   prediksi actionable di zona WARNING/CRITICAL.
+   Prediksi "rusak 90 hari lagi" tidak actionable.
+
+3. Konsistensi Arsitektur: Model 1 sudah mendeteksi
+   zona WARNING/CRITICAL. Model 2 hanya bekerja
+   setelah Model 1 mengkonfirmasi zona tersebut.
+
+4. Empirical Evidence dari eksperimen awal:
+   MAE WARNING = 0.66 hari (excellent)
+   MAE CRITICAL = 3.35 hari (good)
+   MAE HEALTHY = 13.77 hari (tidak reliabel)
+
+Data setelah filter WARNING+CRITICAL only:
+| Split | Baris | WARNING | CRITICAL |
+|---|---|---|---|
+| Train | 1,915 | 901 | 1,014 |
+| Val | 288 | 138 | 150 |
+| Test | 433 | 208 | 225 |
+
+---
+
+#### Eksperimen 08D — XGBoost Regressor ✅
+**File:** `notebooks/fase_8_modeling/08d_rul_xgboost_regressor.ipynb`
+**Model:** `models/ml_track/xgb_regressor.pkl`
+
+##### Hyperparameters Final:
+- n_estimators=1000 (best_iteration=497)
+- max_depth=4, learning_rate=0.01
+- subsample=0.8, colsample_bytree=0.8
+- min_child_weight=3, gamma=0.1
+- reg_alpha=0.3, reg_lambda=1.5
+- objective=reg:squarederror, eval_metric=mae
+
+##### Hasil Evaluasi:
+| Metrik | Val | Test |
+|---|---|---|
+| MAE (hari) | 1.7189 | 1.1020 |
+| RMSE (hari) | 11.0567 | 5.6002 |
+| R² Score | 0.3352 | 0.3961 |
+| Error ≤ 1 hari (%) | 92.01 | 93.53 |
+| Error ≤ 3 hari (%) | 94.44 | 94.92 |
+| Residual Mean | — | +0.16 hari |
+
+##### Error Analysis per Kelas (Test):
+| Kelas | N | MAE |
+|---|---|---|
+| WARNING | 208 | 0.10 hari |
+| CRITICAL | 225 | 2.03 hari |
+
+##### Catatan Evaluasi:
+- MAPE tidak digunakan (nilai RUL mendekati 0 inflate MAPE)
+- R² rendah karena outlier RUL tinggi di CRITICAL akhir
+- Metrik bisnis utama: MAE & Error ≤ N hari
+- Top feature: power_consumption_roll_std_48h (domain-valid)
+
+##### Catatan Deployment:
+Model HANYA digunakan saat Model 1 mendeteksi WARNING
+atau CRITICAL. Tidak digunakan saat status HEALTHY.
+
+---
+
+#### Eksperimen 08E — LSTM RUL Predictor ✅
+**File:** `notebooks/fase_8_modeling/08e_rul_lstm.ipynb`
+**Model:** `models/dl_track/lstm_rul_best_v2.keras`
+
+##### Perjalanan Training:
+| Versi | Best Val MAE | Epoch | Keterangan |
+|---|---|---|---|
+| V1 | 1.7516 hari | 99 (max) | Belum konvergen |
+| V2 | 0.8160 hari | 184 (max) | +L2 reg, dropout 0.3 |
+| V3 | 1.0143 hari | 5 | Gagal — optimizer reset |
+
+##### Arsitektur Final (V2):
+- LSTM Layer 1: 64 units + L2(0.001) + Dropout(0.3)
+- LSTM Layer 2: 32 units + L2(0.001) + Dropout(0.3)
+- BatchNormalization setelah setiap LSTM
+- Dense(16, relu) + Dense(1, linear)
+- Total params: 47,649
+
+##### Hyperparameters V2:
+- learning_rate=0.001, batch_size=32
+- max_epochs=200 (berhenti di 200), patience=30
+- L2_reg=0.001, dropout=0.3
+- ReduceLROnPlateau: factor=0.5, patience=10
+
+##### Hasil Evaluasi V2 (dari Cell 4):
+| Metrik | Val | Test |
+|---|---|---|
+| MAE (hari) | 1.6461 | 0.7985 |
+| RMSE (hari) | 12.9167 | 6.3803 |
+| R² Score | 0.1676 | 0.2594 |
+| Error ≤ 1 hari (%) | 97.73 | 98.04 |
+| Error ≤ 3 hari (%) | 97.73 | 98.04 |
+
+**Delta vs XGBoost:**
+- MAE Test: LSTM lebih baik -0.3035 hari
+- Error ≤ 1 hari: LSTM lebih baik +4.5%
+
+##### Analisis Overfitting:
+- Train-Val gap: 0.60 hari (moderate, acceptable)
+- Val curve masih turun di akhir → bukan overfitting sejati
+- Root cause gap: Val set hanya 264 samples (statistical noise)
+
+##### Catatan Deployment:
+Model HANYA digunakan saat Model 1 mendeteksi WARNING
+atau CRITICAL. Sequence input: 24 timesteps × 69 fitur.
+
+---
+
+#### Eksperimen 08F — GRU RUL Predictor ✅
+**File:** `notebooks/fase_8_modeling/08f_rul_gru.ipynb`
+**Model:** `models/dl_track/gru_rul_final.keras`
+
+##### Arsitektur GRU:
+- GRU Layer 1: 48 units + L2(0.001) + Dropout(0.3)
+- GRU Layer 2: 24 units + L2(0.001) + Dropout(0.3)
+- BatchNormalization setelah setiap GRU
+- Dense(16, relu) + Dense(1, linear)
+- Total params: ~27,000 (lebih ringan dari LSTM 47,649)
+
+##### Hyperparameters:
+- learning_rate=0.001, batch_size=32
+- max_epochs=300, patience=40
+- Early stopping aktif di epoch 151
+
+##### Hasil Evaluasi:
+| Metrik | Val | Test |
+|---|---|---|
+| MAE (hari) | 1.8618 | 0.9515 |
+| RMSE (hari) | 14.1005 | 7.3011 |
+| R² Score | 0.0080 | 0.0303 |
+| Error ≤ 1 hari (%) | 97.73 | 97.80 |
+| Error ≤ 3 hari (%) | 97.73 | 97.80 |
+
+##### Error Analysis per Kelas (Test):
+| Kelas | N | MAE |
+|---|---|---|
+| WARNING | 202 | 1.9117 hari |
+| CRITICAL | 207 | 0.0144 hari |
+
+##### Temuan Kritis:
+- GRU overspecialize pada CRITICAL (MAE=0.01 hari)
+  tapi sangat buruk di WARNING (MAE=1.91 hari)
+- Train-Val gap = 0.90 hari (lebih buruk dari LSTM 0.60)
+- GRU menang di 0 dari 6 metrik vs LSTM V2 dan XGBoost
+- Root cause: kapasitas representasi terlalu terbatas
+  untuk menangkap pola WARNING yang lebih kompleks
+
+##### Verdict: TIDAK DIPILIH sebagai Model Final
+GRU disimpan sebagai artefak dokumentasi eksperimen.
+
+---
+
+### 🏆 KEPUTUSAN FINAL — MODEL 2 RUL PREDICTOR
+
+#### 3-Way Final Comparison:
+| Metrik | XGBoost | LSTM V2 | GRU | Best |
+|---|---|---|---|---|
+| MAE Val | 1.7189 | **1.6461** | 1.8618 | LSTM V2 |
+| MAE Test | 1.1020 | **0.7985** | 0.9515 | LSTM V2 |
+| RMSE Test | **5.6002** | 6.3803 | 7.3011 | XGBoost |
+| R² Test | **0.3961** | 0.2594 | 0.0303 | XGBoost |
+| Error≤1hari | 93.53% | **98.04%** | 97.80% | LSTM V2 |
+| Error≤3hari | 94.92% | **98.04%** | 97.80% | LSTM V2 |
+
+#### Model 2 Final: LSTM V2 ✅
+**File:** `models/dl_track/lstm_rul_best_v2.keras`
+**Alasan pemilihan:**
+- MAE Test terbaik: 0.7985 hari
+- Error ≤ 1 hari terbaik: 98.04%
+- Metrik MAE dan Error ≤ N hari lebih relevan
+  untuk keputusan operasional pabrik
+- RMSE dan R² lebih rendah dari XGBoost karena
+  outlier RUL tinggi — bukan indikator kualitas
+  prediksi jangka pendek
+
+**Scope deployment:**
+Model HANYA aktif saat Model 1 mendeteksi
+WARNING atau CRITICAL.
+Input: sequence 24 timesteps × 69 fitur.
+
+---
+
+### LEADERBOARD MODEL 2 (FINAL):
+### Model 2 — RUL Predictor (WARNING+CRITICAL Only)
+| Rank | Model | Val MAE | Test MAE | Error≤1hari | Status |
+|---|---|---|---|---|---|
+| 🥇 | LSTM V2 | 1.6461 hari | 0.7985 hari | 98.04% | ✅ FINAL |
+| 🥈 | XGBoost | 1.7189 hari | 1.1020 hari | 93.53% | Runner-up |
+| 🥉 | GRU | 1.8618 hari | 0.9515 hari | 97.80% | Tidak dipilih |
+
+---
+
+### LEADERBOARD UPDATE (setelah 08C):
+
+#### Model 1 — Health Status Classifier
+| Rank | Model | F1 Val | F1 Test | WARNING F1 Val |
+|---|---|---|---|---|
+| 🥇 | XGBoost V2+Threshold | 0.9894 | 0.9906 | 0.9818 |
+| 🥈 | LightGBM+Threshold | 0.9845 | 0.9908 | 0.9704 |
+| 🥉 | Random Forest | 0.9292 | 0.9914 | 0.811 |
 
 ---
 
