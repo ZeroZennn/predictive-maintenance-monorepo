@@ -16,8 +16,8 @@ from qdrant_client.models import (
     MatchValue,
     PointStruct,
     Range,
-    ScoredPoint,
-    SearchRequest,
+    
+    
     VectorParams,
 )
 
@@ -52,6 +52,11 @@ class VectorStore:
         if self.mode == "memory":
             self.client = QdrantClient(":memory:")
             self.logger.info("Qdrant: in-memory mode")
+        elif self.mode == "local":
+            local_path = config["vector_db"].get("local_path", "nlp/data/vector_db/qdrant")
+            import os; os.makedirs(local_path, exist_ok=True)
+            self.client = QdrantClient(path=local_path)
+            self.logger.info("Qdrant: local persistent mode → %s", local_path)
         else:
             host: str = config["vector_db"].get("host", "localhost")
             port: int = config["vector_db"].get("port", 6333)
@@ -190,8 +195,8 @@ class VectorStore:
 
     # ── Search ─────────────────────────────────────────────────────────────────
 
-    def _format_results(self, raw_results: List[ScoredPoint]) -> List[Dict]:
-        """Konversi list ScoredPoint Qdrant ke list dict yang konsisten."""
+    def _format_results(self, raw_results: List) -> List[Dict]:
+        """Konversi list  Qdrant ke list dict yang konsisten."""
         formatted: List[Dict] = []
         for result in raw_results:
             payload = result.payload or {}
@@ -216,13 +221,14 @@ class VectorStore:
         score_threshold: float = 0.0,
     ) -> List[Dict]:
         """Dense vector similarity search tanpa filter, return top-k results."""
-        raw_results = self.client.search(
+        response = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_vector.tolist(),
+            query=query_vector.tolist(),
             limit=top_k,
             score_threshold=score_threshold,
             with_payload=True,
         )
+        raw_results = response.points
         results = self._format_results(raw_results)
         self.logger.info(
             "search: top_k=%d → %d results returned.", top_k, len(results)
@@ -275,13 +281,14 @@ class VectorStore:
 
         query_filter: Optional[Filter] = Filter(must=conditions) if conditions else None
 
-        raw_results = self.client.search(
+        response = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_vector.tolist(),
+            query=query_vector.tolist(),
             query_filter=query_filter,
             limit=top_k,
             with_payload=True,
         )
+        raw_results = response.points
 
         results = self._format_results(raw_results)
         self.logger.info(

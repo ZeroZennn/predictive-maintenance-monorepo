@@ -1,88 +1,75 @@
-# ============================================================
-# LAPIS AI — NLP Pipeline Configuration
-# ============================================================
-
-project:
-  name: "lapis-ai-nlp"
-  version: "1.0.0"
-  environment: "development"  # development | production
-
-paths:
-  data_raw: "nlp/data/raw"
-  data_processed: "nlp/data/processed"
-  knowledge_base: "nlp/data/knowledge_base"
-  vector_db: "nlp/data/vector_db"
-
-ingestion:
-  supported_formats: ["pdf", "txt"]
-  ocr_fallback: true
-  table_extraction: true
-  encoding: "utf-8"
-
-chunking:
-  strategy: "hybrid_semantic"
-  chunk_size_min: 50          # token
-  chunk_size_max: 400         # token
-  chunk_size_target: 200      # token
-  overlap_percentage: 0.20
-  similarity_threshold: 0.75  # untuk topic shift detection
-  
-  chunk_types:
-    - "prose"
-    - "tabel"
-    - "anomali"
-    - "rekomendasi"
-  
-  anomali_keywords:
-    - "ditemukan"
-    - "terdeteksi"
-    - "anomali"
-    - "kerusakan"
-    - "warning"
-    - "vibrasi"
-    - "suhu melebihi"
-    - "pressure drop"
-
-embedding:
-  primary_model: "intfloat/multilingual-e5-large"
-  fallback_model: "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
-  batch_size: 32
-  query_prefix: "query: "
-  passage_prefix: "passage: "
-  dimension: 1024
-
-vector_db:
-  provider: "qdrant"
-  mode: "memory"      # development
-  # mode: "server"   # production
-  collection_name: "lapis_ai_chunks"
-
-retrieval:
-  top_k_dense: 20
-  top_k_sparse: 20
-  top_k_after_rrf: 30
-  top_k_final: 5
-  rrf_k: 60
-  reranker_model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
-
-llm:
-  primary_provider: "anthropic"
-  primary_model: "claude-sonnet-4-6"
-  fallback_provider: "google"
-  fallback_model: "gemini-2.5-pro"
-  max_tokens: 2048
-  temperature: 0.1
-
 api:
-  host: "0.0.0.0"
+  backend_url: http://localhost:8000
+  host: 0.0.0.0
   port: 8001
-  backend_url: "http://localhost:8000"
   timeout_seconds: 30
-
+chunking:
+  anomali_keywords:
+  - ditemukan
+  - terdeteksi
+  - anomali
+  - kerusakan
+  - warning
+  - vibrasi
+  - suhu melebihi
+  - pressure drop
+  chunk_size_max: 400
+  chunk_size_min: 50
+  chunk_size_target: 200
+  chunk_types:
+  - prose
+  - tabel
+  - anomali
+  - rekomendasi
+  overlap_percentage: 0.2
+  similarity_threshold: 0.75
+  strategy: hybrid_semantic
+embedding:
+  batch_size: 32
+  dimension: 1024
+  fallback_model: sentence-transformers/paraphrase-multilingual-mpnet-base-v2
+  passage_prefix: 'passage: '
+  primary_model: intfloat/multilingual-e5-large
+  query_prefix: 'query: '
+ingestion:
+  encoding: utf-8
+  ocr_fallback: true
+  supported_formats:
+  - pdf
+  - txt
+  table_extraction: true
 live_context:
-  enabled: true
   cache_ttl_seconds: 60
+  enabled: true
   endpoints:
-    machine_status: "/api/machines/{machine_id}/status"
-    ml_prediction: "/api/predictions/{machine_id}/latest"
-    active_alerts: "/api/alerts/active"
+    active_alerts: /api/alerts/active
+    machine_status: /api/machines/{machine_id}/status
+    ml_prediction: /api/predictions/{machine_id}/latest
+llm:
+  fallback_model: gemini-2.5-pro
+  fallback_provider: google
+  max_tokens: 2048
+  primary_model: claude-sonnet-4-6
+  primary_provider: anthropic
+  temperature: 0.1
+paths:
+  data_processed: nlp/data/processed
+  data_raw: nlp/data/raw
+  knowledge_base: nlp/data/knowledge_base
+  vector_db: nlp/data/vector_db
+project:
+  environment: development
+  name: lapis-ai-nlp
+  version: 1.0.0
+retrieval:
+  reranker_model: cross-encoder/ms-marco-MiniLM-L-6-v2
+  rrf_k: 60
+  top_k_after_rrf: 30
+  top_k_dense: 20
+  top_k_final: 5
+  top_k_sparse: 20
+vector_db:
+  collection_name: lapis_ai_chunks
+  local_path: nlp/data/vector_db/qdrant
+  mode: local
+  provider: qdrant

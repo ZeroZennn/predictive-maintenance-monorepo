@@ -66,3 +66,6 @@ dist/
 build/
 *.egg-info/
 *.egg
+
+# Qdrant local persistent storage
+nlp/data/vector_db/qdrant/
