@@ -210,8 +210,38 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 
 ---
 
-## FASE 5 — Smart NLP Router & Live Context Injection ⏳
-**Tujuan:** Intent classification dan RAG context injection ke NLP Engine.
+## FASE 5 — ML Orchestration Layer ✅
+**Tujuan:** Async ML prediction, cache hasil, Safety Margin Calculator,
+Alert trigger otomatis.
+
+### Langkah 5.A — ML Service, Safety Margin & Alert ✅
+- **Tanggal:** 2026-05-08
+- **Files Created:**
+  - `src/config/migrate3.js` — extend ml_predictions table (4 kolom baru)
+  - `src/services/mlService.js` — ML Engine caller + response parser
+  - `src/services/safetyMarginService.js` — RUL → tanggal kalender
+  - `src/services/alertService.js` — threshold check + broadcast + DB
+- **Files Modified:**
+  - `src/services/dispatcherService.js` — full 5-step pipeline
+- **ML API Contract Applied:**
+  - Endpoint: POST /api/ml/predict
+  - Request field: sensor_readings (bukan features)
+  - Response parsing: model_1_classifier + model_2_rul + metadata
+  - health_score = probabilities.HEALTHY x 100
+  - rul_days = Math.ceil(model_2_rul.rul_days)
+- **Safety Margin Logic:**
+  - Buffer = 20% dari RUL
+  - safety_margin_date = scheduled_date - buffer
+  - Priority: critical/high/normal berdasarkan classification + RUL
+- **Alert Thresholds:**
+  | Kondisi | Type | Severity |
+  |---------|------|---------|
+  | health <= 30 atau CRITICAL | health_critical | critical |
+  | health <= 60 atau WARNING | health_warning | warning |
+  | rul_days <= 7 | rul_critical | critical |
+- **Circuit Breaker:** ML unavailable → warn log → skip → pipeline lanjut
+- **Verified:** warn: ML Engine unavailable — skipping prediction ✅
+- **Verified:** Pipeline complete tanpa crash saat ML tidak aktif ✅
 
 ---
 
