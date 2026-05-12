@@ -62,9 +62,8 @@ export default function RULCircularGauge({
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span
           className={clsx(
-            "font-bold leading-none",
-            size >= 100 ? "text-xl" : "text-base",
-            STATUS_CONFIG[status].colorClass
+            "font-bold leading-none text-white",
+            size >= 100 ? "text-xl" : "text-[18px]"
           )}
         >
           {Math.round(percentage)}%

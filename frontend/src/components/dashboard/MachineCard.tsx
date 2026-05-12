@@ -34,19 +34,18 @@ export default function MachineCard({
       transition={{ duration: 0.15 }}
       className={clsx(
         "relative rounded-xl border cursor-pointer",
-        "flex flex-col items-center justify-between",
-        "p-3 gap-2 overflow-hidden",
+        "flex flex-col justify-between",
+        "p-4 overflow-hidden",
         "transition-all duration-300",
         // Active state
         isActive && [
-          "bg-lapis-neon-dim",
+          "bg-[#38531e]", // Dark green matching the image
           "border-lapis-neon",
-          // "shadow-glow-neon",
         ],
         // Inactive state
         !isActive && [
-          "bg-lapis-card",
-          "border-lapis-border",
+          "bg-gradient-to-b from-lapis-gray to-lapis-dark-gray",
+          "border-transparent",
           "hover:border-lapis-muted",
         ],
         // Critical state override
@@ -56,19 +55,14 @@ export default function MachineCard({
         !isActive && machine?.status === "WARNING" && "border-lapis-amber"
       )}
     >
-      {/* Status dot — pojok kanan atas */}
-      <div className="absolute top-2 right-2">
-        <MachineStatusDot status={machine?.status ?? "HEALTHY"} size="md" />
-      </div>
-
       {/* Machine illustration area */}
-      <div className="w-full flex items-center justify-center h-16 mt-1">
-        <div className="relative w-20 h-16">
+      <div className="w-full flex items-center justify-center mt-1 mb-2">
+        <div className="relative w-32 h-28">
           <Image
             src={`/assets/machines/${machineId}.png`}
             alt={`Machine ${machineId}`}
             fill
-            className="object-contain drop-shadow-lg"
+            className="object-contain drop-shadow-2xl"
             onError={(e) => {
               // Fallback jika image belum ada
               const target = e.target as HTMLImageElement;
@@ -85,11 +79,11 @@ export default function MachineCard({
       </div>
 
       {/* Machine info — bottom */}
-      <div className="w-full text-center">
-        <p className="text-lapis-text font-bold text-sm leading-tight">
+      <div className="w-full text-left mt-2">
+        <p className="text-white font-bold text-xl leading-tight">
           {machine?.id ?? machineId}
         </p>
-        <p className="text-lapis-muted text-[10px] mt-0.5 truncate">
+        <p className="text-white/90 text-sm mt-0.5 truncate">
           {machine?.name ?? "Loading..."}
         </p>
       </div>

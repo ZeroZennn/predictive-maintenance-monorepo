@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   useMotionValue,
   useTransform,
@@ -9,37 +9,19 @@ import {
 } from "framer-motion";
 import type { SensorConfig } from "@/config";
 
-// =============================================================================
-// PROPS
-// =============================================================================
-
 interface SensorGaugeChartProps {
   config: SensorConfig;
   value: number;
   status: "HEALTHY" | "WARNING" | "CRITICAL";
 }
 
-// =============================================================================
-// KONSTANTA INTERNAL
-// =============================================================================
+const CX = 100;
+const CY = 100;
+const RADIUS = 70;
+const START_ANGLE = -90;
+const END_ANGLE = 90;
 
-const SIZE = 160;
-const CX = 80;
-const CY = 90;
-const RADIUS = 60;
-const START_ANGLE = -210;
-const END_ANGLE = 30;
-
-// =============================================================================
-// HELPER FUNCTIONS
-// =============================================================================
-
-function polarToCartesian(
-  cx: number,
-  cy: number,
-  r: number,
-  angleDeg: number
-) {
+function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
   const rad = (angleDeg - 90) * (Math.PI / 180);
   return {
     x: cx + r * Math.cos(rad),
@@ -60,86 +42,119 @@ function describeArc(
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
 }
 
-function valueToAngle(value: number, min: number, max: number) {
-  const ratio = (value - min) / (max - min);
-  const clamped = Math.max(0, Math.min(1, ratio));
-  return START_ANGLE + clamped * (END_ANGLE - START_ANGLE);
-}
-
-// =============================================================================
-// KOMPONEN UTAMA
-// =============================================================================
-
 export default function SensorGaugeChart({
   config,
   value,
   status,
 }: SensorGaugeChartProps) {
-  // --- Penentuan Warna ---
-  let arcColor = "#5FDA0A";
-  let needleColor = "#EF7513";
-
-  if (status === "WARNING") {
-    arcColor = "#EF7513";
-    needleColor = "#EF7513";
-  } else if (status === "CRITICAL") {
-    arcColor = "#FF3B3B";
-    needleColor = "#FF3B3B";
-  }
-
-  // --- Animasi Jarum ---
-  const initialAngle = valueToAngle(value, config.min, config.max);
-  const motionValue = useMotionValue(initialAngle);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    const newAngle = valueToAngle(value, config.min, config.max);
-    animate(motionValue, newAngle, {
-      duration: 0.6,
+    setIsClient(true);
+  }, []);
+
+  let glowColor = "rgba(95, 218, 10, 0.4)";
+  let arcGradient = "url(#healthyGradient)";
+
+  if (status === "WARNING") {
+    glowColor = "rgba(239, 117, 19, 0.4)";
+    arcGradient = "url(#warningGradient)";
+  } else if (status === "CRITICAL") {
+    glowColor = "rgba(255, 59, 59, 0.4)";
+    arcGradient = "url(#criticalGradient)";
+  }
+
+  const CIRCUMFERENCE = Math.PI * RADIUS;
+
+  const clampedRatio = Math.max(
+    0,
+    Math.min(1, (value - config.min) / (config.max - config.min))
+  );
+  const targetOffset = CIRCUMFERENCE * (1 - clampedRatio);
+
+  const arcOffset = useMotionValue(CIRCUMFERENCE);
+
+  useEffect(() => {
+    animate(arcOffset, targetOffset, {
+      duration: 0.8,
       ease: "easeOut",
     });
-  }, [value, config.min, config.max, motionValue]);
+  }, [targetOffset, arcOffset]);
 
-  const needleX = useTransform(motionValue, (angle) => {
-    return polarToCartesian(CX, CY, 45, angle).x;
-  });
-  
-  const needleY = useTransform(motionValue, (angle) => {
-    return polarToCartesian(CX, CY, 45, angle).y;
-  });
+  const needleAngle = useTransform(
+    arcOffset,
+    [CIRCUMFERENCE, 0],
+    [START_ANGLE, END_ANGLE]
+  );
 
-  // --- Render ---
+  const needleInnerX = useTransform(
+    needleAngle,
+    (angle) => polarToCartesian(CX, CY, RADIUS - 8, angle).x
+  );
+  const needleInnerY = useTransform(
+    needleAngle,
+    (angle) => polarToCartesian(CX, CY, RADIUS - 8, angle).y
+  );
+  const needleOuterX = useTransform(
+    needleAngle,
+    (angle) => polarToCartesian(CX, CY, RADIUS + 16, angle).x
+  );
+  const needleOuterY = useTransform(
+    needleAngle,
+    (angle) => polarToCartesian(CX, CY, RADIUS + 16, angle).y
+  );
+
+  if (!isClient) return <div className="h-[130px] w-full" />;
+
+  const displayValue = typeof value === "number" ? value.toFixed(1) : "—";
+  const displayUnit = config.unit === "°C" ? "°C" : config.unit;
+
   return (
-    <div className="flex flex-col items-center">
-      {/* BAGIAN 1 — SVG gauge */}
-      <svg viewBox="0 0 160 110" className="w-full max-w-[160px]">
-        {/* Layer 1 — Track arc (background) */}
+    <div className="flex flex-col items-center w-full">
+      <svg viewBox="0 0 200 130" className="w-full max-w-[220px]">
+        <defs>
+          <linearGradient id="healthyGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3A8A06" />
+            <stop offset="100%" stopColor="#5FDA0A" />
+          </linearGradient>
+          <linearGradient id="warningGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#A84C00" />
+            <stop offset="100%" stopColor="#EF7513" />
+          </linearGradient>
+          <linearGradient id="criticalGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#A80000" />
+            <stop offset="100%" stopColor="#FF3B3B" />
+          </linearGradient>
+        </defs>
+
+        {/* Track arc (background) */}
         <path
           d={describeArc(CX, CY, RADIUS, START_ANGLE, END_ANGLE)}
           fill="none"
-          stroke="#1E3D40"
-          strokeWidth={10}
-          strokeLinecap="round"
+          stroke="rgba(226, 240, 241, 0.1)"
+          strokeWidth={16}
+          strokeLinecap="butt"
         />
 
-        {/* Layer 2 — Value arc (colored, panjang sesuai nilai) */}
-        <path
-          d={describeArc(
-            CX, CY,
-            RADIUS,
-            START_ANGLE,
-            valueToAngle(value, config.min, config.max)
-          )}
+        {/* Value arc (colored, animated, glowing) */}
+        <motion.path
+          d={describeArc(CX, CY, RADIUS, START_ANGLE, END_ANGLE)}
           fill="none"
-          stroke={arcColor}
-          strokeWidth={10}
-          strokeLinecap="round"
+          stroke={arcGradient}
+          strokeWidth={16}
+          strokeLinecap="butt"
+          strokeDasharray={CIRCUMFERENCE}
+          style={{
+            strokeDashoffset: arcOffset,
+            filter: `drop-shadow(0px 0px 8px ${glowColor})`,
+          }}
         />
 
-        {/* Layer 3 — Tick marks (5 buah, equally spaced) */}
-        {Array.from({ length: 5 }).map((_, i) => {
-          const angle = START_ANGLE + (i / 4) * (END_ANGLE - START_ANGLE);
-          const inner = polarToCartesian(CX, CY, RADIUS - 8, angle);
-          const outer = polarToCartesian(CX, CY, RADIUS + 2, angle);
+        {/* 7 Ticks inside */}
+        {Array.from({ length: 7 }).map((_, i) => {
+          const angle = START_ANGLE + (i / 6) * (END_ANGLE - START_ANGLE);
+          const inner = polarToCartesian(CX, CY, RADIUS - 22, angle);
+          const outer = polarToCartesian(CX, CY, RADIUS - 12, angle);
           return (
             <line
               key={i}
@@ -148,54 +163,48 @@ export default function SensorGaugeChart({
               x2={outer.x}
               y2={outer.y}
               stroke="#6B8F92"
-              strokeWidth={1.5}
+              strokeWidth={2}
               strokeLinecap="round"
+              opacity={0.6}
             />
           );
         })}
 
-        {/* Layer 4 — Needle (animated motion line) */}
+        {/* Needle (orange radial line) */}
         <motion.line
-          x1={CX}
-          y1={CY}
-          x2={needleX}
-          y2={needleY}
-          stroke={needleColor}
-          strokeWidth={2.5}
+          x1={needleInnerX}
+          y1={needleInnerY}
+          x2={needleOuterX}
+          y2={needleOuterY}
+          stroke="#FF8A00"
+          strokeWidth={3}
           strokeLinecap="round"
         />
 
-        {/* Layer 5 — Center dot */}
-        <circle cx={CX} cy={CY} r={4} fill={needleColor} />
-
-        {/* Layer 6 — Value text (tengah) */}
+        {/* Value Text */}
         <text
           x={CX}
-          y={CY - 8}
+          y={CY - 10}
           textAnchor="middle"
-          fontSize={18}
+          fontSize={14}
           fontWeight="bold"
+          fill="#FFFFFF"
+        >
+          {displayValue}
+          {displayUnit}
+        </text>
+
+        {/* Label Text */}
+        <text
+          x={CX}
+          y={CY + 18}
+          textAnchor="middle"
+          fontSize={14}
           fill="#E2F0F1"
         >
-          {typeof value === "number" ? value.toFixed(1) : "—"}
-        </text>
-
-        {/* Layer 7 — Unit text */}
-        <text
-          x={CX}
-          y={CY + 10}
-          textAnchor="middle"
-          fontSize={9}
-          fill="#6B8F92"
-        >
-          {config.unit}
+          {config.label}
         </text>
       </svg>
-
-      {/* BAGIAN 2 — Label di bawah SVG */}
-      <p className="text-xs text-lapis-muted text-center mt-1 font-medium tracking-wide">
-        {config.label}
-      </p>
     </div>
   );
 }

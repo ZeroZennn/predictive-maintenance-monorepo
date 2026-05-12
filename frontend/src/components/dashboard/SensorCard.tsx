@@ -40,7 +40,7 @@ export default function SensorCard({
     <div
       className={clsx(
         // Base card styles
-        "bg-lapis-card rounded-xl border",
+        "bg-gradient-to-b from-lapis-gray to-lapis-dark-gray rounded-xl border",
         "flex flex-col items-center",
         "p-3 gap-1",
         "transition-shadow duration-500",
@@ -49,9 +49,11 @@ export default function SensorCard({
       )}
     >
       {/* Card Header */}
-      <div className="w-full flex items-center gap-1.5 mb-1">
-        <AlignJustify size={12} className="text-lapis-neon shrink-0" />
-        <span className="text-[10px] font-semibold text-lapis-text uppercase tracking-widest truncate">
+      <div className="w-full flex items-center gap-2 mb-2">
+        <div className="w-6 h-6 rounded flex items-center justify-center bg-gradient-to-b from-lapis-neon to-[#3A8A06]">
+          <AlignJustify size={14} className="text-[#081819]" strokeWidth={3} />
+        </div>
+        <span className="text-sm font-medium text-white">
           {sensorConfig.label}
         </span>
       </div>
