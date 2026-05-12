@@ -30,4 +30,6 @@ export interface Machine {
   status: MachineStatus;
   rul_days: number;
   last_updated: string;
+  sensors: SensorData;
+  confidence: number;
 }

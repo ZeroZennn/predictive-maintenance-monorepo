@@ -18,18 +18,27 @@ interface MachineStore {
   getMachineById: (id: string) => Machine | undefined;
 }
 
-const defaultMachines: Record<string, Machine> = MACHINE_IDS.reduce<
-  Record<string, Machine>
->((acc, machine_id) => {
-  acc[machine_id] = {
-    id: machine_id,
-    name: `Machine ${machine_id}`,
+const defaultMachines: Record<string, Machine> = MACHINE_IDS.reduce((acc, id) => {
+  acc[id] = {
+    id,
+    name: "Machine " + id,
     status: "HEALTHY",
     rul_days: 999,
     last_updated: new Date().toISOString(),
+    confidence: 0,
+    sensors: {
+      temperature: 0,
+      vibration: 0,
+      pressure: 0,
+      rpm: 0,
+      power_consumption: 0,
+      noise_level: 0,
+      humidity: 0,
+      operating_hours: 0,
+    },
   };
   return acc;
-}, {});
+}, {} as Record<string, Machine>);
 
 export const useMachineStore = create<MachineStore>()((set, get) => ({
   // State
@@ -45,13 +54,11 @@ export const useMachineStore = create<MachineStore>()((set, get) => ({
         ...state.machines,
         [reading.machine_id]: {
           ...state.machines[reading.machine_id],
-          id: reading.machine_id,
-          name:
-            state.machines[reading.machine_id]?.name ??
-            `Machine ${reading.machine_id}`,
           status: reading.prediction.status,
           rul_days: reading.prediction.rul_days,
+          confidence: reading.prediction.confidence,
           last_updated: reading.timestamp,
+          sensors: reading.sensors,  // ← update semua sensor sekaligus
         },
       },
       lastUpdated: reading.timestamp,

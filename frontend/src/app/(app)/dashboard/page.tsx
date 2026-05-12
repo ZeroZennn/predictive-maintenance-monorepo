@@ -1,83 +1,126 @@
 "use client";
 
-// SEMENTARA — Smoke test sistem notifikasi.
-// File ini akan diganti total saat Fase 7 (Dashboard).
-
-import { useToastStore } from "@/stores";
-import { useToast } from "@/hooks";
+import { useState } from "react";
+import { SensorCard, MachineCard, RULCircularGauge } from "@/components/dashboard";
+import { SENSOR_CONFIG, MACHINE_IDS } from "@/config";
+import { AlignJustify } from "lucide-react";
 
 export default function DashboardPage() {
-  const addAlert = useToastStore((state) => state.addAlert);
-  const { persistentAlerts } = useToast();
+  const [selectedId, setSelectedId] = useState("M-01");
 
   return (
-    <div className="space-y-6">
-      {/* SECTION 1 — Judul */}
-      <div>
-        <h1 className="text-2xl font-bold text-lapis-text">
-          Real-Time Dashboard
-        </h1>
-        <p className="text-lapis-muted">Notification System Smoke Test</p>
+    // Dua kolom utama: machine list + main content
+    <div className="flex h-screen overflow-hidden">
+      {/* KOLOM KIRI — Machine List Panel */}
+      <div
+        className="w-52 shrink-0 
+                      bg-transparent 
+                      border-r border-lapis-border
+                      flex flex-col
+                      overflow-hidden
+                      group relative"
+      >
+        {/* Tooltip hint scroll */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-lapis-surface/90 backdrop-blur text-lapis-text text-[10px] px-3 py-1.5 rounded-full border border-lapis-border opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+          ↓ Scroll untuk melihat mesin
+        </div>
+        {/* Filter dropdown placeholder */}
+        <div className="p-3 border-b border-lapis-border">
+          <div
+            className="bg-lapis-card rounded-lg px-3 py-2
+                          text-lapis-muted text-xs
+                          border border-lapis-border"
+          >
+            All Machine ▾
+          </div>
+        </div>
+
+        {/* Machine cards list — scrollable */}
+        <div
+          className="flex-1 overflow-y-auto p-2 
+                        space-y-2"
+        >
+          {MACHINE_IDS.map((id) => (
+            <MachineCard
+              key={id}
+              machineId={id}
+              isActive={selectedId === id}
+              onClick={setSelectedId}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* SECTION 2 — Tombol trigger alert */}
-      <div className="flex gap-4">
-        {/* Tombol CRITICAL */}
-        <button
-          onClick={() =>
-            addAlert({
-              machine_id: "M-01",
-              severity: "CRITICAL",
-              title: "⚠️ CRITICAL: M-01",
-              message: "Suhu mesin melewati batas kritis: 95°C",
-              timestamp: new Date().toISOString(),
-            })
-          }
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-lapis-red-dim text-lapis-red border border-lapis-red hover:shadow-glow-red transition-shadow"
+      {/* KOLOM KANAN — Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Anomaly Timeline placeholder */}
+        <div
+          className="h-12 bg-lapis-surface 
+                        border-b border-lapis-border
+                        flex items-center px-4
+                        text-lapis-muted text-xs
+                        tracking-widest uppercase"
         >
-          Trigger CRITICAL
-        </button>
+          Anomaly Timeline — coming soon
+        </div>
 
-        {/* Tombol WARNING */}
-        <button
-          onClick={() =>
-            addAlert({
-              machine_id: "M-05",
-              severity: "WARNING",
-              title: "⚡ WARNING: M-05",
-              message: "Getaran mesin mendekati threshold: 5.8 mm/s",
-              timestamp: new Date().toISOString(),
-            })
-          }
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-lapis-amber-dim text-lapis-amber border border-lapis-amber hover:shadow-glow-amber transition-shadow"
-        >
-          Trigger WARNING
-        </button>
+        {/* Main content area */}
+        <div className="p-4 space-y-4">
+          {/* RUL Banner */}
+          <div className="bg-gradient-to-b from-lapis-gray to-lapis-dark-gray rounded-xl border-b-2 border-b-[#1E3D40] shadow-lg p-3 flex items-center justify-between">
+            {/* Kiri: Header + Inner Content */}
+            <div className="flex-1 mr-4">
+              {/* Header */}
+              <div className="w-full flex items-center gap-2 mb-3 px-1">
+                <div className="w-6 h-6 rounded flex items-center justify-center bg-gradient-to-b from-lapis-neon to-[#3A8A06]">
+                  <AlignJustify size={14} className="text-[#081819]" strokeWidth={3} />
+                </div>
+                <span className="text-sm font-bold text-white uppercase tracking-wider">
+                  {selectedId} VITAL SIGNS
+                </span>
+              </div>
 
-        {/* Tombol INFO */}
-        <button
-          onClick={() =>
-            addAlert({
-              machine_id: "M-10",
-              severity: "INFO",
-              title: "ℹ️ INFO: M-10",
-              message: "Jadwal maintenance preventif dalam 3 hari",
-              timestamp: new Date().toISOString(),
-            })
-          }
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-lapis-surface text-lapis-text border border-lapis-border hover:border-lapis-muted transition-colors"
-        >
-          Trigger INFO
-        </button>
+              {/* Inner Content */}
+              <div className="bg-lapis-dark-gray rounded-lg p-4 border border-lapis-border/30">
+                <p className="text-[22px] lg:text-[26px] font-bold text-white tracking-wide">
+                  ESTIMATED RUL :
+                  <span className="text-lapis-neon ml-2">362 DAYS</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Kanan: Circular Gauge */}
+            <div className="pr-2">
+              <RULCircularGauge percentage={80} status="HEALTHY" size={80} />
+            </div>
+          </div>
+
+          {/* 8 Sensor Gauge Grid */}
+          <div className="grid grid-cols-4 gap-3">
+            {SENSOR_CONFIG.map((config) => (
+              <SensorCard
+                key={config.key}
+                machineId={selectedId}
+                sensorConfig={config}
+              />
+            ))}
+          </div>
+
+          {/* Maintenance KPIs placeholder */}
+          <div
+            className="bg-lapis-card rounded-xl 
+                          border border-lapis-border 
+                          p-4"
+          >
+            <p
+              className="text-lapis-muted text-xs 
+                          uppercase tracking-widest"
+            >
+              Maintenance KPIs — coming soon
+            </p>
+          </div>
+        </div>
       </div>
-
-      {/* SECTION 3 — Counter persistent alerts */}
-      <p className="text-lapis-muted text-sm">
-        Persistent alerts aktif:
-        <span className="text-lapis-neon font-bold ml-1">
-          {persistentAlerts.length}
-        </span>
-      </p>
     </div>
   );
 }
