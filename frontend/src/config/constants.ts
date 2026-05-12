@@ -27,6 +27,7 @@ export const SENSOR_CONFIG: SensorConfig[] = [
   { key: "power_consumption", label: "Konsumsi Daya",       unit: "kW",   min: 100,  max: 250,  warningThreshold: 200,  criticalThreshold: 230  },
   { key: "noise_level",       label: "Tingkat Kebisingan",  unit: "dB",   min: 30,   max: 100,  warningThreshold: 75,   criticalThreshold: 88   },
   { key: "humidity",          label: "Kelembaban Udara",    unit: "%",    min: 30,   max: 80,   warningThreshold: 65,   criticalThreshold: 75   },
+  { key: "operating_hours",   label: "Jam Operasi",         unit: "hrs",  min: 0,    max: 5000, warningThreshold: 3500, criticalThreshold: 4500 }
 ];
 
 export interface StatusConfig {

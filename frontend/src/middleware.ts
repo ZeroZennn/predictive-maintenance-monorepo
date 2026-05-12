@@ -13,19 +13,61 @@ const ADMIN_ONLY_ROUTES = ["/admin"] as const;
 const DASHBOARD = "/";
 const LOGIN = "/login";
 
+// =============================================================================
+// Helper — decode JWT payload segment safely.
+// atob() requires standard base64, but JWTs use base64url (- and _ instead of
+// + and /), and omit padding. This function handles both conversions.
+// =============================================================================
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    // Konversi base64url → base64 standar
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+
+    // Padding agar panjang kelipatan 4
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "="
+    );
+
+    const decoded = atob(padded);
+    return JSON.parse(decoded) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 export default function middleware(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("lapis_token")?.value ?? null;
 
+  // ============================================================
+  // DEV BYPASS — Hanya aktif jika NEXT_PUBLIC_SKIP_AUTH=true
+  // WAJIB dihapus atau di-set false sebelum production build
+  // ============================================================
+  if (process.env.NEXT_PUBLIC_SKIP_AUTH === "true") {
+    return NextResponse.next();
+  }
+
   /**
    * STEP 1 — Public route check.
-   * Authenticated users are bounced away from /login to the dashboard.
+   * Authenticated users with a valid token are bounced to the dashboard.
+   * If token is present but malformed, we let the user through to /login
+   * (avoids an infinite redirect loop).
    * Unauthenticated users may proceed to public routes freely.
    */
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route);
   if (isPublicRoute) {
     if (token) {
-      return NextResponse.redirect(new URL(DASHBOARD, request.url));
+      const payload = decodeJwtPayload(token);
+      if (payload) {
+        // Valid token — bounce to dashboard
+        return NextResponse.redirect(new URL(DASHBOARD, request.url));
+      }
+      // Token present but malformed → allow /login (prevents redirect loop)
     }
     return NextResponse.next();
   }
@@ -46,30 +88,16 @@ export default function middleware(request: NextRequest): NextResponse {
    * replacing URL-safe characters back to standard base64.
    * Malformed or missing token → redirect to login.
    */
-  let role: UserRole | null = null;
-  try {
-    const payloadBase64 = token.split(".")[1];
-    if (!payloadBase64) throw new Error("Missing JWT payload segment");
+  const payload = decodeJwtPayload(token);
 
-    // base64url → base64 (replace URL-safe chars with standard base64 chars)
-    const base64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonString = atob(base64);
-    const parsed: unknown = JSON.parse(jsonString);
-
-    // Type narrowing — ensure parsed is an object with a valid string "role" field
-    if (
-      parsed !== null &&
-      typeof parsed === "object" &&
-      "role" in parsed &&
-      typeof (parsed as Record<string, unknown>).role === "string"
-    ) {
-      role = (parsed as Record<string, unknown>).role as UserRole;
-    } else {
-      throw new Error("JWT payload missing 'role' field");
-    }
-  } catch {
-    return NextResponse.redirect(new URL(LOGIN, request.url));
+  if (!payload || typeof payload.role !== "string") {
+    // Token malformed — hapus cookie dan redirect login
+    const response = NextResponse.redirect(new URL(LOGIN, request.url));
+    response.cookies.delete("lapis_token");
+    return response;
   }
+
+  const role = payload.role as UserRole;
 
   /**
    * STEP 4 — Admin-only route enforcement.
