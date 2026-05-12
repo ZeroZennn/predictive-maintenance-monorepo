@@ -1,9 +1,58 @@
-node_modules/
-venv/
-__pycache__/
+# ==============================================================================
+# LAPIS AI — MONOREPO GITIGNORE
+# ==============================================================================
+
+# 1. Environment & Secrets
 .env
+.env.*
+!.env.example
+venv/
+env/
+.venv/
+
+# 2. Machine Learning Data
+# Jangan commit data (bisa bergiga-giga dan melanggar aturan data privacy)
+machine_learning/data/raw/
+machine_learning/data/interim/
+machine_learning/data/processed/
+*.csv
+*.parquet
+*.xlsx
+
+# 3. Machine Learning Models
+# Jangan commit model file secara langsung (ukurannya besar)
+# Gunakan Git LFS jika memang perlu di-commit, atau simpan di cloud storage
 *.pkl
 *.h5
-machine_learning/data/raw/
-machine_learning/data/processed/
+*.keras
+*.onnx
+# Opsional: Jika ingin mengabaikan seluruh folder model kecuali yang final
+# machine_learning/models/dl_track/
+# machine_learning/models/ml_track/
+
+# 4. Jupyter Notebook & IDE
 .ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+
+# 5. Python Build & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+htmlcov/
+.coverage
+
+# 6. Node.js & Web Development (Frontend/Backend)
+node_modules/
+dist/
+build/
+.next/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 7. OS Specific
+.DS_Store
+Thumbs.db
