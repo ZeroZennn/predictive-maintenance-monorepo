@@ -5,4 +5,5 @@ export { default as SensorCard } from "./SensorCard";
 export { default as MachineCard } from "./MachineCard";
 export { default as RULCircularGauge } from "./RULCircularGauge";
 export { default as KPIItem } from "./KPIItem";
-
+export { default as AnomalyTimeline } from "./AnomalyTimeline";
+export type { AnomalyEvent } from "./AnomalyTimeline";

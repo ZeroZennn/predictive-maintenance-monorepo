@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SensorCard, MachineCard, RULCircularGauge } from "@/components/dashboard";
+import { SensorCard, MachineCard, RULCircularGauge, AnomalyTimeline } from "@/components/dashboard";
 import { SENSOR_CONFIG, MACHINE_IDS } from "@/config";
 import { AlignJustify } from "lucide-react";
 
@@ -53,16 +53,8 @@ export default function DashboardPage() {
 
       {/* KOLOM KANAN — Main Content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Anomaly Timeline placeholder */}
-        <div
-          className="h-12 bg-lapis-surface 
-                        border-b border-lapis-border
-                        flex items-center px-4
-                        text-lapis-muted text-xs
-                        tracking-widest uppercase"
-        >
-          Anomaly Timeline — coming soon
-        </div>
+        {/* Anomaly Timeline */}
+        <AnomalyTimeline />
 
         {/* Main content area */}
         <div className="p-4 space-y-4">
