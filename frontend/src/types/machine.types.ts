@@ -8,6 +8,7 @@ export interface SensorData {
   power_consumption: number;
   noise_level: number;
   humidity: number;
+  operating_hours: number;
 }
 
 export interface MachinePrediction {
