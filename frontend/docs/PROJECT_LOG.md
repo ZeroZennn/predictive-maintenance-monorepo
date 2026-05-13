@@ -63,6 +63,7 @@ Catatan historis perjalanan pengembangan frontend sistem *Lapis AI*, mulai dari 
   - *Perbaikan Khusus*: Mengintervensi kendala `overflow-hidden` pembungkus utama sehingga alat lapor *tooltip hover* dapat menjebol bingkai utama.
   - *Perbaikan Khusus*: Memutar vektor parameter *tooltip* untuk selalu tampil di ambang sisi kanan garis (*dot*), menghapus risiko kliping atas.
 - **IconNavBar (Peningkatan)**: Revisi orientasi sumbu Y dan transisi pendar gradien eksklusif *active state* item.
+- **MaintenanceKPIBar**: Dirancang ulang dan diimplementasikan secara komprehensif. Menghubungkan *surgical subscription* langsung dari `machineStore`. Layout diubah menjadi format *grid* 3x2 yang harmonis dengan kartu *VITAL SIGNS*, dilengkapi efek *Neumorphic glowing ring* interaktif berbasis proporsi persentase data (Confidence, RUL, dll).
 
 ---
 

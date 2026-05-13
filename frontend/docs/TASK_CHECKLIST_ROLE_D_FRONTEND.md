@@ -280,7 +280,10 @@
   - Hover tooltip: machineId + status
   - "Now" indicator kanan
   - Mock data statis (siap swap ke live data)
-- [ ] MaintenanceKPIBar.tsx ← NEXT
+- [x] MaintenanceKPIBar.tsx:
+  - 6 KPIItems (Confidence, Last Maintenance, Uptime, Issues/Week, Remaining Life, Cost)
+  - Layout Grid 3x2, sinkron dengan style VITAL SIGNS
+  - Surgical subscription dari machineStore
 - [ ] RULBanner.tsx
 - [ ] MachineListSidebar.tsx
 - [ ] SensorGrid.tsx
@@ -298,8 +301,8 @@
 
 ---
 
-## FASE 7 — Dashboard Page Full Assembly ⏳
-**Status:** BELUM DIMULAI
+## FASE 7 — Dashboard Page Full Assembly 🔄
+**Status:** IN PROGRESS
 
 - [ ] MachineListSidebar organism:
   - Zone filter dropdown (All/Healthy/Warning/Critical)
@@ -313,7 +316,7 @@
 - [ ] SensorGrid organism:
   - 8 SensorCards grid 4×2
   - Data dari machineStore surgical subscription
-- [ ] MaintenanceKPIBar organism:
+- [x] MaintenanceKPIBar organism:
   - 6 KPIItems (Confidence, Last Maintenance,
     Uptime, Issues/Week, Remaining Life, Cost)
 - [ ] Assembly halaman Dashboard penuh
