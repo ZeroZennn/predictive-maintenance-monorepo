@@ -11,6 +11,7 @@ const morgan = require("morgan");
 const logger = require("./config/logger");
 const telemetryRoutes = require("./routes/telemetryRoutes");
 const authRoutes = require("./routes/authRoutes");
+const nlpRoutes = require('./routes/nlpRoutes');
 const socketManager = require('./websockets/socketManager')
 
 // Database & Cache connections - initialize on startup
@@ -59,6 +60,7 @@ app.get("/health", (req, res) => {
 // API Routes
 app.use("/api/telemetry", telemetryRoutes);
 app.use("/api/auth", authRoutes);
+app.use('/api/nlp', nlpRoutes);
 
 // 404 handler (catch-all for undefined routes)
 app.use((req, res) => {
