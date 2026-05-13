@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { SensorCard, MachineCard, RULCircularGauge, AnomalyTimeline } from "@/components/dashboard";
+import { useEffect } from "react";
+import { SensorCard, MachineCard, RULCircularGauge, AnomalyTimeline, MaintenanceKPIBar } from "@/components/dashboard";
 import { SENSOR_CONFIG, MACHINE_IDS } from "@/config";
 import { AlignJustify } from "lucide-react";
+import { useMachineStore } from "@/stores";
 
 export default function DashboardPage() {
-  const [selectedId, setSelectedId] = useState("M-01");
+  const selectedId = useMachineStore((state) => state.selectedMachineId) || "M-01";
+  const setSelectedId = useMachineStore((state) => state.setSelectedMachine);
+
+  useEffect(() => {
+    if (!useMachineStore.getState().selectedMachineId) {
+      setSelectedId("M-01");
+    }
+  }, [setSelectedId]);
 
   return (
     // Dua kolom utama: machine list + main content
@@ -98,19 +106,8 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Maintenance KPIs placeholder */}
-          <div
-            className="bg-lapis-card rounded-xl 
-                          border border-lapis-border 
-                          p-4"
-          >
-            <p
-              className="text-lapis-muted text-xs 
-                          uppercase tracking-widest"
-            >
-              Maintenance KPIs — coming soon
-            </p>
-          </div>
+          {/* Maintenance KPIs */}
+          <MaintenanceKPIBar />
         </div>
       </div>
     </div>
