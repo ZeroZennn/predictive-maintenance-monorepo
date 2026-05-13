@@ -245,8 +245,40 @@ Alert trigger otomatis.
 
 ---
 
-## FASE 6 — Safety Margin Calculator & Alerting ⏳
-**Tujuan:** RUL → tanggal kalender + sistem notifikasi otomatis.
+## FASE 6 — Smart NLP Router & Live Context Injection ✅
+**Tujuan:** Intent classifier middleware, context injection dari Redis
+ke NLP payload, POST /api/nlp/chat endpoint.
+
+### Langkah 6.A — NLP Router & Context Service ✅
+- **Tanggal:** 2026-05-13
+- **Files Created:**
+  - `src/services/nlpContextService.js`
+    — Redis context fetcher + regex machine ID extractor
+  - `src/middlewares/nlpRouterMiddleware.js`
+    — 3-layer rule-based intent classifier
+  - `src/controllers/nlpController.js`
+    — NLP Engine proxy, timeout 30s, fallback 503
+  - `src/routes/nlpRoutes.js`
+    — POST /api/nlp/chat + GET /api/nlp/health
+- **Classification Rules:**
+  | Layer | Trigger | Result |
+  |-------|---------|--------|
+  | 1 | explicit machine_id di body | machine_specific |
+  | 2 | regex M-XX ditemukan di query | machine_specific |
+  | 3 | keyword kontekstual + machine_id | machine_specific |
+  | default | tidak ada sinyal | general |
+- **NLP Request Payload:**
+  - mode: "general" atau "machine_specific"
+  - machine_ids: array mesin terdeteksi
+  - live_context: snapshot Redis (null jika general)
+- **Verified:**
+  - general query → mode:general, context:none ✅
+  - explicit machine_id → mode:machine_specific ✅
+  - keyword "RUL" + "M-07" → mode:machine_specific ✅
+  - NLP Engine down → 503 fallback tanpa crash ✅
+- **Note:** context:none saat test normal — Redis kosong
+  karena IoT data belum dijalankan via Replay Script.
+  Saat Replay Script aktif, context injection otomatis bekerja.
 
 ---
 
