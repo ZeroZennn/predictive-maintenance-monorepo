@@ -501,7 +501,7 @@ Backend hanya kirim raw sensor data.
 ### Dokumentasi Final
 - [x] Update `PROJECT_LOG.md` (section Fase 9 & Fase 10)
 - [x] Update `TASK_CHECKLIST_ROLE_A.md` (semua ✅)
-- [ ] `README.md` untuk repo ⏳ (opsional — di luar scope deliverables Role A)
+
 
 ---
 
@@ -522,7 +522,7 @@ Backend hanya kirim raw sensor data.
 | Fase 9 — Evaluation & Model Selection | ✅ |
 | Fase 10 — Artifact Export & API Contract | ✅ |
 
-**Siap untuk handover ke Backend Engineer (Role C — Reynaldi).** 
+**Siap untuk handover ke Backend Engineer.** 
 
 
 
