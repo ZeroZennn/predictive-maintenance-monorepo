@@ -404,50 +404,6 @@ Catatan: jika terpilih, re-run dengan lr=0.01 di Fase 9.
 
 ---
 
-## FASE 10 — Artifact Export & API Contract Definition ⏳
-**Notebook:** `notebooks/fase_10_export/10_artifact_export.ipynb`
-**Status:** BELUM DIMULAI
-
-### Preprocessing Pipeline Object
-- [ ] Kemas seluruh preprocessing dalam
-  satu sklearn Pipeline object
-- [ ] Test pipeline dengan raw sensor data baru
-- [ ] Simpan sebagai preprocessing_pipeline.pkl
-
-### Model Artifacts Final
-- [ ] Copy model terpilih ke models/final/
-  - classifier_final.pkl
-  - rul_predictor_final.pkl atau .h5/.keras
-- [ ] Verifikasi inference dengan sample data
-
-### API Contract JSON Final
-**Catatan Arsitektur (sudah dikunci):**
-ML Service melakukan feature engineering.
-Backend hanya kirim raw sensor data.
-
-- [ ] Definisi endpoint POST /api/ml/predict
-- [ ] Request schema (raw sensor input)
-- [ ] Response schema:
-  - Model 1: label + probabilities + threshold info
-  - Model 2: rul_days + rul_hours + urgency_level
-- [ ] Error response schema
-- [ ] WARNING threshold = 0.60 tercantum eksplisit
-- [ ] Simpan sebagai api_contract_final_v1.json
-- [ ] Update dari draft: api_contract_draft_v1.json
-
-### Refactoring .ipynb → .py
-- [ ] src/preprocessing_pipeline.py
-- [ ] src/inference.py (fungsi predict untuk 1 sample)
-- [ ] src/utils/feature_engineering.py
-- [ ] Test script: python src/inference.py --sample test
-
-### Dokumentasi Final
-- [ ] Update PROJECT_LOG.md (section Fase 10)
-- [ ] Update TASK_CHECKLIST_ROLE_A.md (semua ✅)
-- [ ] README.md untuk repo
-
----
-
 ## CATATAN & ISSUES AKTIF
 
 | ID | Fase | Catatan | Status |
@@ -477,6 +433,98 @@ Backend hanya kirim raw sensor data.
 | 🥉 | GRU | 1.8618 hari | 0.9515 hari | 97.80% | Tidak dipilih |
 
 ---
+
+## FASE 10 — Artifact Export & API Contract Definition ✅
+**Notebook:** `notebooks/fase_10_export/10_artifact_export.ipynb`
+**Status:** SELESAI & DIAUDIT
+
+### Preprocessing Pipeline Object
+- [x] Kemas seluruh preprocessing dalam satu sklearn Pipeline object
+      → `FeatureEngineeringTransformer` didefinisikan di
+        `src/preprocessing_pipeline.py` (bukan notebook)
+        untuk menghindari __main__ pickle deserialization bug
+- [x] Test pipeline dengan raw sensor data baru
+      → Smoke test: shape (5, 69), NaN=False, dtype=float64 ✅
+- [x] Simpan sebagai `models/final/preprocessing_pipeline.pkl` (6.0 KB)
+
+### Model Artifacts Final
+- [x] Copy model terpilih ke `models/final/`:
+  - `classifier_final.pkl`        (1.68 MB) — XGBoost V2
+  - `rul_predictor_final.keras`   (610.4 KB) — LSTM V2
+- [x] Buat Model Card JSON per model:
+  - `classifier_model_card.json`      (1.9 KB)
+  - `rul_predictor_model_card.json`   (2.0 KB)
+- [x] Verifikasi inference dengan sample data
+      → Classifier shape (3, 3) ✅ | LSTM shape (1, 1) ✅
+- [x] MANIFEST.json dibuat (daftar semua file + ukuran)
+
+### API Contract JSON Final
+**Catatan Arsitektur (dikunci):**
+ML Service melakukan feature engineering.
+Backend hanya kirim raw sensor data.
+
+- [x] Definisi endpoint `POST /api/ml/predict`
+- [x] Request schema (raw sensor input + sensor_history opsional 23 entri)
+- [x] Response schema:
+  - Model 1: label + probabilities + threshold info ✅
+  - Model 2: rul_days + rul_hours + urgency_level + is_active ✅
+- [x] Error response schema (400 / 422 / 500 / 503)
+- [x] WARNING threshold = 0.60 tercantum eksplisit sebagai float ✅
+- [x] Simpan sebagai `api_contract_final_v1.json` (7.1 KB)
+      → Disimpan di 2 lokasi: root + notebooks/fase_10_export/
+- [x] Update dari draft: `api_contract_draft_v1.json` → v1.0-final
+
+### Refactoring .ipynb → .py
+- [x] `src/preprocessing_pipeline.py` (FeatureEngineeringTransformer portable)
+- [x] `src/inference.py` (fungsi predict() — Singleton pattern, semua model
+      di-load sekali saat import, LSTM warm-up call otomatis saat startup)
+- [x] `src/utils/feature_engineering.py` (pure functions, importable)
+- [x] End-to-end test via Cell 5: `from src.inference import predict` ✅
+      (pengganti --sample test, lebih komprehensif: 5 skenario)
+
+### Catatan Arsitektur Kritis (Fase 10)
+| Issue | Resolusi |
+|---|---|
+| `__main__` pickle bug | `FeatureEngineeringTransformer` dipindah ke `src/preprocessing_pipeline.py` |
+| LSTM cold start 693ms | Warm-up call di dalam `_load_models()` → inference ~116ms |
+| `scaler_final.pkl` redundan | Ada di `models/final/` tapi tidak di-expose ke Backend — pipeline sudah cukup |
+
+### Final Smoke Test (5/5 PASSED) ✅
+| Skenario | Hasil |
+|---|---|
+| S1 HEALTHY (tanpa history) | label=HEALTHY, RUL inactive, 46.5ms ✅ |
+| S2 CRITICAL + history 23 entri | RUL=1.585 hari, Urgency=CRITICAL, 116ms ✅ |
+| S3 Missing sensor_readings | Error 400, message spesifik ✅ |
+| S4 Missing field 'vibration' | Error 400, field teridentifikasi ✅ |
+| S5 Timing 5x consecutive | Avg 49.7ms, Max 54.0ms (< 200ms) ✅ |
+
+### Dokumentasi Final
+- [x] Update `PROJECT_LOG.md` (section Fase 9 & Fase 10)
+- [x] Update `TASK_CHECKLIST_ROLE_A.md` (semua ✅)
+- [ ] `README.md` untuk repo ⏳ (opsional — di luar scope deliverables Role A)
+
+---
+
+## STATUS KESELURUHAN ROLE A: ✅ COMPLETE
+
+| Fase | Status |
+|---|---|
+| Fase 0 — Environment Setup | ✅ |
+| Fase 1 — Data Ingestion | ✅ |
+| Fase 2 — EDA Forensik | ✅ |
+| Fase 3 — Label Engineering | ✅ |
+| Fase 4 — Feature Engineering | ✅ |
+| Fase 5 — Preprocessing | ✅ |
+| Fase 6 — SSBS Imbalance Handling | ✅ |
+| Fase 6.5 — RUL Engineering | ✅ |
+| Fase 7 — Splitting & SMOTE | ✅ |
+| Fase 8 — Modeling (ML + DL Track) | ✅ |
+| Fase 9 — Evaluation & Model Selection | ✅ |
+| Fase 10 — Artifact Export & API Contract | ✅ |
+
+**Siap untuk handover ke Backend Engineer (Role C — Reynaldi).** 
+
+
 
 *Dokumen ini diupdate setiap langkah selesai dieksekusi dan diaudit.*
 *Jangan update status ✅ sebelum mendapat persetujuan audit dari Lead Architect.*

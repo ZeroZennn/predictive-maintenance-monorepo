@@ -797,3 +797,45 @@ bukan hanya metrik statistik.
 - Input Model 2: sequence 24 timesteps × 69 fitur
 
 ---
+
+## FASE 10 — Artifact Export & API Contract Definition ✅
+**Status:** Complete
+**File:** `notebooks/fase_10_export/10_artifact_export.ipynb`
+
+### Artifacts Final (models/final/):
+| File | Size | Keterangan |
+|---|---|---|
+| preprocessing_pipeline.pkl | 6.0 KB | sklearn Pipeline — portable |
+| classifier_final.pkl | 1.68 MB | XGBoost V2, threshold=0.60 |
+| rul_predictor_final.keras | 610.4 KB | LSTM V2, seq_len=24 |
+| classifier_model_card.json | 1.9 KB | metadata & constraints Model 1 |
+| rul_predictor_model_card.json | 2.0 KB | metadata & constraints Model 2 |
+
+### Scripts Production:
+| File | Keterangan |
+|---|---|
+| src/preprocessing_pipeline.py | FeatureEngineeringTransformer (portable) |
+| src/inference.py | Entry point — fungsi predict() |
+| src/utils/feature_engineering.py | Pure functions, importable |
+
+### API Contract:
+- File: `api_contract_final_v1.json` (7.1 KB)
+- Version: 1.0-final
+- Endpoint: POST /api/ml/predict
+- WARNING threshold: 0.60 (dikunci)
+- CRITICAL threshold: 0.50 (default)
+
+### Final Smoke Test (5/5 PASSED):
+| Skenario | Result |
+|---|---|
+| HEALTHY inference | label=HEALTHY, RUL inactive, 46.5ms |
+| CRITICAL + history 23 entri | RUL=1.585 hari, Urgency=CRITICAL, 116ms |
+| Missing sensor_readings | Error 400 ✅ |
+| Missing field 'vibration' | Error 400, message spesifik ✅ |
+| Timing 5x consecutive | Avg 49.7ms, Max 54.0ms ✅ |
+
+### Keputusan Arsitektur Kritis (Fase 10):
+- FeatureEngineeringTransformer dipindah ke src/preprocessing_pipeline.py
+  untuk menghindari __main__ pickle deserialization bug
+- LSTM warm-up call dijalankan saat _load_models() startup
+- inference.py menggunakan Singleton pattern — model load sekali
