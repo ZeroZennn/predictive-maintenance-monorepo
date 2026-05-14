@@ -1,6 +1,6 @@
 # TASK CHECKLIST — ROLE D: FRONTEND ENGINEER
 ### Lapis AI Predictive Maintenance System
-**Last Updated:** 2026-05-11
+**Last Updated:** 2026-05-14
 **Status Keseluruhan:** In Progress
 
 ---
@@ -273,20 +273,30 @@
   - Icon circular container + label + value
   - valueColor prop untuk override warna nilai
 
-### Organisms (Partial)
+### Organisms
 - [x] AnomalyTimeline.tsx:
-  - Horizontal timeline dengan time labels
-  - Event dots dengan warna per severity
-  - Hover tooltip: machineId + status
-  - "Now" indicator kanan
-  - Mock data statis (siap swap ke live data)
+  - Horizontal timeline dengan garis oranye dan tick marks
+  - Green active window untuk zona anomali
+  - Floating pill badge berkedip (animate-pulse) di dalam zone hijau
+  - Dot dihilangkan sesuai desain final
+  - Mock data statis (siap swap ke live data dari BE/ML)
 - [x] MaintenanceKPIBar.tsx:
   - 6 KPIItems (Confidence, Last Maintenance, Uptime, Issues/Week, Remaining Life, Cost)
   - Layout Grid 3x2, sinkron dengan style VITAL SIGNS
   - Surgical subscription dari machineStore
-- [ ] RULBanner.tsx
-- [ ] MachineListSidebar.tsx
-- [ ] SensorGrid.tsx
+- [x] MachineListSidebar.tsx:
+  - Dropdown filter: ALL / HEALTHY / WARNING / CRITICAL
+  - Scrollable machine list dengan MachineCard
+  - Surgical subscription (selectedMachineId dibaca dari store di MachineCard)
+  - useMemo untuk filteredMachines
+- [x] RULBanner (inline di page.tsx):
+  - Header "M-XX VITAL SIGNS" + AlignJustify icon
+  - Teks hero "ESTIMATED RUL : XXX DAYS" neon
+  - RULCircularGauge di kanan
+- [x] SensorGrid (inline di page.tsx):
+  - 8 SensorCards grid 4×2
+  - Map dari SENSOR_CONFIG
+  - Data dari machineStore via SensorCard surgical subscription
 
 ### Layout Refactor
 - [x] IconNavBar.tsx: w-[90px], transparent bg,
@@ -301,30 +311,30 @@
 
 ---
 
-## FASE 7 — Dashboard Page Full Assembly 🔄
-**Status:** IN PROGRESS
+## FASE 7 — Dashboard Page Full Assembly ✅
+**Status:** SELESAI
 
-- [ ] MachineListSidebar organism:
+- [x] MachineListSidebar organism:
   - Zone filter dropdown (All/Healthy/Warning/Critical)
-  - 20 MachineCards scrollable
+  - MachineCards scrollable, surgical isActive dari store
   - Klik card → update selectedMachineId di store
-- [ ] RULBanner organism:
-  - "M-XX VITAL SIGNS" header
-  - "ESTIMATED RUL : XXX DAYS" hero text
+- [x] RULBanner organism (inline di page.tsx):
+  - "M-XX VITAL SIGNS" header dengan AlignJustify icon
+  - "ESTIMATED RUL : XXX DAYS" hero text neon
   - RULCircularGauge di kanan
-  - PersistentAlertBar diintegrasikan di sini
-- [ ] SensorGrid organism:
+  - NOTE: PersistentAlertBar ditunda ke iterasi berikutnya
+- [x] SensorGrid organism (inline di page.tsx):
   - 8 SensorCards grid 4×2
-  - Data dari machineStore surgical subscription
+  - Data dari machineStore surgical subscription per sensor
 - [x] MaintenanceKPIBar organism:
   - 6 KPIItems (Confidence, Last Maintenance,
     Uptime, Issues/Week, Remaining Life, Cost)
-- [ ] Assembly halaman Dashboard penuh
-- [ ] Validasi klik machine card → semua 
+- [x] Assembly halaman Dashboard penuh
+- [x] Validasi klik machine card → semua
   panel update (RUL, sensor, KPI)
-- [ ] Validasi WebSocket mock update → 
-  gauge needle animasi
-- [ ] npx tsc --noEmit + npm run build: PASSED
+- [ ] Validasi WebSocket mock update →
+  gauge needle animasi (ditunda — BE belum live)
+- [x] npx tsc --noEmit: PASSED ✅
 
 ---
 

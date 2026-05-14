@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { SensorCard, MachineCard, RULCircularGauge, AnomalyTimeline, MaintenanceKPIBar } from "@/components/dashboard";
+import { SensorCard, MachineCard, RULCircularGauge, AnomalyTimeline, MaintenanceKPIBar, MachineListSidebar } from "@/components/dashboard";
 import { SENSOR_CONFIG, MACHINE_IDS } from "@/config";
 import { AlignJustify } from "lucide-react";
 import { useMachineStore } from "@/stores";
@@ -20,44 +20,7 @@ export default function DashboardPage() {
     // Dua kolom utama: machine list + main content
     <div className="flex h-screen overflow-hidden">
       {/* KOLOM KIRI — Machine List Panel */}
-      <div
-        className="w-52 shrink-0 
-                      bg-transparent 
-                      border-r border-lapis-border
-                      flex flex-col
-                      overflow-hidden
-                      group relative"
-      >
-        {/* Tooltip hint scroll */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-lapis-surface/90 backdrop-blur text-lapis-text text-[10px] px-3 py-1.5 rounded-full border border-lapis-border opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-          ↓ Scroll untuk melihat mesin
-        </div>
-        {/* Filter dropdown placeholder */}
-        <div className="p-3 border-b border-lapis-border">
-          <div
-            className="bg-lapis-card rounded-lg px-3 py-2
-                          text-lapis-muted text-xs
-                          border border-lapis-border"
-          >
-            All Machine ▾
-          </div>
-        </div>
-
-        {/* Machine cards list — scrollable */}
-        <div
-          className="flex-1 overflow-y-auto p-2 
-                        space-y-2"
-        >
-          {MACHINE_IDS.map((id) => (
-            <MachineCard
-              key={id}
-              machineId={id}
-              isActive={selectedId === id}
-              onClick={setSelectedId}
-            />
-          ))}
-        </div>
-      </div>
+      <MachineListSidebar />
 
       {/* KOLOM KANAN — Main Content */}
       <div className="flex-1 overflow-y-auto">
@@ -67,7 +30,7 @@ export default function DashboardPage() {
         {/* Main content area */}
         <div className="p-4 space-y-4">
           {/* RUL Banner */}
-          <div className="bg-gradient-to-b from-lapis-gray to-lapis-dark-gray rounded-xl border-b-2 border-b-[#1E3D40] shadow-lg p-3 flex items-center justify-between">
+          <div className="bg-gradient-to-b from-[#2B3739] to-[#1C2626] rounded-xl border-b-2 border-b-[#1E3D40] shadow-lg p-3 flex items-center justify-between">
             {/* Kiri: Header + Inner Content */}
             <div className="flex-1 mr-4">
               {/* Header */}

@@ -68,7 +68,7 @@ export default function MaintenanceKPIBar({
   return (
     <div
       className={clsx(
-        "bg-gradient-to-b from-lapis-gray to-lapis-dark-gray rounded-xl border-b-2 border-b-[#1E3D40] shadow-lg p-4 flex flex-col gap-3",
+        "bg-gradient-to-b from-[#2B3739] to-[#1C2626] rounded-xl border-b-2 border-b-[#1E3D40] shadow-lg p-4 flex flex-col gap-3",
         className
       )}
     >
