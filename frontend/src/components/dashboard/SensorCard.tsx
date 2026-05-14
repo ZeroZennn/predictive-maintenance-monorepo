@@ -40,7 +40,7 @@ export default function SensorCard({
     <div
       className={clsx(
         // Base card styles
-        "bg-gradient-to-b from-lapis-gray to-lapis-dark-gray rounded-xl border",
+        "bg-gradient-to-b from-[#2B3739] to-[#1C2626] rounded-xl border",
         "flex flex-col items-center",
         "p-3 gap-1",
         "transition-shadow duration-500",

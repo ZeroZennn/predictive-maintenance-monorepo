@@ -9,16 +9,17 @@ import { clsx } from "clsx";
 
 interface MachineCardProps {
   machineId: string;
-  isActive?: boolean;
   onClick?: (machineId: string) => void;
 }
 
+import { useMachineStore } from "@/stores";
+
 export default function MachineCard({
   machineId,
-  isActive = false,
   onClick,
 }: MachineCardProps) {
   const machine = useMachineDetail(machineId);
+  const isActive = useMachineStore((state) => state.selectedMachineId === machineId);
 
   if (!machine) {
     return (
@@ -44,7 +45,7 @@ export default function MachineCard({
         ],
         // Inactive state
         !isActive && [
-          "bg-gradient-to-b from-lapis-gray to-lapis-dark-gray",
+          "bg-gradient-to-b from-[#2B3739] to-[#1C2626]",
           "border-transparent",
           "hover:border-lapis-muted",
         ],
