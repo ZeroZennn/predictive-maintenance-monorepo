@@ -680,3 +680,162 @@ Input: sequence 24 timesteps × 69 fitur.
 | Model 2 | Regresi | Sisa umur mesin (RUL) dalam **hari** |
 
 ---
+
+## FASE 9 — Evaluation, Calibration & Model Selection ✅
+
+**Notebook:** `notebooks/fase_9_evaluation/09_evaluation.ipynb`
+**Status:** SELESAI
+**Output HTML:** `notebooks/fase_9_evaluation/model_evaluation_report.html`
+
+### Ringkasan Fase 9
+
+Fase 9 adalah fase evaluasi formal dan komparatif untuk **semua model** yang dilatih
+di Fase 8. Setiap model dievaluasi pada Val Set dan Test Set yang murni (tanpa
+data leakage). Keputusan model final dikunci berdasarkan metrik bisnis,
+bukan hanya metrik statistik.
+
+---
+
+### Eksperimen 09A — Classifier Comprehensive Evaluation ✅
+
+**Cell 2 — Bagian 1–7:**
+
+#### Comprehensive Metrics (Test Set):
+| Model | F1 Macro | F1 HEALTHY | F1 WARNING | F1 CRITICAL | Acc | Fatal Error |
+|---|---|---|---|---|---|---|
+| Random Forest | 0.9914 | 0.9978 | 0.9856 | 0.9908 | 0.9978 | 0 |
+| **XGBoost** | **0.9906** | 0.9974 | **0.9832** | **0.9865** | 0.9974 | **0** |
+| LightGBM | 0.9908 | 0.9969 | — | — | 0.9969 | 0 |
+
+#### Metrik Kritis Bisnis:
+- **Fatal Error (CRITICAL → HEALTHY):** 0 untuk semua model ✅
+- **False Alarm Rate:** XGBoost terkecil pada Val Set
+- **Feature Importance Konsensus:** 10 fitur muncul di ≥ 2 dari 3 model
+
+#### Keputusan Model 1:
+**XGBoost V2 + Threshold (0.60)** dipilih berdasarkan:
+1. F1 WARNING Val terbaik (0.9818) — metrik terpenting operasional
+2. False Alarm Rate terendah di Val Set
+3. Fatal Error = 0 (tidak ada CRITICAL yang salah diklasifikasi HEALTHY)
+4. Threshold engineering memberikan kontrol precision/recall yang eksplisit
+
+---
+
+### Eksperimen 09B — RUL Comprehensive Evaluation ✅
+
+**Cell 3 + Cell 3B — Bagian 1–5:**
+
+#### Core Metrics:
+| Metrik | XGB Val | XGB Test | LSTM Val | LSTM Test |
+|---|---|---|---|---|
+| MAE (hari) | 1.7189 | 1.1020 | 1.6461 | **0.7985** |
+| RMSE (hari) | 14.x | **5.6002** | 12.9167 | 6.3803 |
+| R² Score | — | **0.3961** | 0.1676 | 0.2594 |
+| Bias (hari) | — | — | — | ≈ 0 |
+
+#### Business Accuracy (Test Set):
+| Metrik | XGBoost | LSTM V2 | Winner |
+|---|---|---|---|
+| Error ≤ 1 hari (%) | 93.53% | **98.04%** | LSTM V2 |
+| Error ≤ 3 hari (%) | 94.92% | **98.04%** | LSTM V2 |
+| Error ≤ 7 hari (%) | 96.09% | **98.04%** | LSTM V2 |
+
+#### Per Kelas (Test) — LSTM V2:
+| Kelas | N | MAE |
+|---|---|---|
+| WARNING | 202 | 0.1028 hari |
+| CRITICAL | 207 | 0.0144 hari |
+
+#### Timeline M-19 (Test Machine):
+- XGBoost: Cenderung overestimate di zona WARNING
+- LSTM V2: Lebih tight — residual lebih kecil dan merata
+
+#### Known Limitation LSTM V2:
+1. Val set hanya 264 samples → Val MAE noisier dari XGBoost
+2. RMSE lebih tinggi dari XGBoost karena sensitivitas terhadap outlier RUL tinggi
+3. R² lebih rendah — bukan cacat model, karena R² sensitif outlier
+
+#### Keputusan Model 2:
+**LSTM V2 (WARNING+CRITICAL only)** dipilih berdasarkan:
+1. MAE Test terbaik: 0.7985 hari (delta −0.3035 vs XGBoost)
+2. Error ≤ 1 hari terbaik: 98.04% vs 93.53%
+3. Bias mendekati 0
+4. MAE dan Error ≤ N hari lebih relevan dari RMSE/R² untuk konteks operasional
+
+---
+
+### Eksperimen 09C — LSTM Permutation Feature Importance ✅
+
+**Cell Tambahan (sementara, bukan cell final):**
+- Metode: Permutation Feature Importance (shuffle satu fitur, ukur lonjakan MAE)
+- Seed dikunci: GLOBAL_SEED = 42 → hasil konsisten antar run
+- Top 5 fitur paling berpengaruh terhadap prediksi LSTM:
+  (hasil bervariasi tergantung data, lihat output notebook)
+
+---
+
+### Eksperimen 09D — Final HTML Report ✅
+
+**Cell 4 — Automated Report Generator:**
+- 5 model dimuat ulang (3 classifier + 2 RUL)
+- 7 visualisasi di-embed sebagai base64 PNG dalam satu file HTML standalone
+- Narrative decision tertulis dengan timestamp keputusan final
+- Output: `notebooks/fase_9_evaluation/model_evaluation_report.html`
+
+---
+
+### KEPUTUSAN FINAL FASE 9 (DIKUNCI)
+
+| Track | Model Final | File | Metrik Utama |
+|---|---|---|---|
+| Model 1 — Classifier | XGBoost V2 + Thr 0.60 | `models/ml_track/xgb_classifier.pkl` | F1 WARNING Val=0.9818, Fatal Error=0 |
+| Model 2 — RUL Predictor | LSTM V2 | `models/dl_track/lstm_rul_best_v2.keras` | MAE Test=0.7985, Error≤1hari=98.04% |
+
+**Deployment scope:**
+- Model 1 berjalan untuk semua data sensor (real-time, satu sample sekaligus)
+- Model 2 hanya aktif jika Model 1 output = WARNING atau CRITICAL
+- Input Model 2: sequence 24 timesteps × 69 fitur
+
+---
+
+## FASE 10 — Artifact Export & API Contract Definition ✅
+**Status:** Complete
+**File:** `notebooks/fase_10_export/10_artifact_export.ipynb`
+
+### Artifacts Final (models/final/):
+| File | Size | Keterangan |
+|---|---|---|
+| preprocessing_pipeline.pkl | 6.0 KB | sklearn Pipeline — portable |
+| classifier_final.pkl | 1.68 MB | XGBoost V2, threshold=0.60 |
+| rul_predictor_final.keras | 610.4 KB | LSTM V2, seq_len=24 |
+| classifier_model_card.json | 1.9 KB | metadata & constraints Model 1 |
+| rul_predictor_model_card.json | 2.0 KB | metadata & constraints Model 2 |
+
+### Scripts Production:
+| File | Keterangan |
+|---|---|
+| src/preprocessing_pipeline.py | FeatureEngineeringTransformer (portable) |
+| src/inference.py | Entry point — fungsi predict() |
+| src/utils/feature_engineering.py | Pure functions, importable |
+
+### API Contract:
+- File: `api_contract_final_v1.json` (7.1 KB)
+- Version: 1.0-final
+- Endpoint: POST /api/ml/predict
+- WARNING threshold: 0.60 (dikunci)
+- CRITICAL threshold: 0.50 (default)
+
+### Final Smoke Test (5/5 PASSED):
+| Skenario | Result |
+|---|---|
+| HEALTHY inference | label=HEALTHY, RUL inactive, 46.5ms |
+| CRITICAL + history 23 entri | RUL=1.585 hari, Urgency=CRITICAL, 116ms |
+| Missing sensor_readings | Error 400 ✅ |
+| Missing field 'vibration' | Error 400, message spesifik ✅ |
+| Timing 5x consecutive | Avg 49.7ms, Max 54.0ms ✅ |
+
+### Keputusan Arsitektur Kritis (Fase 10):
+- FeatureEngineeringTransformer dipindah ke src/preprocessing_pipeline.py
+  untuk menghindari __main__ pickle deserialization bug
+- LSTM warm-up call dijalankan saat _load_models() startup
+- inference.py menggunakan Singleton pattern — model load sekali
