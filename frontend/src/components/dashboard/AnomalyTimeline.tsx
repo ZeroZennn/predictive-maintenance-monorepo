@@ -77,7 +77,7 @@ export default function AnomalyTimeline({
         {/* Nantinya dirender kondisional jika terdeteksi anomali */}
         <div className="absolute top-0 bottom-0 left-[33%] w-[34%] bg-[#5FDA0A]/10 border border-[#5FDA0A]/30 border-t-[#5FDA0A] border-t-2 pointer-events-none z-10">
           {/* Floating Pill Label inside Green Window */}
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2B3739] text-gray-200 text-[10px] px-4 py-1 rounded-lg border border-[#1E3D40] shadow-md font-medium tracking-wide animate-pulse pointer-events-auto whitespace-nowrap">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2B3739] text-gray-200 text-[10px] px-4 py-1 rounded-lg border border-[#1E3D40] shadow-md font-medium tracking-wide animate-soft-zoom pointer-events-auto whitespace-nowrap">
             Anomaly Timeline
           </div>
         </div>
