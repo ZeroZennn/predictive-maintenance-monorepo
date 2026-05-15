@@ -1,5 +1,5 @@
 import { WS_URL } from "@/config";
-import { useMachineStore, useToastStore } from "@/stores";
+import { useMachineStore, useToastStore, useMaintenanceStore } from "@/stores";
 import {
   type WsConnectionState,
   type WsIncomingMessage,
@@ -7,6 +7,7 @@ import {
   isCriticalAlert,
   isWarningAlert,
   isStatusResolved,
+  isMaintenanceTask,
 } from "./ws-events";
 
 // =============================================================================
@@ -157,6 +158,13 @@ class WebSocketManager {
       if (activeAlert) {
         resolveAlert(activeAlert.id);
       }
+      return;
+    }
+
+    if (isMaintenanceTask(message)) {
+      useMaintenanceStore
+        .getState()
+        .addTask(message.data);
       return;
     }
   }
