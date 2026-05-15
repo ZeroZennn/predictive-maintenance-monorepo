@@ -1,4 +1,4 @@
-import type { MachineReading, MachineStatus, SensorData } from "@/types";
+import type { MachineReading, MachineStatus, SensorData, MaintenanceTask } from "@/types";
 
 // =============================================================================
 // BAGIAN 1 — Event type constants
@@ -17,6 +17,8 @@ export const WS_EVENTS = {
   CONNECTION_ACK: "CONNECTION_ACK",
   PING: "PING",
   PONG: "PONG",
+  /** Dikirim backend saat ML mendeteksi mesin butuh maintenance (is_active=true) */
+  NEW_MAINTENANCE_TASK: "new_maintenance_task",
 } as const;
 
 // =============================================================================
@@ -107,4 +109,32 @@ export function isStatusResolved(
   msg: WsIncomingMessage
 ): msg is WsStatusResolvedMessage {
   return msg.event_type === WS_EVENTS.STATUS_RESOLVED;
+}
+
+// =============================================================================
+// BAGIAN 6 — EVENT: new_maintenance_task
+// Dikirim Backend saat ML mendeteksi mesin butuh maintenance (is_active=true)
+// =============================================================================
+
+/** Payload WebSocket untuk event new_maintenance_task */
+export interface WsMaintenanceTaskPayload {
+  event: "new_maintenance_task";
+  data: MaintenanceTask;
+}
+
+/** Type guard — memvalidasi payload sebelum diproses di ws-manager */
+export function isMaintenanceTask(
+  msg: unknown
+): msg is WsMaintenanceTaskPayload {
+  if (typeof msg !== "object" || msg === null) return false;
+  const m = msg as Record<string, unknown>;
+
+  return (
+    m["event"] === "new_maintenance_task" &&
+    typeof m["data"] === "object" &&
+    m["data"] !== null &&
+    typeof (m["data"] as Record<string, unknown>)["task_id"] === "string" &&
+    typeof (m["data"] as Record<string, unknown>)["machine_id"] === "string" &&
+    typeof (m["data"] as Record<string, unknown>)["rul_days"] === "number"
+  );
 }
