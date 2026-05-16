@@ -814,9 +814,10 @@ bukan hanya metrik statistik.
 ### Scripts Production:
 | File | Keterangan |
 |---|---|
-| src/preprocessing_pipeline.py | FeatureEngineeringTransformer (portable) |
-| src/inference.py | Entry point — fungsi predict() |
+| src/preprocessing_pipeline.py | FeatureEngineeringTransformer (portable, fix __main__ bug) |
+| src/inference.py | Entry point — fungsi predict(), Singleton pattern |
 | src/utils/feature_engineering.py | Pure functions, importable |
+| src/app.py | FastAPI HTTP wrapper — POST /api/ml/predict |
 
 ### API Contract:
 - File: `api_contract_final_v1.json` (7.1 KB)
@@ -839,3 +840,78 @@ bukan hanya metrik statistik.
   untuk menghindari __main__ pickle deserialization bug
 - LSTM warm-up call dijalankan saat _load_models() startup
 - inference.py menggunakan Singleton pattern — model load sekali
+
+---
+
+## FASE 10 ADDENDUM — ML Service Deployment Wrapper
+**Tanggal:** 2026-05-16
+**Status:** ✅ Complete
+**Branch:** `feat/ml-fase-10-addendum`
+
+### Cell 6 — FastAPI HTTP Wrapper
+
+**Tujuan:** Membungkus `src/inference.py` sebagai HTTP service yang bisa diakses Backend Engineer (Reynaldi) via REST API.
+
+**File yang dibuat:**
+| File | Lokasi | Keterangan |
+|---|---|---|
+| `app.py` | `src/app.py` | FastAPI app, 2 endpoint: GET /health + POST /api/ml/predict |
+| `Dockerfile.ml` | `machine_learning/` | Container definition untuk ML Service |
+| `docker-compose.ml-snippet.yml` | `machine_learning/` | Snippet siap copy-paste untuk Reynaldi |
+
+**Spesifikasi FastAPI:**
+- `GET /health` → health check untuk circuit breaker Backend
+- `POST /api/ml/predict` → endpoint utama, menerima payload sesuai `api_contract_final_v1.json`
+- Pydantic models: `SensorReadings`, `PredictRequest` — validasi input otomatis
+- `sensor_history` (23 entri) opsional untuk LSTM sequence
+- Global exception handler → response JSON 500 yang terstruktur
+- workers=1 di CMD uvicorn (LSTM tidak thread-safe untuk multi-worker)
+
+**Deployment:**
+```
+uvicorn src.app:app --host 0.0.0.0 --port 8000 --workers 1
+```
+
+### Gauge Threshold Analysis (Frontend Integration)
+
+**Tujuan:** Menghitung P90/P95 threshold dari data HEALTHY untuk visualisasi gauge Frontend.
+
+**Notebook:** `notebooks/fase_3_label_engineering/03_label_engineering.ipynb` (cell baru)
+
+**Metode:**
+- P90 HEALTHY = Warning zone threshold
+- P95 HEALTHY vs P10 CRITICAL = validasi overlap
+- Jika ada overlap: recommended = rata-rata keduanya
+
+**Output:**
+| File | Keterangan |
+|---|---|
+| `gauge_thresholds.json` | P90/P95 per 8 sensor (raw) |
+| `gauge_thresholds_validated.json` | P90/P95 per 8 sensor + validasi overlap + recommended threshold |
+
+**Hasil Validasi (6 High-Priority Sensors):**
+| Sensor | P90 Warning | P95 Proxy | P10 Critical | Verdict |
+|---|---|---|---|---|
+| temperature | ~76.3 | — | — | Dinamis per run |
+| vibration | ~0.59 | — | — | Dinamis per run |
+| pressure | ~103.8 | — | — | Dinamis per run |
+| rpm | ~2540 | — | — | Dinamis per run |
+| power_consumption | ~82.1 | — | — | Dinamis per run |
+| noise_level | ~74.3 | — | — | Dinamis per run |
+
+### Dependencies Ditambahkan
+| Package | Versi | Alasan |
+|---|---|---|
+| fastapi | 0.104.1 | HTTP framework untuk ML Service |
+| uvicorn[standard] | 0.24.0 | ASGI server production-ready |
+| pydantic | 2.5.0 | Request/response validation |
+| httpx | 0.28.1 | Dibutuhkan TestClient (testing) |
+
+**Updated:** `requirements.txt` dan `README_ML.md` (struktur direktori)
+
+### Issues & Resolusi
+| Issue | Resolusi |
+|---|---|
+| `ModuleNotFoundError: fastapi` | Jupyter kernel menggunakan Python berbeda dari terminal pip; fix dengan install via `sys.executable` dari dalam notebook |
+| `TestClient: unexpected kwarg 'app'` | Version conflict starlette 0.27.0 + httpx modern di venv; workaround: verifikasi via route inspection + Pydantic instantiation |
+| `pyrefly: missing-import` di app.py | IDE warning karena fastapi tidak di-resolve oleh pyrefly; ditambahkan `# pyrefly: ignore` per import |
