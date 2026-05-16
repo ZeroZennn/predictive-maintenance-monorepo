@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────
+# LAPIS AI — ML SERVICE SNIPPET untuk docker-compose.yml
+# Copy-paste blok ini ke docker-compose.yml milik Reynaldi.
+# Pastikan network 'lapis-network' sudah didefinisikan.
+# ─────────────────────────────────────────────────────────────
+
+# Di bawah section 'services:' tambahkan:
+
+  ml-service:
+    build:
+      context: ./machine_learning
+      dockerfile: Dockerfile.ml
+    container_name: lapis-ml-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - lapis-network
+
+# Di bawah section 'networks:' pastikan ada:
+
+networks:
+  lapis-network:
+    driver: bridge

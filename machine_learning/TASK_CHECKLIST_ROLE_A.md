@@ -408,9 +408,11 @@ Catatan: jika terpilih, re-run dengan lr=0.01 di Fase 9.
 
 | ID | Fase | Catatan | Status |
 |---|---|---|---|
-| NOTE-01 | Fase 8B | XGBoost WARNING threshold=0.60 wajib di API Contract | 🔄 Dicatat di draft |
+| NOTE-01 | Fase 8B | XGBoost WARNING threshold=0.60 wajib di API Contract | ✅ Tercantum di api_contract_final_v1.json |
 | NOTE-02 | Fase 9 | Export evaluation report sebagai HTML untuk laporan | ✅ Done — model_evaluation_report.html |
 | NOTE-03 | Fase 10 | Arsitektur: ML Service handle feature engineering | ✅ Dikunci |
+| NOTE-04 | Fase 10 Addendum | FastAPI wrapper — workers=1 wajib (LSTM tidak thread-safe) | ✅ Tercantum di Dockerfile.ml |
+| NOTE-05 | Fase 10 Addendum | gauge_thresholds_validated.json siap dikonsumsi Frontend gauge chart | ✅ Done |
 | DFT-03 | Fase 5 | severity_score bimodal (1&3 saja) | ⏳ Re-encode di Fase 8 jika perlu |
 
 ---
@@ -501,6 +503,42 @@ Backend hanya kirim raw sensor data.
 ### Dokumentasi Final
 - [x] Update `PROJECT_LOG.md` (section Fase 9 & Fase 10)
 - [x] Update `TASK_CHECKLIST_ROLE_A.md` (semua ✅)
+- [x] Update `README_ML.md` (struktur direktori terbaru)
+
+---
+
+## FASE 10 ADDENDUM — ML Service Deployment Wrapper ✅
+**Branch:** `feat/ml-fase-10-addendum`
+**Tanggal:** 2026-05-16
+**Status:** ✅ SELESAI
+
+### FastAPI HTTP Wrapper
+- [x] `src/app.py` — FastAPI application membungkus `src/inference.py`
+  - `GET /health` → health check untuk circuit breaker Backend
+  - `POST /api/ml/predict` → endpoint utama sesuai API Contract
+  - Pydantic models: `SensorReadings`, `PredictRequest`
+  - Global exception handler → JSON 500 terstruktur
+  - `sensor_history` (23 entri) opsional untuk LSTM sequence
+- [x] `Dockerfile.ml` — container definition ML Service
+  - Base: `python:3.10-slim`
+  - `workers=1` (LSTM tidak thread-safe)
+  - Built-in Docker HEALTHCHECK via `/health`
+- [x] `docker-compose.ml-snippet.yml` — snippet siap pakai untuk Reynaldi
+- [x] Verifikasi: route `/health` & `/api/ml/predict` terdaftar ✅
+- [x] Verifikasi: Pydantic validation berjalan (missing field terdeteksi) ✅
+
+### Gauge Threshold untuk Frontend
+- [x] Cell baru di `03_label_engineering.ipynb`:
+  - P90/P95 dari HEALTHY rows per 8 sensor
+  - Output: `gauge_thresholds.json`
+- [x] Cell validasi lanjutan:
+  - P95 HEALTHY vs P10 CRITICAL — cek overlap
+  - KDE visualization (6 subplot, 3 kelas per sensor)
+  - Output: `gauge_thresholds_validated.json` (termasuk `critical_recommended` & verdict)
+
+### Dependencies & Dokumentasi
+- [x] `requirements.txt` diupdate: fastapi, uvicorn, pydantic, httpx
+- [x] `README_ML.md` diupdate: struktur direktori sesuai kondisi aktual
 
 
 ---
@@ -521,6 +559,7 @@ Backend hanya kirim raw sensor data.
 | Fase 8 — Modeling (ML + DL Track) | ✅ |
 | Fase 9 — Evaluation & Model Selection | ✅ |
 | Fase 10 — Artifact Export & API Contract | ✅ |
+| Fase 10 Addendum — ML Service Deployment Wrapper | ✅ |
 
 **Siap untuk handover ke Backend Engineer.** 
 

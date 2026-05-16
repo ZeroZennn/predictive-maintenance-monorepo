@@ -75,10 +75,14 @@ export default function AnomalyTimeline({
       <div className="bg-gradient-to-b from-[#2B3739] to-[#1C2626] border border-[#1E3D40] rounded-xl px-6 pt-3 pb-3 relative overflow-visible shadow-lg">
         {/* The Green Active Window Box */}
         {/* Nantinya dirender kondisional jika terdeteksi anomali */}
-        <div className="absolute top-0 bottom-0 left-[33%] w-[34%] bg-[#5FDA0A]/10 border border-[#5FDA0A]/30 border-t-[#5FDA0A] border-t-2 pointer-events-none z-10">
+        <div className="absolute top-0 bottom-0 left-[33%] w-[34%] bg-gradient-to-t from-[#5FDA0A]/30 to-transparent border-x border-x-[#5FDA0A] border-b border-b-[#5FDA0A] border-t-0 pointer-events-none z-10">
+
           {/* Floating Pill Label inside Green Window */}
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2B3739] text-gray-200 text-[10px] px-4 py-1 rounded-lg border border-[#1E3D40] shadow-md font-medium tracking-wide animate-soft-zoom pointer-events-auto whitespace-nowrap">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1A2224] text-white text-[12px] md:text-[14px] lg:text-[14px] px-3 py-1.5 rounded-lg border-[0.5] border-[#D9D9D9]/70 shadow-lg font-normal tracking-wide animate-soft-zoom pointer-events-auto whitespace-nowrap flex flex-col items-center justify-center">
             Anomaly Timeline
+
+            {/* Small Needle / Pointer connecting pill to timeline */}
+            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1.5 bg-gray-400" />
           </div>
         </div>
 
@@ -91,9 +95,9 @@ export default function AnomalyTimeline({
             {timeLabels.map((label, i) => (
               <div key={i} className="flex flex-col items-center relative">
                 {/* Tick Mark */}
-                <div className="w-[2px] h-2.5 bg-[#EF7513]" />
+                <div className="w-[2.5px] h-3.5 bg-[#EF7513]" />
                 {/* Label */}
-                <span className="text-[10px] text-gray-300 font-mono mt-1.5">
+                <span className="text-[16px] text-gray-300 font-mono mt-1.5">
                   {label}
                 </span>
               </div>
