@@ -5,12 +5,16 @@
 # 1. Environment & Secrets
 .env
 .env.*
+.env.local
+.env.*.local
+**/.env
+**/.env.local
 !.env.example
 venv/
 env/
 .venv/
 
-# 2. Machine Learning Data
+# 2. Machine Learning Data & Databases
 # Jangan commit data (bisa bergiga-giga dan melanggar aturan data privacy)
 machine_learning/data/raw/
 machine_learning/data/interim/
@@ -19,40 +23,75 @@ machine_learning/data/processed/
 *.parquet
 *.xlsx
 
-# 3. Machine Learning Models
+# Docker Volumes & Local Database Data
+postgres_data/
+redis_data/
+influxdb_data/
+timescaledb_data/
+
+# 3. Machine Learning Models & Artifacts
 # Jangan commit model file secara langsung (ukurannya besar)
 # Gunakan Git LFS jika memang perlu di-commit, atau simpan di cloud storage
 *.pkl
 *.h5
 *.keras
 *.onnx
+*.pyd
+*.pyo
+.Python
+*.egg-info/
+.cache/
 # Opsional: Jika ingin mengabaikan seluruh folder model kecuali yang final
 # machine_learning/models/dl_track/
 # machine_learning/models/ml_track/
 
-# 4. Jupyter Notebook & IDE
+# 4. Jupyter Notebook & IDE / Editor Files
 .ipynb_checkpoints/
 .vscode/
 .idea/
 *.swp
+*.swo
+*~
 
-# 5. Python Build & Cache
+# 5. Python Build, Cache & Testing
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
 htmlcov/
 .coverage
+coverage/
+**/coverage/
+.nyc_output/
 
-# 6. Node.js & Web Development (Frontend/Backend)
+# 6. Node.js & Web Development (Frontend/Backend / Monorepo)
 node_modules/
+**/node_modules/
 dist/
+**/dist/
 build/
+**/build/
 .next/
+out/
+.turbo/
+*.tgz
+*.tar.gz
+
+# Logs
+*.log
+logs/
+**/logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # 7. OS Specific
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
