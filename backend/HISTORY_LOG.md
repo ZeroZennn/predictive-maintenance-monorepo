@@ -1,4 +1,5 @@
 # 📋 HISTORY LOG — Lapis AI Backend Development
+
 **Project:** Predictive Maintenance SaaS — Lapis AI  
 **Role:** Backend Engineer (Role C)  
 **Architect:** Lead Backend Architect (AI)  
@@ -8,18 +9,21 @@
 ---
 
 ## 🗂️ LEGEND STATUS
-| Symbol | Meaning |
-|--------|---------|
-| ✅ | Selesai & diaudit — aman |
-| ⚠️ | Warning / Peringatan |
-| ❌ | Gagal / perlu rework |
+
+| Symbol | Meaning                  |
+| ------ | ------------------------ |
+| ✅     | Selesai & diaudit — aman |
+| ⚠️     | Warning / Peringatan     |
+| ❌     | Gagal / perlu rework     |
 
 ---
 
 ## FASE 0 — Environment & Monorepo Bootstrap ✅
+
 **Tujuan:** Mendirikan fondasi ekosistem, struktur folder, version control, dan infrastruktur container.
 
 ### Langkah 0.A — Verifikasi Prerequisites ✅
+
 - **Tanggal:** 2026-04-29
 - **Output Kunci:**
   - Node.js: v24.15.0
@@ -30,6 +34,7 @@
 - **Audit Result:** Semua versi melampaui requirement minimum. PASS.
 
 ### Langkah 0.B — Inisialisasi Struktur Monorepo ✅
+
 - **Tanggal:** 2026-04-29
 - **Files Created (via Copilot):**
   - `.gitignore`
@@ -54,6 +59,7 @@
   - ✅ `docker compose config` — PASS setelah perbaikan
 
 ### Langkah 0.C — Git Init & First Commit ✅
+
 - **Tanggal:** 2026-04-29
 - **Branch:** `rey-workspace`
 - **Commit Hash:** `994c284`
@@ -62,6 +68,7 @@
 - **Audit Result:** Tidak ada file `.env` sensitif masuk commit. PASS.
 
 ### Langkah 0.D — Menghidupkan Infrastructure Containers ✅
+
 - **Tanggal:** 2026-04-29
 - **Containers Running:**
   | Container | Image | Status | Port |
@@ -74,10 +81,12 @@
 ---
 
 ## FASE 1 — Core Ingestion & Dispatcher Layer 🔄
+
 **Tujuan:** Membangun Express.js server, endpoint `POST /api/telemetry/ingest`,
 dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 
 ### Langkah 1.A — Inisialisasi Backend Node.js ✅
+
 - **Tanggal:** 2026-04-29
 - **Dependencies Installed (production):** express, socket.io, ioredis, pg,
   dotenv, cors, helmet, morgan, express-validator, axios, winston
@@ -88,6 +97,7 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
   - ✅ main entry point diset ke src/app.js
 
 ### Langkah 1.B — Setup .env, Winston Logger & Entry Point app.js ✅
+
 - **Tanggal:** 2026-04-29
 - **Files Created:**
   - `backend/.env` (environment variables development)
@@ -100,6 +110,7 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
   - ✅ Helmet security headers aktif terkonfirmasi di response
 
 ### Langkah 1.C — Konfigurasi Koneksi Redis & PostgreSQL/TimescaleDB ✅
+
 - **Tanggal:** 2026-04-29
 - **Files Created:**
   - `backend/src/config/redisClient.js`
@@ -117,24 +128,29 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
   | TimescaleDB | 5433 | ✅ healthy |
 
 ### Langkah 1.D — Ingestion Controller & Async Dispatcher ✅
+
 - **Tanggal:** 2026-04-29
 - **Files Created:** dispatcherService.js, telemetryController.js, telemetryRoutes.js
 - **Pattern:** Receive-Fast (202 ACK) → setImmediate → Promise.all dispatch
 - **Verified:** Response 202 terkirim SEBELUM DB operations (non-blocking confirmed)
 
 ### Langkah 1.E — Database Schema Migration ✅
+
 - **Tanggal:** 2026-04-29
 - **Files Created:** migrate.js, initDb.js
 - **Tables Created:**
   - PostgreSQL: maintenance_logs (relasional + 2 indexes)
   - TimescaleDB: sensor_readings (hypertable + index machine_id+timestamp)
 - **Verified:** Full pipeline M-01 → Redis ✅ + TimescaleDB ✅ tanpa error
+
 ---
 
 ## FASE 2 — Database Schema Completion ✅
+
 **Tujuan:** Melengkapi skema database sesuai Blueprint V3.0.
 
 ### Langkah 2.A — Migration V2 & Seed Data ✅
+
 - **Tanggal:** 2026-05-03
 - **Files Created/Modified:**
   - `backend/src/config/migrate2.js` (migration V2)
@@ -157,9 +173,11 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 ---
 
 ## FASE 3 — Authentication System ✅
+
 **Tujuan:** JWT middleware, login endpoint, role-based access control.
 
 ### Langkah 3.A — JWT Auth System ✅
+
 - **Tanggal:** 2026-05-03
 - **Packages Added:** bcryptjs, jsonwebtoken
 - **Files Created:**
@@ -184,9 +202,11 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 ---
 
 ## FASE 4 — WebSocket Broadcast Engine ✅
+
 **Tujuan:** Socket.IO server, channel per machine_id, global alert broadcast.
 
 ### Langkah 4.A — Socket.IO Implementation ✅
+
 - **Tanggal:** 2026-05-07
 - **Files Created/Modified:**
   - `src/websockets/socketManager.js` — Socket.IO singleton
@@ -211,10 +231,12 @@ dan mekanisme Dispatcher asinkron untuk Data Demultiplexing.
 ---
 
 ## FASE 5 — ML Orchestration Layer ✅
+
 **Tujuan:** Async ML prediction, cache hasil, Safety Margin Calculator,
 Alert trigger otomatis.
 
 ### Langkah 5.A — ML Service, Safety Margin & Alert ✅
+
 - **Tanggal:** 2026-05-08
 - **Files Created:**
   - `src/config/migrate3.js` — extend ml_predictions table (4 kolom baru)
@@ -246,10 +268,12 @@ Alert trigger otomatis.
 ---
 
 ## FASE 6 — Smart NLP Router & Live Context Injection ✅
+
 **Tujuan:** Intent classifier middleware, context injection dari Redis
 ke NLP payload, POST /api/nlp/chat endpoint.
 
 ### Langkah 6.A — NLP Router & Context Service ✅
+
 - **Tanggal:** 2026-05-13
 - **Files Created:**
   - `src/services/nlpContextService.js`
@@ -282,9 +306,54 @@ ke NLP payload, POST /api/nlp/chat endpoint.
 
 ---
 
-## FASE 7 — Hardening, Auth & Integration Test ⏳
-**Tujuan:** JWT auth, rate limiting, validasi payload, end-to-end test.
+## FASE 7 — Admin Panel APIs ✅
+
+**Tujuan:** User CRUD, document upload multipart/form-data,
+migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
+
+### Langkah 7.A — Migration V4 & Admin Controller ✅
+
+- **Tanggal:** 2026-05-16
+- **Files Created:**
+  - `src/config/migrate4.js` — ALTER TABLE documents (6 kolom baru,
+    4 kolom di-rename sesuai skema NLP Engineer)
+  - `src/controllers/adminController.js` — 9 methods:
+    getUsers, createUser, updateUser, deleteUser (soft),
+    uploadDocument, getDocuments, getDocumentStatus,
+    updateDocumentStatus (NLP callback), deleteDocument
+  - `src/routes/adminRoutes.js` — semua endpoint admin
+- **Packages Added:** multer, form-data
+- **Upload Flow:**
+  - Frontend → POST /api/admin/documents/upload
+    → multer simpan file ke uploads/
+    → Buat record DB status "processing"
+    → setImmediate: POST /nlp/ingest {document_id, file_path}
+    → Return 201 langsung (tidak tunggu NLP)
+- **NLP Callback:**
+  - NLP Engine → PATCH /api/admin/documents/:id/status
+    - Headers: X-Internal-Key: {INTERNAL_API_KEY}
+    - Body: { status, chunks_count, doc_type, processed_at, error_message } → Update DB record
+- **Delete Flow:**
+  - DELETE /api/admin/documents/:id
+  - Notify NLP (DELETE /nlp/documents/:id)
+  - Hapus record DB
+  - Hapus file fisik dari storage
+- **Endpoints:**
+  | Method | Endpoint | Access |
+  |--------|----------|--------|
+  | GET | /api/admin/users | Admin |
+  | POST | /api/admin/users | Admin |
+  | PUT | /api/admin/users/:id | Admin |
+  | DELETE | /api/admin/users/:id | Admin |
+  | POST | /api/admin/documents/upload | Admin |
+  | GET | /api/admin/documents | Admin |
+  | GET | /api/admin/documents/:id/status | Admin |
+  | PATCH | /api/admin/documents/:id/status | Internal (X-Internal-Key) |
+  | DELETE | /api/admin/documents/:id | Admin |
+- **INTERNAL_API_KEY:** Generated & configured di .env ✅
+- **Verified:** GET /api/admin/users → 2 users ✅
+- **Verified:** Technician akses admin → 403 Access denied ✅
 
 ---
 
-*Log ini diupdate setiap akhir fase oleh Backend Engineer.*
+_Log ini diupdate setiap akhir fase oleh Backend Engineer._
