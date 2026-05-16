@@ -71,81 +71,35 @@ export default function AnomalyTimeline({
   }, [data, startTime, now]);
 
   return (
-    <div
-      className="h-12 bg-lapis-surface border-b border-lapis-border
-                 flex flex-col justify-between px-4 py-1.5 relative"
-    >
-      {/* Time labels row */}
-      <div className="flex justify-between items-center w-full">
-        {timeLabels.map((label, i) => (
-          <span key={i} className="text-[9px] text-lapis-muted font-mono">
-            {label}
-          </span>
-        ))}
-      </div>
-
-      {/* Timeline track */}
-      <div className="relative w-full h-3 bg-lapis-card rounded-full overflow-visible">
-        {/* Track line */}
-        <div className="absolute inset-y-0 inset-x-0 flex items-center">
-          <div className="w-full h-[2px] bg-lapis-border rounded-full" />
+    <div className="relative w-full pt-3 pb-0 px-4">
+      <div className="bg-gradient-to-b from-[#2B3739] to-[#1C2626] border border-[#1E3D40] rounded-xl px-6 pt-3 pb-3 relative overflow-visible shadow-lg">
+        {/* The Green Active Window Box */}
+        {/* Nantinya dirender kondisional jika terdeteksi anomali */}
+        <div className="absolute top-0 bottom-0 left-[33%] w-[34%] bg-[#5FDA0A]/10 border border-[#5FDA0A]/30 border-t-[#5FDA0A] border-t-2 pointer-events-none z-10">
+          {/* Floating Pill Label inside Green Window */}
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2B3739] text-gray-200 text-[10px] px-4 py-1 rounded-lg border border-[#1E3D40] shadow-md font-medium tracking-wide animate-soft-zoom pointer-events-auto whitespace-nowrap">
+            Anomaly Timeline
+          </div>
         </div>
 
-        {/* Event dots */}
-        {visibleEvents.map((event, i) => {
-          const pos = getEventPosition(event.timestamp);
-          const color =
-            event.status === "CRITICAL"
-              ? "bg-lapis-red shadow-glow-red"
-              : event.status === "WARNING"
-              ? "bg-lapis-amber shadow-glow-amber"
-              : "bg-lapis-neon";
+        <div className="relative w-full z-0">
+          {/* Main Horizontal Orange Line */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#EF7513]" />
 
-          return (
-            <div
-              key={i}
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 group"
-              style={{ left: pos + "%" }}
-              title={`${event.machineId} - ${event.status} - ${new Date(
-                event.timestamp
-              ).toLocaleTimeString("id-ID")}`}
-            >
-              {/* Dot */}
-              <div
-                className={clsx(
-                  "w-2.5 h-2.5 rounded-full cursor-pointer transition-transform hover:scale-150",
-                  color,
-                  event.status === "CRITICAL" && "animate-pulse-critical"
-                )}
-              />
-
-              {/* Tooltip on hover */}
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover:flex items-center z-10">
-                {/* Arrow pointing left */}
-                <div className="absolute left-[-3px] w-2 h-2 bg-lapis-card border-b border-l border-lapis-border rotate-45" />
-                {/* Tooltip box */}
-                <div className="bg-lapis-card border border-lapis-border rounded px-2 py-1 whitespace-nowrap relative">
-                  <p className="text-[9px] font-bold text-lapis-text">
-                    {event.machineId}
-                  </p>
-                  <p
-                    className={clsx(
-                      "text-[9px]",
-                      event.status === "CRITICAL"
-                        ? "text-lapis-red"
-                        : "text-lapis-amber"
-                    )}
-                  >
-                    {event.status}
-                  </p>
-                </div>
+          {/* Time Ticks and Labels */}
+          <div className="flex justify-between items-start w-full relative">
+            {timeLabels.map((label, i) => (
+              <div key={i} className="flex flex-col items-center relative">
+                {/* Tick Mark */}
+                <div className="w-[2px] h-2.5 bg-[#EF7513]" />
+                {/* Label */}
+                <span className="text-[10px] text-gray-300 font-mono mt-1.5">
+                  {label}
+                </span>
               </div>
-            </div>
-          );
-        })}
-
-        {/* "Now" indicator */}
-        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-0.5 h-4 bg-lapis-neon opacity-60 rounded-full" />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

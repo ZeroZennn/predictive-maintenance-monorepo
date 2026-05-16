@@ -1,5 +1,8 @@
 export type MachineStatus = "HEALTHY" | "WARNING" | "CRITICAL";
 
+// Exported untuk dipakai di maintenanceStore dan komponen lain
+export type UrgencyLevel = "IMMEDIATE" | "CRITICAL" | "WARNING" | "MONITOR";
+
 export interface SensorData {
   temperature: number;
   vibration: number;
@@ -32,4 +35,22 @@ export interface Machine {
   last_updated: string;
   sensors: SensorData;
   confidence: number;
+
+  // ─── Fields dari model_2_rul API Contract ───
+  // True hanya jika status WARNING atau CRITICAL.
+  // False = HEALTHY — RULBanner tampilkan "Mesin dalam kondisi prima"
+  is_active?: boolean;
+
+  // rul_days * 24 (referensi untuk Scheduler)
+  rul_hours?: number | null;
+
+  // IMMEDIATE  = rul_days <= 1
+  // CRITICAL   = rul_days <= 2
+  // WARNING    = rul_days <= 7
+  // MONITOR    = rul_days > 7 atau is_active = false
+  urgency_level?: UrgencyLevel | null;
+
+  // ─── Fields dari model_1_classifier API Contract ───
+  // Math.round(probabilities.HEALTHY * 100) — Range: 0–100
+  health_score?: number | null;
 }

@@ -7,3 +7,5 @@ export { default as RULCircularGauge } from "./RULCircularGauge";
 export { default as KPIItem } from "./KPIItem";
 export { default as AnomalyTimeline } from "./AnomalyTimeline";
 export type { AnomalyEvent } from "./AnomalyTimeline";
+export { default as MaintenanceKPIBar } from "./MaintenanceKPIBar";
+export { default as MachineListSidebar } from "./MachineListSidebar";

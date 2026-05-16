@@ -50,7 +50,7 @@ export default function IconNavBar() {
                 "transition-all duration-200",
                 "group relative",
                 isActive
-                  ? "bg-gradient-to-b from-lapis-gray to-lapis-dark-gray border-lapis-neon text-lapis-neon"
+                  ? "bg-gradient-to-b from-[#2B3739] to-[#1C2626] border-lapis-neon text-lapis-neon"
                   : "border-transparent text-lapis-muted hover:text-lapis-text hover:bg-lapis-card hover:border-lapis-border"
               )}
             >
