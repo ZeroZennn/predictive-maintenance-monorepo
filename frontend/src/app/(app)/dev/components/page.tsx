@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatBubble } from "@/components/copilot";
+import { ChatBubble, CitationChip, ChatInput } from "@/components/copilot";
 
 // ──────────────────────────────────────────
 // HALAMAN INI HANYA UNTUK PREVIEW KOMPONEN
@@ -10,28 +10,28 @@ import { ChatBubble } from "@/components/copilot";
 
 const MOCK_CONVERSATION = [
   {
-    role: "assistant" as const,
+    role: "ASSISTANT" as const,
     content: "Halo! Saya Lapis AI. Ada yang bisa saya bantu mengenai kondisi mesin Anda saat ini?",
     timestamp: "14:00",
   },
   {
-    role: "user" as const,
+    role: "USER" as const,
     content: "Tolong cek kondisi mesin M-01.",
     timestamp: "14:01",
   },
   {
-    role: "assistant" as const,
+    role: "ASSISTANT" as const,
     content:
       "Mesin M-01 saat ini dalam kondisi HEALTHY dengan confidence score 86%. Estimasi Remaining Useful Life (RUL) adalah 362 hari. Tidak ada anomali kritis yang terdeteksi dalam 1 jam terakhir.",
     timestamp: "14:01",
   },
   {
-    role: "user" as const,
+    role: "USER" as const,
     content: "Apa yang perlu saya perhatikan dari sensor getaran M-01?",
     timestamp: "14:02",
   },
   {
-    role: "assistant" as const,
+    role: "ASSISTANT" as const,
     content:
       "Sensor getaran M-01 saat ini menunjukkan nilai 0.45 mm/s, masih dalam batas normal (<2.0 mm/s). Namun, ada tren kenaikan kecil dalam 3 hari terakhir. Disarankan untuk melakukan pengecekan bearing dalam 2 minggu ke depan sebagai tindakan preventif.",
     timestamp: "14:02",
@@ -67,6 +67,38 @@ export default function ComponentPreviewPage() {
                 timestamp={msg.timestamp}
               />
             ))}
+          </div>
+        </section>
+
+        {/* CitationChip Preview */}
+        <section className="mb-10">
+          <h2 className="text-xs text-lapis-neon uppercase tracking-widest font-mono mb-4">
+            CitationChip — Atom
+          </h2>
+          <div className="bg-lapis-card border border-lapis-border rounded-2xl p-6 flex flex-wrap gap-3">
+            <CitationChip filename="SOP_Maintenance_V1.pdf" page={12} />
+            <CitationChip filename="Machine_Manual.docx" />
+            <CitationChip filename="notes.txt" />
+            <CitationChip 
+              filename="Clickable_Doc.pdf" 
+              onClick={() => alert("Citation clicked!")} 
+            />
+          </div>
+        </section>
+
+        {/* ChatInput Preview */}
+        <section className="mb-10">
+          <h2 className="text-xs text-lapis-neon uppercase tracking-widest font-mono mb-4">
+            ChatInput — Molecule
+          </h2>
+          <div className="bg-lapis-card border border-lapis-border rounded-2xl overflow-hidden shadow-2xl">
+            <div className="h-32 p-6 text-sm text-lapis-muted flex items-center justify-center italic">
+              Area chat history (placeholder)
+            </div>
+            <ChatInput 
+              onSend={(msg) => alert(`Sending: ${msg}`)} 
+              placeholder="Tanya sesuatu tentang SOP..."
+            />
           </div>
         </section>
       </div>

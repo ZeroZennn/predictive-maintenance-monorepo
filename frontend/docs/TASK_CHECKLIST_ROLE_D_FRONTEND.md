@@ -1,6 +1,6 @@
 # TASK CHECKLIST — ROLE D: FRONTEND ENGINEER
 ### Lapis AI Predictive Maintenance System
-**Last Updated:** 2026-05-14
+**Last Updated:** 2026-05-15
 **Status Keseluruhan:** In Progress
 
 ---
@@ -338,19 +338,28 @@
 
 ---
 
-## FASE 8 — AI Copilot Sliding Panel ⏳
-**Status:** BELUM DIMULAI
+## FASE 8 — AI Copilot Sliding Panel 🔄
+**Status:** IN PROGRESS
 
+### Atoms
+- [x] ChatBubble.tsx:
+  - User bubble (kanan): avatar UserCircle, bg lapis-surface
+  - Assistant bubble (kiri): avatar Star neon, bg lapis-card border neon
+  - Prop: role, content, timestamp?
+- [x] CitationChip.tsx:
+  - Icon dinamis per ekstensi (pdf/docx/txt)
+  - Label bersih (ekstensi dihapus)
+  - Page number opsional
+  - cursor-pointer hanya jika ada onClick prop
+
+### Berikutnya
+- [ ] ChatInput.tsx — input + send button
 - [ ] CopilotSlidingPanel.tsx:
   - Framer Motion slide-in-right
   - Render di (app)/layout.tsx (persistent)
   - Tidak di-unmount saat navigasi
-- [ ] ChatBubble.tsx — user vs assistant style
-- [ ] CitationChip.tsx — source file + page number
-- [ ] SuggestedActionButton.tsx
-- [ ] ChatInput.tsx — input + send button
-- [ ] Integrasi dengan nlp.api.ts queryCopilot()
 - [ ] Floating trigger button (semua halaman)
+- [ ] Integrasi dengan nlp.api.ts queryCopilot()
 - [ ] copilotStore persistent validasi
 - [ ] npx tsc --noEmit: PASSED
 
