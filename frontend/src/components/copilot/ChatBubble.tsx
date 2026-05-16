@@ -1,13 +1,14 @@
-import { UserCircle, Star } from "lucide-react";
+import { UserCircle, Bot } from "lucide-react";
+import type { MessageRole } from "@/types";
 
 interface ChatBubbleProps {
-  role: "user" | "assistant";
+  role: MessageRole;
   content: string;
   timestamp?: string;
 }
 
 export default function ChatBubble({ role, content, timestamp }: ChatBubbleProps) {
-  if (role === "user") {
+  if (role.toLowerCase() === "user") {
     return (
       <div className="flex items-start justify-end gap-3">
         <div
@@ -35,10 +36,10 @@ export default function ChatBubble({ role, content, timestamp }: ChatBubbleProps
     <div className="flex items-start gap-3">
       {/* Icon bintang kiri */}
       <div
-        className="w-8 h-8 rounded-full bg-lapis-neon/10 border border-lapis-neon
+        className="w-8 h-8 rounded-full bg-lapis-neon/10 border border-[#5FDA0A]
                    flex items-center justify-center flex-shrink-0 mt-0.5"
       >
-        <Star className="w-4 h-4 text-lapis-neon fill-lapis-neon" />
+        <Bot className="w-4 h-4 text-lapis-neon" />
       </div>
       <div
         className="max-w-[75%] rounded-2xl rounded-tl-sm

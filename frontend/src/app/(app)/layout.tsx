@@ -1,6 +1,7 @@
 import AppShell from "@/components/layout/AppShell";
 import WebSocketInitializer from "@/components/providers/WebSocketInitializer";
 import NotificationProvider from "@/components/providers/NotificationProvider";
+import { CopilotSlidingPanel } from "@/components/copilot";
 
 // TODO Fase 8: Tambahkan <CopilotSlidingPanel /> di sini
 
@@ -14,6 +15,7 @@ export default function AppLayout({
       <WebSocketInitializer />
       <NotificationProvider />
       <AppShell>{children}</AppShell>
+      <CopilotSlidingPanel />
     </>
   );
 }
