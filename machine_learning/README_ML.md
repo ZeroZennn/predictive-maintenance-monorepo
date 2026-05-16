@@ -58,8 +58,12 @@ machine_learning/
 │   └── final/          # Model final yang TERPILIH untuk deployment
 ├── notebooks/          # Jupyter Notebooks untuk eksperimen & riset (Fase 1-10)
 ├── src/                # Script Python modular untuk backend integration
+│   ├── utils/          # Fungsi utilitas modular
+│   │   └── feature_engineering.py  # Fungsi feature engineering independen
 │   ├── config.py       # Single source of truth untuk PATH dan konstanta (GLOBAL_SEED, dll)
-│   └── inference.py    # (Akan datang) Script utama untuk inferensi API
+│   ├── preprocessing_pipeline.py   # Definisi class FeatureEngineeringTransformer
+│   └── inference.py    # Script utama untuk inferensi API
+├── api_contract_final_v1.json  # Kontrak API resmi antara ML Service dan Backend
 ├── requirements.txt    # Daftar library Python
 └── PROJECT_LOG.md      # Log lengkap keputusan arsitektur dan hasil evaluasi model
 ```

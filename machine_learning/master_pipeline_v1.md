@@ -45,3 +45,30 @@ Membandingkan semua kandidat model menggunakan metrik yang tepat untuk *imbalanc
 **FASE 10 — Artifact Export & API Contract Definition**
 Menyimpan model terpilih dalam format `.pkl` & `.h5/.keras`, membangun *preprocessing pipeline* yang dapat di-*serialize*, dan mendefinisikan kontrak JSON final untuk konsumsi tim Backend/Frontend.
 
+## STATUS IMPLEMENTASI
+
+| Fase | Status | Catatan |
+|---|---|---|
+| Fase 0 | ✅ | Environment & reproducibility |
+| Fase 1 | ✅ | Data ingestion & sanity check |
+| Fase 2 | ✅ | EDA Forensik — W dikunci empiris |
+| Fase 3 | ✅ | Label engineering 3-class |
+| Fase 4 | ✅ | 75 kolom feature engineered |
+| Fase 5 | ✅ | Preprocessing anti-leakage |
+| Fase 6 | ✅ | SSBS 20,423 baris |
+| Fase 6.5 | ✅ | RUL target engineering |
+| Fase 7 | ✅ | Machine-based split + SMOTE |
+| Fase 8 | ✅ | 5 eksperimen (RF,XGB,LGBM,XGBReg,LSTM) |
+| Fase 9 | ✅ | Evaluation & model selection |
+| Fase 10 | ✅ | Artifact export & API contract |
+
+**Model Final:**
+- Model 1: XGBoost Classifier (F1=0.9906)
+- Model 2: LSTM V2 (MAE=0.7985 hari)
+
+**Keputusan Arsitektur Kritis:**
+1. Machine-based split (bukan global temporal)
+2. SMOTE hanya pada X_train setelah split
+3. Scaler fit hanya pada train machines
+4. RUL scope: WARNING+CRITICAL only
+5. ML Service melakukan feature engineering
