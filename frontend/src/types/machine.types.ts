@@ -53,4 +53,18 @@ export interface Machine {
   // ─── Fields dari model_1_classifier API Contract ───
   // Math.round(probabilities.HEALTHY * 100) — Range: 0–100
   health_score?: number | null;
+
+  probabilities?: {
+    HEALTHY: number;
+    WARNING: number;
+    CRITICAL: number;
+  };
+
+  // Maintenance KPI Fields
+  issues_this_week?: number;
+  days_since_last_maintenance?: number;
+  total_downtime_hours?: number;
+  mtbf_days?: number;
+
+  history?: Array<SensorData & { time: string }>;
 }

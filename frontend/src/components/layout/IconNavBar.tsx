@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { icon: Bot, href: ROUTES.COPILOT_HUB, label: "AI Copilot" },
   { icon: Calendar, href: ROUTES.SCHEDULER, label: "Scheduler" },
   { icon: FileText, href: ROUTES.LOGS, label: "Logs" },
-  { icon: ShieldCheck, href: ROUTES.ADMIN, label: "Admin" },
+  // { icon: ShieldCheck, href: ROUTES.ADMIN, label: "Admin" },
 ];
 
 export default function IconNavBar() {
@@ -27,16 +27,24 @@ export default function IconNavBar() {
   return (
     <nav
       className={clsx(
-        "fixed left-0 top-0 h-screen w-[90px] z-50",
-        "bg-transparent",
-        "flex flex-col items-center py-4 gap-2"
+        "fixed z-50 bg-[#081819] md:bg-transparent border-t md:border-t-0 border-lapis-border md:border-none",
+        // Mobile layout: bottom bar
+        "bottom-0 left-0 w-full h-[70px] flex flex-row items-center justify-around px-2",
+        // Desktop layout: left sidebar
+        "md:top-0 md:h-screen md:w-[90px] md:flex-col md:justify-start md:py-4 md:gap-2"
       )}
     >
-      {/* Logo dot */}
-      <div className="w-5 h-5 rounded-full bg-lapis-neon shadow-glow-neon mb-4 shrink-0" />
+      {/* Logo */}
+      <div className="hidden md:block mb-6 shrink-0">
+        <img
+          src="/logo/PRIME_LOGO.png"
+          alt="PRIME Logo"
+          className="w-12 h-12 object-contain"
+        />
+      </div>
 
       {/* Nav items */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-2 w-full">
+      <div className="flex-1 flex flex-row md:flex-col items-center justify-around md:justify-center gap-2 w-full md:w-auto">
         {NAV_ITEMS.map(({ icon: Icon, href, label }) => {
           const isActive = pathname === href || (href === ROUTES.DASHBOARD && pathname.startsWith("/dashboard"));
           return (
@@ -45,7 +53,7 @@ export default function IconNavBar() {
               href={href}
               title={label}
               className={clsx(
-                "w-[70px] rounded-lg py-2 border",
+                "w-[60px] md:w-[70px] rounded-lg py-1 md:py-2 border",
                 "flex flex-col items-center justify-center gap-0.5",
                 "transition-all duration-200",
                 "group relative",
@@ -56,9 +64,9 @@ export default function IconNavBar() {
             >
               {/* Active Indicator Line */}
               {isActive && (
-                <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-lapis-neon rounded-full shadow-glow-neon" />
+                <div className="absolute -top-[1px] left-1/2 -translate-x-1/2 md:-left-2 md:top-1/2 md:-translate-y-1/2 md:-translate-x-0 w-6 h-[2px] md:w-[3px] md:h-6 bg-lapis-neon rounded-full shadow-glow-neon" />
               )}
-              
+
               <Icon size={16} />
               <span
                 className="text-[9px] mt-0.5 leading-tight text-center truncate w-full px-1"
@@ -70,11 +78,11 @@ export default function IconNavBar() {
         })}
       </div>
 
-      {/* Settings di bottom */}
-      <div className="mt-auto">
+      {/* Settings di bottom / sisi kanan pada mobile */}
+      <div className="mt-0 md:mt-auto">
         <button
           className={clsx(
-            "w-12 h-12 rounded-lg",
+            "w-10 h-10 md:w-12 md:h-12 rounded-lg",
             "flex items-center justify-center",
             "text-lapis-muted hover:text-lapis-text hover:bg-lapis-card",
             "transition-all duration-200"

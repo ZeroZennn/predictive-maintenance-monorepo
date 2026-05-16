@@ -18,11 +18,11 @@ export default function MachineListSidebar() {
   }, [machines, filter]);
 
   return (
-    <div className="flex flex-col h-full w-[160px] flex-shrink-0 bg-transparent border-r border-lapis-border">
+    <div className="flex flex-col md:h-screen max-h-screen sticky top-0 w-full md:w-[200px] lg:w-[200px] 2xl:w-[260px] flex-shrink-0 bg-transparent border-b md:border-b-0 md:border-r border-lapis-border group relative">
       {/* Header / Dropdown Filter */}
-      <div className="p-3 flex-shrink-0">
-        <label className="text-[10px] text-gray-400 mb-1 block">Select Zone</label>
-        <div className="relative">
+      <div className="p-3 flex-shrink-0 flex items-center justify-between md:block">
+        <label className="text-[10px] text-gray-400 mb-0 md:mb-1 block mr-2 md:mr-0">Select Zone</label>
+        <div className="relative w-[150px] md:w-full">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
@@ -41,17 +41,28 @@ export default function MachineListSidebar() {
 
       {/* Scrollable Machine List */}
       <div
-        className="flex-1 overflow-y-auto px-2 pb-4 space-y-2
-                  scrollbar-none sm:scrollbar-thin scrollbar-track-transparent 
-                  scrollbar-thumb-[#1E293B]"
+        className="flex flex-row md:flex-col overflow-x-auto md:overflow-x-hidden md:overflow-y-auto px-3 md:px-2 pb-3 md:pb-4 gap-3 md:gap-0 md:space-y-2
+                   [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar]:w-1 md:[&::-webkit-scrollbar]:w-1.5 
+                   [&::-webkit-scrollbar-track]:bg-transparent 
+                   [&::-webkit-scrollbar-thumb]:bg-[#1E3D40] hover:[&::-webkit-scrollbar-thumb]:bg-[#6B8F92] 
+                   [&::-webkit-scrollbar-thumb]:rounded-full"
       >
         {filteredMachines.map((machine) => (
-          <MachineCard
-            key={machine.id}
-            machineId={machine.id}
-            onClick={() => selectMachine(machine.id)}
-          />
+          <div key={machine.id} className="w-[140px] md:w-full flex-shrink-0">
+            <MachineCard
+              machineId={machine.id}
+              onClick={() => selectMachine(machine.id)}
+            />
+          </div>
         ))}
+
+        {/* Scroll Hint Overlay */}
+        <div className="sticky bottom-4 left-0 right-0 hidden md:flex justify-center pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <div className="bg-[#1A2224]/90 backdrop-blur-sm text-gray-400 text-[10px] px-3 py-1.5 rounded-full border border-[#1E3D40] flex items-center gap-1.5">
+            <span>Scroll ke bawah</span>
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+          </div>
+        </div>
       </div>
     </div>
   );

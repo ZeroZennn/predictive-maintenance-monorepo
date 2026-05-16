@@ -28,13 +28,7 @@ export default function SensorCard({
     (state) => state.machines[machineId]?.status ?? "HEALTHY"
   );
 
-  let statusBorderClass = "border-lapis-border";
-  if (machineStatus === "WARNING") {
-    statusBorderClass = "border-lapis-amber shadow-glow-amber";
-  } else if (machineStatus === "CRITICAL") {
-    statusBorderClass =
-      "border-lapis-red shadow-glow-red animate-pulse-critical";
-  }
+
 
   return (
     <div
@@ -44,8 +38,7 @@ export default function SensorCard({
         "flex flex-col items-center",
         "p-3 gap-1",
         "transition-shadow duration-500",
-        // Dynamic border berdasarkan status
-        statusBorderClass
+        "border-[#1E3D40]"
       )}
     >
       {/* Card Header */}
