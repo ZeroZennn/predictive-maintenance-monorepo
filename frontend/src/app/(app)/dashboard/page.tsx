@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { SensorCard, AnomalyTimeline, MaintenanceKPIBar, MachineListSidebar, VitalSignBanner } from "@/components/dashboard";
+import { SensorCard, AnomalyTimeline, MaintenanceKPIBar, MachineListSidebar, VitalSignBanner, TelemetryChart } from "@/components/dashboard";
 import { SENSOR_CONFIG } from "@/config";
 import { useMachineStore } from "@/stores";
 
@@ -45,6 +45,9 @@ export default function DashboardPage() {
 
             {/* Maintenance KPIs */}
             <MaintenanceKPIBar />
+
+            {/* Telemetry History */}
+            <TelemetryChart />
           </div>
         </div>
       </div>

@@ -10,3 +10,4 @@ export type { AnomalyEvent } from "./AnomalyTimeline";
 export { default as MaintenanceKPIBar } from "./MaintenanceKPIBar";
 export { default as MachineListSidebar } from "./MachineListSidebar";
 export { default as VitalSignBanner } from "./VitalSignBanner";
+export { default as TelemetryChart } from "./TelemetryChart";

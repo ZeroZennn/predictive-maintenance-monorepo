@@ -59,4 +59,12 @@ export interface Machine {
     WARNING: number;
     CRITICAL: number;
   };
+
+  // Maintenance KPI Fields
+  issues_this_week?: number;
+  days_since_last_maintenance?: number;
+  total_downtime_hours?: number;
+  mtbf_days?: number;
+
+  history?: Array<SensorData & { time: string }>;
 }

@@ -1,15 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { useMachineStore } from "@/stores";
-import { KPIItem } from "@/components/dashboard";
 import {
-  Cpu,
-  Calendar,
-  Percent,
-  Clock,
+  Activity,
   AlertTriangle,
-  DollarSign,
+  AlertCircle,
+  Calendar,
+  Clock,
+  Settings,
   AlignJustify,
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -26,49 +24,66 @@ export default function MaintenanceKPIBar({
     selectedMachineId ? state.machines[selectedMachineId] : undefined
   );
 
-  const kpiData = useMemo(() => {
-    if (!machine) return null;
-
-    const confidence = (machine.confidence ?? 0) * 100;
-    const rulHours = (machine.rul_days ?? 0) * 24;
-
-    let confidenceColor = "text-lapis-red";
-    if (confidence >= 80) confidenceColor = "text-lapis-neon";
-    else if (confidence >= 50) confidenceColor = "text-lapis-amber";
-
-    let rulColor = "text-lapis-red";
-    if (rulHours > 720) rulColor = "text-lapis-neon";
-    else if (rulHours >= 240) rulColor = "text-lapis-amber";
-
-    return {
-      confidence: {
-        value: `${Math.round(confidence)}%`,
-        color: confidenceColor,
-        progress: confidence,
-      },
-      rul: {
-        value: `${Math.round(rulHours)} Hours`,
-        color: rulColor,
-        progress: Math.min(100, Math.max(0, (rulHours / 1440) * 100)), // max 60 days
-      },
-    };
-  }, [machine]);
-
-  if (!kpiData) {
+  if (!machine) {
     return (
       <div
         className={clsx(
-          "h-[200px] rounded-xl bg-lapis-surface animate-pulse",
+          "h-[200px] rounded-xl bg-[#2B3739] animate-pulse",
           className
         )}
       />
     );
   }
 
+  const getUrgencyColor = (level?: string | null) => {
+    if (level === "IMMEDIATE" || level === "CRITICAL") return "text-[#EF4444]";
+    if (level === "WARNING") return "text-[#F59E0B]";
+    return "text-[#5FDA0A]"; // MONITOR
+  };
+
+  const kpis = [
+    {
+      label: "CONFIDENCE SCORE",
+      value: `${((machine.confidence || 0) * 100).toFixed(1)}%`,
+      icon: Activity,
+      color: "text-[#5FDA0A]",
+    },
+    {
+      label: "CURRENT URGENCY",
+      value: machine.urgency_level || "UNKNOWN",
+      icon: AlertTriangle,
+      color: getUrgencyColor(machine.urgency_level),
+    },
+    {
+      label: "ISSUES THIS WEEK",
+      value: machine.issues_this_week || 0,
+      icon: AlertCircle,
+      color: (machine.issues_this_week || 0) > 0 ? "text-[#F59E0B]" : "text-gray-400",
+    },
+    {
+      label: "DAYS SINCE LAST MAINT.",
+      value: `${machine.days_since_last_maintenance || 0} Days`,
+      icon: Calendar,
+      color: "text-gray-400",
+    },
+    {
+      label: "TOTAL DOWNTIME",
+      value: `${machine.total_downtime_hours || 0} Hours`,
+      icon: Clock,
+      color: (machine.total_downtime_hours || 0) > 0 ? "text-[#EF4444]" : "text-gray-400",
+    },
+    {
+      label: "MTBF",
+      value: `${machine.mtbf_days || 0} Days`,
+      icon: Settings,
+      color: "text-blue-400",
+    },
+  ];
+
   return (
     <div
       className={clsx(
-        "bg-gradient-to-b from-[#2B3739] to-[#1C2626] rounded-xl border-b-2 border-b-[#1E3D40] shadow-lg p-4 flex flex-col gap-3",
+        "bg-gradient-to-b from-[#2B3739] to-[#1C2626] rounded-xl border-b-2 border-b-[#1E3D40] p-4 flex flex-col gap-3",
         className
       )}
     >
@@ -81,49 +96,24 @@ export default function MaintenanceKPIBar({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <KPIItem
-          icon={Cpu}
-          label="Confidence Score"
-          value={kpiData.confidence.value}
-          ringColor={kpiData.confidence.color}
-          progress={kpiData.confidence.progress}
-        />
-        <KPIItem
-          icon={Calendar}
-          label="Last Maintenance"
-          value="29 April 2025"
-          ringColor="text-lapis-muted"
-          progress={100}
-        />
-        <KPIItem
-          icon={Percent}
-          label="Uptime Percentage"
-          value="90%"
-          ringColor="text-lapis-neon"
-          progress={90}
-        />
-        <KPIItem
-          icon={AlertTriangle}
-          label="Issues per Week"
-          value="8"
-          ringColor="text-lapis-amber"
-          progress={80}
-        />
-        <KPIItem
-          icon={Clock}
-          label="Remaining Operation Life"
-          value={kpiData.rul.value}
-          ringColor={kpiData.rul.color}
-          progress={kpiData.rul.progress}
-        />
-        <KPIItem
-          icon={DollarSign}
-          label="Maintenance Costs"
-          value="$0"
-          ringColor="text-lapis-neon"
-          progress={100}
-        />
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {kpis.map((kpi, idx) => {
+          const Icon = kpi.icon;
+          return (
+            <div
+              key={idx}
+              className="bg-[#121A1A] border border-[#1E3D40] rounded-lg p-4 flex flex-col justify-center gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <Icon className={`w-4 h-4 ${kpi.color}`} />
+                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                  {kpi.label}
+                </span>
+              </div>
+              <span className="text-xl font-bold text-white">{kpi.value}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

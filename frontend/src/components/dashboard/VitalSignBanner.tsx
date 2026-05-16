@@ -37,7 +37,7 @@ export default function VitalSignBanner() {
         {/* Inner Content */}
         <div className="bg-lapis-dark-gray rounded-lg p-4 border border-lapis-border/30">
           {status === "HEALTHY" ? (
-            <span className="text-[#5FDA0A] font-bold tracking-wide text-xl md:text-[20px] lg:text-[26px] 2xl:text-[36px]">
+            <span className="text-[#5FDA0A] uppercase font-bold tracking-wide text-xl md:text-[20px] lg:text-[26px] 2xl:text-[36px]">
               Mesin dalam kondisi Prima
             </span>
           ) : (
