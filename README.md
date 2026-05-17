@@ -49,8 +49,8 @@ PRIME hadir sebagai jawaban atas gap tersebut. Dibangun di atas arsitektur monor
 
 | Fitur | Deskripsi |
 |---|---|
-| 🤖 **Health Status Classifier** | Model XGBoost V2 mengklasifikasikan status mesin menjadi `HEALTHY`, `WARNING`, atau `CRITICAL` dari data sensor real-time dengan threshold optimal di 0.60 |
-| ⏱️ **RUL Predictor** | Model LSTM V2 memprediksi Remaining Useful Life (sisa umur pakai) dalam satuan **hari** — hanya aktif ketika status mesin `WARNING` atau `CRITICAL` |
+| 🤖 **Health Status Classifier** | Model XGBoost mengklasifikasikan status mesin menjadi `HEALTHY`, `WARNING`, atau `CRITICAL` dari data sensor real-time dengan threshold optimal di 0.60 |
+| ⏱️ **RUL Predictor** | Model LSTM memprediksi Remaining Useful Life (sisa umur pakai) dalam satuan **hari** — hanya aktif ketika status mesin `WARNING` atau `CRITICAL` |
 | 💬 **AI Copilot (RAG)** | Asisten teknis cerdas yang menjawab pertanyaan berbasis dokumen SOP pabrik menggunakan Retrieval-Augmented Generation, diakses melalui endpoint `/api/nlp/chat` |
 | 📅 **Maintenance Scheduler** | Sistem penjadwalan otomatis berbasis aturan yang menghasilkan work order maintenance berdasarkan output prediksi kritis dari ML Engine |
 
