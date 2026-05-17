@@ -49,10 +49,10 @@
 | 1 | Halaman Authentication (/login) | 🔄 Shell selesai, form belum |
 | 2 | Halaman Real-Time Dashboard (/) | 🔄 In Progress |
 | 3 | Halaman AI Copilot Hub (/copilot-hub) | ⏳ Fase 9 |
-| 4 | Halaman Admin Panel (/admin) | ⏳ Fase 10 |
+| 4 | Halaman Admin Panel /admin (4 tab)         | ⏳ Fase 11        |
 | 5 | Modul AI Copilot Sliding Panel | ⏳ Fase 8 |
-| 6 | Halaman Maintenance Scheduler (/scheduler) | ⏳ Fase 11 |
-| 7 | Halaman Historical Logs & Reports (/logs) | ⏳ Fase 12 |
+| 6 | Halaman Maintenance Scheduler (/scheduler) | 🔄 Fase 10 — Next |
+| 7 | Halaman Historical Logs & Reports          | ❌ Dimerge ke /admin Tab 4 |
 | 8 | Sistem Global Toast Alert (cross-route) | ✅ Selesai |
 
 ---
@@ -377,27 +377,8 @@
 
 ---
 
-## FASE 10 — Halaman Admin Panel ⏳
-**Status:** BELUM DIMULAI
-
-- [ ] /admin/page.tsx — tab layout
-- [ ] Tab Manajemen Dokumen:
-  - Drag & drop file upload (PDF/DOCX/TXT)
-  - Progress bar upload
-  - Tabel dokumen terindeks (nama, tipe, status)
-  - Delete dengan konfirmasi dialog
-- [ ] Tab Manajemen User:
-  - Tabel CRUD pengguna
-  - Modal tambah/edit user
-  - Role dropdown (TECHNICIAN/ADMIN)
-  - Delete dengan konfirmasi
-- [ ] RBAC: hanya ADMIN (middleware sudah handle)
-- [ ] npx tsc --noEmit: PASSED
-
----
-
-## FASE 11 — Halaman Maintenance Scheduler ⏳
-**Status:** BELUM DIMULAI
+## FASE 10 — Halaman Maintenance Scheduler 🔄
+**Status:** IN PROGRESS
 
 - [ ] /scheduler/page.tsx
 - [ ] Task Board 3 kolom:
@@ -415,22 +396,35 @@
 
 ---
 
-## FASE 12 — Halaman Historical Logs & Reports ⏳
+## FASE 11 — Halaman Admin Panel (4 Tab) ⏳
 **Status:** BELUM DIMULAI
 
-- [ ] /logs/page.tsx — tab layout
-- [ ] Tab Sensor Logs:
-  - Tabel: Timestamp, Machine ID, Sensor, 
-    Nilai, Status, Anomaly Flag
-  - Filter: Date Range, Machine ID, Status
-  - Pagination 50 baris
-- [ ] Tab Maintenance History:
-  - Tabel: Tanggal, Machine ID, Tipe, 
-    Teknisi, Durasi, Hasil
-- [ ] Export PDF button
-- [ ] Export Excel button
-- [ ] Integration dengan logs.api.ts
+- [ ] /admin/page.tsx — tab layout
+- [ ] Tab 1: Dashboard Admin (overview statistik)
+- [ ] Tab 2: Manajemen Dokumen:
+  - Menunggu konfirmasi NLP Engineer
+  - Drag & drop file upload (PDF/DOCX/TXT)
+  - Progress bar upload
+  - Tabel dokumen terindeks (nama, tipe, status)
+  - Delete dengan konfirmasi dialog
+- [ ] Tab 3: Manajemen User:
+  - Tabel CRUD pengguna
+  - Modal tambah/edit user
+  - Role dropdown (TECHNICIAN/ADMIN)
+  - Delete dengan konfirmasi
+- [ ] Tab 4: Logs & Reports (dimerge dari Fase 12 lama):
+  - Tab Sensor Logs: Tabel Timestamp, Machine ID, Sensor, Nilai, Status, Anomaly Flag
+  - Tab Maintenance History: Tabel Tanggal, Machine ID, Tipe, Teknisi, Durasi, Hasil
+  - Export PDF & Excel buttons
+  - Integration dengan logs.api.ts
+- [ ] Catatan: Logs diputuskan Admin-only (tidak perlu route /logs terpisah)
+- [ ] RBAC: hanya ADMIN (middleware sudah handle)
 - [ ] npx tsc --noEmit: PASSED
+
+---
+
+## FASE 12 — DEPRECATED
+Konten dimerge ke Fase 11 Tab 4 (Admin Panel — Logs)
 
 ---
 
@@ -490,6 +484,8 @@
 | NOTE-03 | Fase 6 | Background pattern image belum diintegrasikan ke globals.css | ⏳ |
 | NOTE-04 | Semua | API contracts bisa berubah — update src/lib/api/ dan src/types/ saja | 🔄 Ongoing |
 | NOTE-05 | Fase 15 | NEXT_PUBLIC_SKIP_AUTH WAJIB di-set false sebelum production deploy | ⚠️ |
+| NOTE-06 | Semua | Logs dimerge ke Admin Panel — /logs route dihapus | ✅ Dikunci |
+| NOTE-07 | Fase 11 | Tab Manajemen Dokumen menunggu konfirmasi NLP Engineer | ⏳ |
 | DFT-01 | Fase 2 | Middleware redirect loop (base64url) → FIXED | ✅ |
 | DFT-02 | Fase 4 | useWebSocketInit path not found → FIXED | ✅ |
 | DFT-03 | Fase 6 | Machine.sensors type missing → FIXED | ✅ |

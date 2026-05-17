@@ -1,0 +1,77 @@
+Fase 0 — Foundation & Monorepo Scaffold
+Inisialisasi Turborepo, workspace apps/web, dan packages/ untuk shared-types, shared-ui, dan config. Tambahan V3.0: Definisikan type UserRole, MachineStatus, dan type Message (dengan field sources[]) sebagai kontrak di shared-types dari awal.
+Fase 1 — Design Token & Theme System
+Translasikan seluruh palet warna V3.0 ke CSS Custom Properties dan Tailwind config. Tidak ada perubahan dari blueprint lama.
+Fase 2 — Layout Shell & RBAC Auth Guard (Upgrade dari blueprint lama)
+Bangun dua layout: (auth)/layout.tsx dan (app)/layout.tsx. Upgrade V3.0: Middleware Next.js dikonfigurasi dengan dua lapis — layer 1: validasi token, layer 2: validasi role untuk rute /admin (Admin only) dan /copilot-hub (Authenticated only). Render <CopilotSlidingPanel /> dan <GlobalToastProvider /> di (app)/layout.tsx sekaligus.
+Fase 3 — Global State Architecture (Diperluas dari blueprint lama)
+Inisialisasi semua Zustand stores. Tambahan V3.0: Sekarang terdapat 4 stores:
+
+machineStore — live sensor data (tidak berubah)
+copilotStore — chat history + sources[] per message (diperbarui)
+uiStore — filter aktif, mesin terpilih (tidak berubah)
+toastStore (BARU) — antrian global alert untuk semua rute
+
+Fase 4 — WebSocket Engine & Data Pipeline (Diperluas dari blueprint lama)
+Bangun WebSocketManager singleton. Tambahan V3.0: Manager harus memiliki dua handler output — onMachineUpdate() → menulis ke machineStore, dan onCriticalAlert() → menulis ke toastStore ketika status === "CRITICAL".
+Fase 5 — GlobalToastProvider & Toast Alert System (BARU — belum ada di blueprint lama)
+Bangun komponen GlobalToastProvider yang dikonsumsi dari toastStore. Terdiri dari ToastContainer (overlay) dan ToastCard dengan animasi Framer Motion slide-in/out. Ini diselesaikan awal karena akan dibutuhkan saat testing semua halaman berikutnya.
+Fase 6 — Dashboard Page: Atomic Components
+Bangun komponen atom dan molekul: SensorGaugeChart → SensorCard → SensorGrid. Tidak ada perubahan dari blueprint lama kecuali jumlah Machine Cards yang eksplisit: 20 cards (M-01 s/d M-20).
+Fase 7 — Dashboard Page: Full Assembly
+Rakit menjadi halaman penuh: MachineListSidebar (20 cards) + RULBanner + AnomalyTimeline + SensorGrid + MaintenanceKPIBar.
+Fase 8 — AI Copilot Sliding Panel + Citation Feature (Refactor dari blueprint lama)
+Bangun CopilotSlidingPanel dengan struktur Message yang telah diperbarui. Tambahan V3.0: Setiap AssistantMessage merender CitationChip[] berdasarkan field sources[] dari response API — menampilkan nama file dan nomor halaman sebagai kartu kecil yang bisa diklik.
+Fase 9 — Halaman AI Copilot Hub (BARU — belum ada di blueprint lama)
+Halaman penuh /copilot-hub khusus Teknisi. Berbeda dari Sliding Panel, ini adalah interface chat berukuran layar penuh dengan area input yang lebih luas, riwayat percakapan yang lebih panjang, dan Citation Feature yang sama namun ditampilkan lebih ekspansif.
+Fase 10 (diprioritaskan): Maintenance Scheduler
+- Alasan: integrasi dengan ML Engineer lebih dahulu
+
+Fase 11 (direvisi): Admin Panel — 4 Tab
+- Tab 1: Dashboard Admin (overview statistik)
+- Tab 2: Manajemen Dokumen (menunggu konfirmasi NLP Engineer)
+- Tab 3: Manajemen User (CRUD akun)
+- Tab 4: Logs & Reports (dimerge dari Fase 12 lama)
+- Catatan: Logs diputuskan Admin-only (tidak perlu 
+  route /logs terpisah)
+
+Fase 12: DIHAPUS (kontennya dimerge ke Fase 11 Tab 4)
+
+Fase 13 → tetap: Integration & RBAC Validation
+Fase 14 → tetap: Performance Audit & Hardening
+Fase 15 → tetap: Build & Deployment Preparation
+
+
+
+
+Tanpa stores:          Dengan stores:
+                       
+AppLayout              machineStore ← ws-manager update langsung
+  └─ Dashboard         ↑           ↑
+       └─ Sidebar      |           |
+            └─ Card    Dashboard  Sidebar  Card
+  (props drilling)     (semua subscribe langsung)
+
+
+Yang disimpan:
+├── machines        → data 20 mesin (status, RUL, sensor terakhir)
+├── selectedMachineId → mesin mana yang sedang diklik user
+└── statusFilter    → filter tampilan (ALL / WARNING / CRITICAL)
+
+Yang bisa dilakukan:
+├── updateMachineReading() → update data mesin saat WebSocket kirim data baru
+├── setSelectedMachine()   → user klik mesin tertentu
+└── setStatusFilter()      → user ganti filter
+
+
+Yang disimpan:
+├── messages            → riwayat percakapan dengan AI
+├── isOpen              → apakah panel copilot sedang terbuka
+├── isLoading           → apakah sedang nunggu respons AI
+└── activeMachineContext → mesin mana yang sedang dibicarakan
+
+
+Yang disimpan:
+├── alerts           → notifikasi aktif (yang muncul di pojok kanan atas)
+└── persistentAlerts → alert yang sudah di-dismiss tapi tetap dicatat
+                       (muncul di PersistentAlertBar)
