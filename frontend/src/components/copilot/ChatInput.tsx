@@ -35,11 +35,11 @@ export default function ChatInput({
   };
 
   return (
-    <div
+    <div //EDIT DISINI UNTUK CHATINPUT
       className={clsx(
-        "flex items-center gap-3 p-4",
-        "border-t border-lapis-border",
-        "bg-lapis-surface/50 backdrop-blur-sm",
+        "flex items-center gap-4 p-3",
+        "border-t border-none",
+        " backdrop-blur-md",
         className
       )}
     >
@@ -51,13 +51,13 @@ export default function ChatInput({
         disabled={isLoading}
         placeholder={placeholder ?? "Ketik pertanyaan SOP Anda..."}
         className={clsx(
-          "flex-1 resize-none bg-[#1A2121] border border-lapis-border rounded-xl",
-          "px-4 py-3 text-sm text-lapis-text",
-          "placeholder:text-gray-500",
-          "focus:outline-none focus:border-lapis-neon/40",
+          "flex-1 resize-none bg-[#101617] border border-lapis-border rounded-xl",
+          "px-5 py-3 text-sm text-white",
+          "placeholder:text-lapis-muted placeholder:opacity-50",
+          "focus:outline-none",
           "disabled:opacity-50 disabled:cursor-not-allowed",
-          "max-h-[120px] scrollbar-thin scrollbar-thumb-lapis-border scrollbar-track-transparent",
-          "transition-all duration-200"
+          "max-h-[150px] scrollbar-thin scrollbar-thumb-lapis-border scrollbar-track-transparent",
+          "transition-all duration-200 shadow-inner"
         )}
       />
 
@@ -66,15 +66,15 @@ export default function ChatInput({
         disabled={isLoading || !text.trim()}
         className={clsx(
           "flex-shrink-0 flex items-center justify-center",
-          "min-w-[80px] h-11 rounded-xl px-4",
-          "bg-lapis-neon text-[#081819] font-bold text-xs uppercase tracking-wider",
-          "hover:bg-lapis-neon/80 active:scale-95",
-          "disabled:opacity-30 disabled:cursor-not-allowed disabled:grayscale",
-          "transition-all duration-150 shadow-[0_0_15px_rgba(95,218,10,0.2)]"
+          "min-w-[100px] h-12 rounded-xl px-6",
+          "bg-lapis-neon text-[#081819] font-bold text-sm uppercase tracking-widest",
+          "hover:bg-lapis-neon/90 hover:scale-[1.02] active:scale-95",
+          "disabled:opacity-20 disabled:cursor-not-allowed disabled:grayscale",
+          "transition-all duration-150 shadow-[0_0_20px_rgba(95,218,10,0.25)]"
         )}
       >
         {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-5 h-5 animate-spin" />
         ) : (
           "KIRIM"
         )}

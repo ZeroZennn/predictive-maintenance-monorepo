@@ -7,6 +7,7 @@ import { useCopilotStore } from "@/stores";
 import { queryCopilot } from "@/lib/api";
 import { ChatBubble, CitationChip, ChatInput } from "./index";
 import { clsx } from "clsx";
+import { usePathname } from "next/navigation";
 
 export default function CopilotSlidingPanel() {
   // Surgical Subscriptions
@@ -18,6 +19,9 @@ export default function CopilotSlidingPanel() {
   const addMessage = useCopilotStore((s) => s.addMessage);
   const setLoading = useCopilotStore((s) => s.setIsLoading);
   const generateId = useCopilotStore((s) => s.generateMessageId);
+
+  const pathname = usePathname();
+  const isCopilotHub = pathname === "/copilot-hub";
 
   // sessionId: generate sekali pakai
   const [sessionId] = useState(() => crypto.randomUUID());
@@ -96,7 +100,7 @@ export default function CopilotSlidingPanel() {
           "flex items-center justify-center",
           "shadow-[0_0_20px_rgba(95,218,10,0.3)] hover:shadow-[0_0_30px_rgba(95,218,10,0.5)]",
           "hover:scale-110 active:scale-95 group",
-          isOpen && "opacity-0 scale-0 pointer-events-none"
+          (isOpen || isCopilotHub) && "opacity-0 scale-0 pointer-events-none"
         )}
       >
         <MessageSquare className="w-5 h-5 group-hover:rotate-12 transition-transform" />
