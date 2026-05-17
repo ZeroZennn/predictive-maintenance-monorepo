@@ -5,33 +5,42 @@ import type { MachineStatus } from "@/types";
 import { STATUS_CONFIG } from "@/config";
 import { clsx } from "clsx";
 
-interface RULCircularGaugeProps {
+interface CLFCircularGaugeProps {
   percentage: number; // 0-100
   status: MachineStatus;
-  size?: number; // default: 100
 }
 
-export default function RULCircularGauge({
+const statusConfig = {
+  HEALTHY: { color: "text-[#5FDA0A]", stroke: "#5FDA0A", label: "Healthy" },
+  WARNING: { color: "text-[#F59E0B]", stroke: "#F59E0B", label: "Warning" },
+  CRITICAL: { color: "text-[#EF4444]", stroke: "#EF4444", label: "Critical" },
+};
+
+const glowColorMapping: Record<MachineStatus, string> = {
+  HEALTHY: 'drop-shadow-[0_0_3px_#5FDA0A50]', // Hijau Asli, Opacity 50%
+  WARNING: 'drop-shadow-[0_0_3px_#F59E0B60]', // Oranye, Opacity 60%
+  CRITICAL: 'drop-shadow-[0_0_3px_#EF444470]', // Merah, Opacity 70%
+};
+
+export default function CLFCircularGauge({
   percentage,
   status,
-  size = 100,
-}: RULCircularGaugeProps) {
+}: CLFCircularGaugeProps) {
+  const size = 140;
   const STROKE_WIDTH = 8;
   const CENTER = size / 2;
   const RADIUS = (size - STROKE_WIDTH * 2) / 2;
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
   const offset = CIRCUMFERENCE - (percentage / 100) * CIRCUMFERENCE;
 
-  let arcColor = "#5FDA0A";
-  if (status === "WARNING") arcColor = "#EF7513";
-  else if (status === "CRITICAL") arcColor = "#FF3B3B";
+  const currentConfig = statusConfig[status] || statusConfig.HEALTHY;
+  const arcColor = currentConfig.stroke;
 
   return (
     <div
-      className="relative flex items-center justify-center"
-      style={{ width: size, height: size }}
+      className="relative flex items-center justify-center w-24 h-24 xl:w-[140px] xl:h-[140px] shrink-0"
     >
-      <svg width={size} height={size} className="-rotate-90">
+      <svg viewBox={`0 0 ${size} ${size}`} className={clsx("w-full h-full -rotate-90", glowColorMapping[status] || "")}>
         {/* Track circle (background) */}
         <circle
           cx={CENTER}
@@ -61,15 +70,14 @@ export default function RULCircularGauge({
       {/* Center text overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span
-          className={clsx(
-            "font-bold leading-none text-white",
-            size >= 100 ? "text-xl" : "text-[18px]"
-          )}
+          className="font-bold leading-none text-white text-2xl xl:text-4xl"
         >
           {Math.round(percentage)}%
         </span>
-        <span className="text-[10px] text-lapis-muted mt-0.5 font-medium">
-          {STATUS_CONFIG[status].label}
+        <span
+          className="text-gray-400 font-medium text-[10px] xl:text-sm mt-0.5 xl:mt-1"
+        >
+          {currentConfig.label}
         </span>
       </div>
     </div>

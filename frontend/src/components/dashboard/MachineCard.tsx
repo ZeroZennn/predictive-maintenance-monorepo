@@ -50,10 +50,10 @@ export default function MachineCard({
           "hover:border-lapis-muted",
         ],
         // Critical state override
-        !isActive &&
-        machine?.status === "CRITICAL" &&
-        "border-lapis-red animate-pulse-critical",
-        !isActive && machine?.status === "WARNING" && "border-lapis-amber"
+        // !isActive &&
+        // machine?.status === "CRITICAL" &&
+        // "border-lapis-red",
+        // !isActive && machine?.status === "WARNING" && "border-lapis-amber"
       )}
     >
       {/* Machine illustration area */}
@@ -63,7 +63,7 @@ export default function MachineCard({
             src={`/assets/machines/${machineId}.png`}
             alt={`Machine ${machineId}`}
             fill
-            className="object-contain drop-shadow-2xl"
+            className="object-contain"
             onError={(e) => {
               // Fallback jika image belum ada
               const target = e.target as HTMLImageElement;
