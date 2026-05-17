@@ -46,12 +46,13 @@ live_context:
     machine_status: /api/machines/{machine_id}/status
     ml_prediction: /api/predictions/{machine_id}/latest
 llm:
-  fallback_model: gemini-2.5-pro
-  fallback_provider: google
-  max_tokens: 2048
-  primary_model: claude-sonnet-4-6
-  primary_provider: anthropic
-  temperature: 0.1
+  fallback_model: mock-v1
+  fallback_provider: mock
+  max_tokens: 4096
+  nvidia_base_url: https://integrate.api.nvidia.com/v1
+  primary_model: deepseek-ai/deepseek-v4-flash
+  primary_provider: nvidia
+  temperature: 0.7
 paths:
   data_processed: nlp/data/processed
   data_raw: nlp/data/raw
