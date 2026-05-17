@@ -4,6 +4,11 @@ Entry point tunggal untuk semua prediksi ML Lapis AI.
 Dipanggil oleh Backend melalui: from src.inference import predict
 """
 import os, time, logging
+
+# NOTE: TF_USE_LEGACY_KERAS tidak dibutuhkan untuk TF 2.15.0
+# TF 2.15.0 menggunakan Keras 2 secara native (Keras 3 baru masuk di TF 2.16+)
+# Guard ini hanya relevan jika upgrade ke TF >= 2.16 di masa depan
+
 # pyrefly: ignore [missing-import]
 import numpy as np
 import pandas as pd

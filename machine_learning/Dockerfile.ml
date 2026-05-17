@@ -2,35 +2,47 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# System deps untuk TensorFlow & scikit-learn
+# System dependencies
 RUN apt-get update && apt-get install -y \
-    gcc g++ \
+    gcc g++ curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements dulu (layer caching)
-COPY requirements.txt .
+# ── Layer 1: Upgrade pip terlebih dahulu ──────────────────────
+RUN pip install --no-cache-dir --upgrade pip
 
-# Install FastAPI stack + project deps
+# ── Layer 2: Install TensorFlow TERPISAH dengan versi terkunci ─
+# Dipisah agar Docker cache layer ini secara independen.
+# TF 2.15.0 menggunakan Keras 2 secara native — tidak butuh tf-keras
+RUN pip install --no-cache-dir \
+    tensorflow==2.15.0
+
+# ── Layer 3: Framework dependencies ──────────────────────────
 RUN pip install --no-cache-dir \
     fastapi==0.104.1 \
     uvicorn[standard]==0.24.0 \
-    pydantic==2.5.0 \
-    && pip install --no-cache-dir -r requirements.txt
+    pydantic==2.5.0
 
-# Copy source code dan artifacts
+# ── Layer 4: ML dependencies dari requirements_ml.txt ───────────
+# Constraint file memastikan pip tidak upgrade/downgrade tensorflow
+# saat meng-install dependensi lain dari requirements_ml.txt
+COPY requirements_ml.txt .
+RUN printf 'tensorflow==2.15.0\n' > /tmp/tf_constraint.txt && \
+    pip install --no-cache-dir -r requirements_ml.txt \
+        --constraint /tmp/tf_constraint.txt
+
+# ── Application files ─────────────────────────────────────────
 COPY src/ ./src/
 COPY models/final/ ./models/final/
 COPY data/processed/X_train_clf.parquet ./data/processed/
 
-# Expose port
+# ── Environment variables ──────────────────────────────────────
+ENV PYTHONUNBUFFERED=1
+
 EXPOSE 8000
 
-# Health check built-in Docker
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c \
-    "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+HEALTHCHECK --interval=30s --timeout=30s --start-period=90s --retries=5 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# workers=1: LSTM tidak thread-safe untuk multi-worker
 CMD ["uvicorn", "src.app:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
