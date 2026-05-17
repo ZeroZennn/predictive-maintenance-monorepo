@@ -6,7 +6,7 @@ export default function ProblemSection() {
       {/* Left: Naked Typography */}
       <div>
         <p className="text-[#EF4444] text-sm font-bold uppercase tracking-widest mb-4">The Reactive Past</p>
-        <h2 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6">
+        <h2 className="text-4xl lg:text-5xl font-heading font-extrabold text-white leading-tight mb-6">
           Era Industri 4.0: Banjir Data, Miskin Prediksi.
         </h2>
         <p className="text-[#C3CCD1] text-lg leading-relaxed mb-12">
@@ -38,7 +38,7 @@ export default function ProblemSection() {
             style={{ transform: 'rotateY(-15deg) rotateX(5deg)' }}
           >
             <div className="text-[#5FDA0A] font-bold text-xl mb-2">{item.id}</div>
-            <h3 className="text-white font-bold text-xl mb-2 flex items-center gap-2">
+            <h3 className="text-white font-heading font-bold text-xl mb-2 flex items-center gap-2">
               {item.title} <CheckCircle2 size={18} className="text-[#5FDA0A]" />
             </h3>
             <p className="text-[#C3CCD1]">{item.desc}</p>

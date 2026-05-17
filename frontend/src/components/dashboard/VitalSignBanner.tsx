@@ -35,13 +35,13 @@ export default function VitalSignBanner() {
         </div>
 
         {/* Inner Content */}
-        <div className="bg-lapis-dark-gray rounded-lg p-4 border border-lapis-border/30">
+        <div className="bg-lapis-dark-gray rounded-lg p-4 border border-lapis-border/30 font-heading">
           {status === "HEALTHY" ? (
             <span className="text-[#5FDA0A] uppercase font-bold tracking-wide text-xl md:text-[20px] lg:text-[26px] 2xl:text-[36px]">
               Mesin dalam kondisi Prima
             </span>
           ) : (
-            <div className="flex items-center gap-2 font-bold tracking-wide text-xl md:text-[20px] lg:text-[26px] 2xl:text-[26px]">
+            <div className="flex items-center gap-2 font-bold tracking-wide text-xl md:text-[20px] lg:text-[26px] 2xl:text-[26px] font-heading">
               <span className="text-white">ESTIMATED RUL :</span>
               <span className={statusConfig[status].color}>{Math.round(rul_days)} DAYS</span>
             </div>
