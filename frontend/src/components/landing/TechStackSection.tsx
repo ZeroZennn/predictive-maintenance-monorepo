@@ -6,7 +6,7 @@ export default function TechStackSection() {
       {["PYTHON", "TENSORFLOW", "FASTAPI", "NEXT.JS", "TIMESCALEDB"].map((tech, idx) => (
         <h2
           key={idx}
-          className="text-6xl md:text-[8rem] lg:text-[11rem] font-black uppercase leading-[0.85] tracking-tighter text-[#1E3D40] hover:text-[#5FDA0A] hover:translate-x-8 transition-all duration-500 cursor-default"
+          className="text-6xl md:text-[8rem] lg:text-[11rem] font-heading font-black uppercase leading-[0.85] tracking-tighter text-[#1E3D40] hover:text-[#5FDA0A] hover:translate-x-8 transition-all duration-500 cursor-default"
         >
           {tech}
         </h2>

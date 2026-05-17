@@ -1,6 +1,15 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
+@utility font-heading {
+  font-family: var(--font-space), sans-serif;
+}
+
 @theme {
+  /* Typography */
+  --font-sans: var(--font-inter), sans-serif;
+
   /* Color tokens */
   --color-lapis-bg: #081819;
   --color-lapis-surface: #0F2A2C;
@@ -105,7 +114,6 @@
     background-attachment: fixed;
     background-repeat: no-repeat;
     color: #E2F0F1;
-    font-family: system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 

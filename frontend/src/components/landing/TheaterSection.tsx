@@ -11,7 +11,7 @@ export default function TheaterSection() {
           {/* Feature 1 */}
           <div className="opacity-100 transition-opacity duration-500">
             <span className="text-[#5FDA0A] text-xl font-bold">01</span>
-            <h3 className="text-white text-4xl font-extrabold mt-4 mb-6">Health Status Classifier</h3>
+            <h3 className="text-white text-4xl font-heading font-extrabold mt-4 mb-6">Health Status Classifier</h3>
             <p className="text-[#C3CCD1] text-lg leading-relaxed">
               Klasifikasi real-time mendeteksi anomali mikroskopis. Ditenagai oleh model XGBoost V2 dengan akurasi tinggi untuk menentukan status Healthy, Warning, atau Critical.
             </p>
@@ -20,7 +20,7 @@ export default function TheaterSection() {
           {/* Feature 2 (Inactive state simulasinya dibuat opacity-40 default, bisa diatur scroll-spy nanti) */}
           <div className="opacity-40 hover:opacity-100 transition-opacity duration-500 cursor-default">
             <span className="text-gray-500 text-xl font-bold">02</span>
-            <h3 className="text-white text-4xl font-extrabold mt-4 mb-6">RUL Predictor Engine</h3>
+            <h3 className="text-white text-4xl font-heading font-extrabold mt-4 mb-6">RUL Predictor Engine</h3>
             <p className="text-[#C3CCD1] text-lg leading-relaxed">
               Model Deep Learning LSTM menganalisis deret waktu temporal 24-jam untuk memprediksi Remaining Useful Life secara presisi sebelum kerusakan terjadi.
             </p>
@@ -29,7 +29,7 @@ export default function TheaterSection() {
           {/* Feature 3 */}
           <div className="opacity-40 hover:opacity-100 transition-opacity duration-500 cursor-default">
             <span className="text-gray-500 text-xl font-bold">03</span>
-            <h3 className="text-white text-4xl font-extrabold mt-4 mb-6">AI Copilot (RAG)</h3>
+            <h3 className="text-white text-4xl font-heading font-extrabold mt-4 mb-6">AI Copilot (RAG)</h3>
             <p className="text-[#C3CCD1] text-lg leading-relaxed">
               SOP pabrik di ujung jari Anda. Asisten teknis cerdas yang menganalisis dokumen panduan dan memberikan rekomendasi perbaikan instan.
             </p>
