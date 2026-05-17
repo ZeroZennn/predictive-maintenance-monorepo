@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { SensorCard, AnomalyTimeline, MaintenanceKPIBar, MachineListSidebar, VitalSignBanner, TelemetryChart } from "@/components/dashboard";
+import { SensorCard, AnomalyTimeline, MaintenanceKPIBar, VitalSignBanner, TelemetryChart } from "@/components/dashboard";
 import { SENSOR_CONFIG } from "@/config";
 import { useMachineStore } from "@/stores";
 
@@ -16,14 +16,7 @@ export default function DashboardPage() {
   }, [setSelectedId]);
 
   return (
-    // Dua kolom utama: machine list + main content
-    <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
-      {/* KOLOM KIRI — Machine List Panel */}
-      <MachineListSidebar />
-
-      {/* KOLOM KANAN — Main Content */}
-      <div className="flex-1 w-full md:w-auto flex-grow overflow-y-auto">
-        <div className="w-full pb-20 md:pb-0">
+    <div className="w-full pb-20 md:pb-0">
           {/* Anomaly Timeline */}
           <AnomalyTimeline />
 
@@ -50,7 +43,5 @@ export default function DashboardPage() {
             <TelemetryChart />
           </div>
         </div>
-      </div>
-    </div>
   );
 }

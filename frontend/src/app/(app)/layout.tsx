@@ -3,19 +3,19 @@ import WebSocketInitializer from "@/components/providers/WebSocketInitializer";
 import NotificationProvider from "@/components/providers/NotificationProvider";
 import { CopilotSlidingPanel } from "@/components/copilot";
 
-// TODO Fase 8: Tambahkan <CopilotSlidingPanel /> di sini
-
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <AppShell>
       <WebSocketInitializer />
       <NotificationProvider />
-      <AppShell>{children}</AppShell>
-      <CopilotSlidingPanel />
-    </>
+      <div className="flex-1 h-screen overflow-hidden relative">
+        {children}
+        <CopilotSlidingPanel />
+      </div>
+    </AppShell>
   );
 }

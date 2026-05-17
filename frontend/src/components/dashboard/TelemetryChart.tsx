@@ -25,6 +25,7 @@ const metrics = [
   { key: "rpm", label: "RPM", color: "#8B5CF6" }, // Purple
   { key: "power_consumption", label: "Power", color: "#EC4899" }, // Pink
   { key: "noise_level", label: "Noise", color: "#F43F5E" }, // Rose
+  { key: "humidity", label: "Humidity", color: "#F43F5E" }, // Rose
 ];
 
 export default function TelemetryChart({ className }: TelemetryChartProps) {
@@ -95,13 +96,27 @@ export default function TelemetryChart({ className }: TelemetryChartProps) {
               tickMargin={10}
               axisLine={false}
               tickLine={false}
+              minTickGap={30}
+              tickFormatter={(val) => {
+                if (typeof val === 'string' && val.includes(':')) {
+                  const parts = val.split(':');
+                  return `${parts[0].padStart(2, '0')}:00`;
+                }
+                const date = new Date(val);
+                if (!isNaN(date.getTime())) {
+                  return `${date.getHours().toString().padStart(2, '0')}:00`;
+                }
+                return val;
+              }}
             />
             <YAxis
               stroke="#4B5563"
               fontSize={10}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(value) => `${value}`}
+              domain={['auto', 'auto']}
+              tickCount={6}
+              tickFormatter={(val) => typeof val === 'number' ? val.toFixed(1) : val}
             />
             <Tooltip
               contentStyle={{
