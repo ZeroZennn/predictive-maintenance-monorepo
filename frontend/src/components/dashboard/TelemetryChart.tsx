@@ -25,6 +25,7 @@ const metrics = [
   { key: "rpm", label: "RPM", color: "#8B5CF6" }, // Purple
   { key: "power_consumption", label: "Power", color: "#EC4899" }, // Pink
   { key: "noise_level", label: "Noise", color: "#F43F5E" }, // Rose
+  { key: "humidity", label: "Humidity", color: "#F43F5E" }, // Rose
 ];
 
 export default function TelemetryChart({ className }: TelemetryChartProps) {
