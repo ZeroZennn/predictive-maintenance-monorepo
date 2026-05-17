@@ -10,6 +10,7 @@ Dokumen ini merupakan panduan utama bagi Engineer (terutama Backend) atau anggot
 - **Core Libraries**: `pandas`, `numpy`, `scikit-learn`
 - **Machine Learning**: `xgboost`, `lightgbm`
 - **Deep Learning**: `tensorflow`, `h5py`
+- **ML Service (HTTP)**: `fastapi`, `uvicorn`, `pydantic`
 
 ---
 
@@ -48,25 +49,82 @@ Berikut adalah penjelasan fungsi setiap folder agar Anda tidak tersesat:
 
 ```text
 machine_learning/
-├── data/               # Folder HANYA UNTUK LOKAL (di-ignore oleh git)
-│   ├── raw/            # Data mentah (sensor_readings.csv, dll)
-│   ├── interim/        # Data sementara hasil pemrosesan awal
-│   └── processed/      # Data siap training (parquet/csv)
-├── models/             # Folder penyimpanan artefak model
-│   ├── ml_track/       # Model klasik (Random Forest, XGBoost)
-│   ├── dl_track/       # Model Deep Learning (LSTM, GRU)
-│   └── final/          # Model final yang TERPILIH untuk deployment
-├── notebooks/          # Jupyter Notebooks untuk eksperimen & riset (Fase 1-10)
-├── src/                # Script Python modular untuk backend integration
-│   ├── utils/          # Fungsi utilitas modular
-│   │   └── feature_engineering.py  # Fungsi feature engineering independen
-│   ├── config.py       # Single source of truth untuk PATH dan konstanta (GLOBAL_SEED, dll)
-│   ├── preprocessing_pipeline.py   # Definisi class FeatureEngineeringTransformer
-│   └── inference.py    # Script utama untuk inferensi API
-├── api_contract_final_v1.json  # Kontrak API resmi antara ML Service dan Backend
-├── requirements.txt    # Daftar library Python
-└── PROJECT_LOG.md      # Log lengkap keputusan arsitektur dan hasil evaluasi model
+├── data/                        # Folder HANYA UNTUK LOKAL (di-ignore oleh git)
+│   ├── raw/                     # Data mentah (sensor_readings.csv, dll)
+│   ├── interim/                 # Data sementara hasil pemrosesan awal
+│   └── processed/               # Data siap training (parquet/csv)
+│
+├── models/                      # Folder penyimpanan artefak model
+│   ├── ml_track/                # Model klasik (Random Forest, XGBoost, scaler)
+│   ├── dl_track/                # Model Deep Learning (LSTM, GRU)
+│   └── final/                   # Artifacts FINAL untuk deployment
+│       ├── preprocessing_pipeline.pkl     # sklearn Pipeline (transformer + scaler)
+│       ├── classifier_final.pkl           # XGBoost V2 + threshold 0.60
+│       ├── rul_predictor_final.keras      # LSTM V2 RUL predictor
+│       ├── scaler_final.pkl               # StandardScaler (standalone)
+│       ├── classifier_model_card.json     # Metadata & constraints Model 1
+│       ├── rul_predictor_model_card.json  # Metadata & constraints Model 2
+│       └── MANIFEST.json                  # Daftar semua file + ukuran
+│
+├── notebooks/                   # Jupyter Notebooks eksperimen & riset
+│   ├── 00_environment_check.ipynb
+│   ├── fase_1_ingestion/
+│   ├── fase_2_eda/
+│   ├── fase_3_label_engineering/
+│   ├── fase_4_feature_engineering/
+│   ├── fase_5_preprocessing/
+│   ├── fase_6_imbalance/
+│   ├── fase_7_splitting/
+│   ├── fase_8_modeling/
+│   ├── fase_9_evaluation/
+│   └── fase_10_export/
+│
+├── src/                         # Script Python production-ready
+│   ├── utils/
+│   │   └── feature_engineering.py       # Pure functions, importable independen
+│   ├── config.py                        # PATH & konstanta global (GLOBAL_SEED, dll)
+│   ├── preprocessing_pipeline.py        # FeatureEngineeringTransformer (portable pkl)
+│   ├── inference.py                     # Entry point prediksi — fungsi predict()
+│   └── app.py                           # FastAPI HTTP wrapper — ML Service
+│
+├── api_contract_final_v1.json           # Kontrak API resmi ML ↔ Backend (v1.0-final)
+├── gauge_thresholds.json                # P90/P95 threshold per sensor untuk Frontend
+├── gauge_thresholds_validated.json      # Threshold tervalidasi + overlap analysis
+├── Dockerfile.ml                        # Container definition ML Service
+├── docker-compose.ml-snippet.yml        # Snippet docker-compose untuk Backend Engineer
+├── requirements.txt                     # Daftar library Python
+├── PROJECT_LOG.md                       # Log keputusan arsitektur & evaluasi model
+└── TASK_CHECKLIST_ROLE_A.md            # Checklist progres ML Engineer
 ```
+
+---
+
+## 🐳 Menjalankan ML Service (HTTP)
+
+ML Service dapat dijalankan sebagai HTTP server yang menerima request dari Backend:
+
+### Local (tanpa Docker)
+```bash
+# Dari dalam folder machine_learning/
+uvicorn src.app:app --host 0.0.0.0 --port 8000 --workers 1
+```
+
+### Dengan Docker
+```bash
+# Build image
+docker build -f Dockerfile.ml -t lapis-ml-service .
+
+# Run container
+docker run -p 8000:8000 lapis-ml-service
+```
+
+### Endpoint yang tersedia
+| Method | Endpoint | Deskripsi |
+|---|---|---|
+| `GET` | `/health` | Health check — returns `{"status": "healthy"}` |
+| `POST` | `/api/ml/predict` | Prediksi utama (lihat API Contract) |
+
+> ⚠️ **workers=1 wajib** — LSTM tidak thread-safe untuk multi-worker.
 
 ---
 
@@ -92,17 +150,41 @@ Repositori ini telah dikonfigurasi melalui `.gitignore` di tingkat *root* monore
 
 Sistem Lapis AI menggunakan **Cascaded Prediction System** (Dua lapis model):
 
-1. **Model 1 (Classifier - XGBoost):**
+1. **Model 1 (Classifier — XGBoost V2):**
    - Mengambil data raw sensor dari Backend.
-   - Melakukan prediksi status mesin: `HEALTHY` (0), `WARNING` (1), atau `CRITICAL` (2).
-   - **PENTING:** Memiliki ambang batas (*threshold*) peringatan dini sebesar `0.60`.
+   - Memprediksi status mesin: `HEALTHY` (0), `WARNING` (1), atau `CRITICAL` (2).
+   - **PENTING:** WARNING threshold dikunci di `0.60` (bukan default 0.50).
+   - Backend **tidak perlu** menerapkan threshold — sudah diterapkan di ML Service.
 
-2. **Model 2 (RUL Predictor - LSTM):**
+2. **Model 2 (RUL Predictor — LSTM V2):**
    - **HANYA BERJALAN** jika output Model 1 adalah `WARNING` atau `CRITICAL`.
-   - Menerima format input 3D (Sequence/Timestep) sepanjang 24 jam ke belakang (`SEQ_LEN = 24`).
+   - Input sequence 24 timestep × 69 fitur (`SEQ_LEN = 24`).
    - Memprediksi Sisa Umur Pakai (RUL) dalam satuan **hari**.
+   - Jika `is_active = false`, semua field RUL bernilai `null`.
 
-Silakan merujuk ke file `api_contract_draft_v1.json` di dalam folder ini untuk skema *Request* dan *Response* detail yang harus diikuti oleh layanan Backend.
+Silakan merujuk ke file **`api_contract_final_v1.json`** di dalam folder ini untuk skema *Request* dan *Response* lengkap.
+
+---
+
+## 📊 Gauge Threshold (untuk Frontend)
+
+File `gauge_thresholds_validated.json` berisi threshold P90/P95 per sensor yang telah divalidasi untuk visualisasi gauge di Frontend:
+
+```json
+{
+  "sensors": {
+    "temperature": {
+      "warning_p90": 76.30,
+      "critical_recommended": 81.20,
+      "zone_healthy": "< 76.3",
+      "zone_warning": "76.3 – 81.2",
+      "zone_critical": ">= 81.2"
+    }
+  }
+}
+```
+
+Threshold dihitung dari distribusi **HEALTHY rows only** (P90) dan divalidasi terhadap **P10 CRITICAL** untuk memastikan tidak ada overlap antar zona.
 
 ---
 
