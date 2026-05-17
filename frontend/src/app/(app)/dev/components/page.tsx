@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatBubble, CitationChip, ChatInput } from "@/components/copilot";
+import { ChatBubble, CitationChip, ChatInput, CitationCard, SopDocumentPanel } from "@/components/copilot";
 
 // ──────────────────────────────────────────
 // HALAMAN INI HANYA UNTUK PREVIEW KOMPONEN
@@ -99,6 +99,35 @@ export default function ComponentPreviewPage() {
               onSend={(msg) => alert(`Sending: ${msg}`)} 
               placeholder="Tanya sesuatu tentang SOP..."
             />
+          </div>
+        </section>
+
+        {/* CitationCard Preview */}
+        <section className="mb-10">
+          <h2 className="text-xs text-lapis-neon uppercase tracking-widest font-mono mb-4">
+            CitationCard — Molecule (Sidebar Item)
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CitationCard filename="SOP_Maintenance_V1.pdf" />
+            <CitationCard filename="Machine_Manual_M01.docx" page={24} />
+            <CitationCard filename="Safety_Guidelines.txt" />
+            <CitationCard 
+              filename="Clickable_Document.pdf" 
+              onClick={() => alert("Card clicked!")} 
+            />
+          </div>
+        </section>
+
+        {/* SopDocumentPanel Preview */}
+        <section className="mb-10">
+          <h2 className="text-xs text-lapis-neon uppercase tracking-widest font-mono mb-4">
+            SopDocumentPanel — Organism (Sidebar)
+          </h2>
+          <div className="h-[500px] border border-lapis-border rounded-2xl overflow-hidden shadow-2xl flex">
+            <SopDocumentPanel />
+            <div className="flex-1 bg-lapis-bg flex items-center justify-center text-lapis-muted italic text-sm">
+              Main Hub Content Area
+            </div>
           </div>
         </section>
       </div>
