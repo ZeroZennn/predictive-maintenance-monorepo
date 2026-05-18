@@ -42,7 +42,7 @@ def _load_models():
     _pipeline   = joblib.load(_FINAL_DIR / "preprocessing_pipeline.pkl")
     _classifier = joblib.load(_FINAL_DIR / "classifier_final.pkl")
     _rul_model  = tf.keras.models.load_model(
-                      str(_FINAL_DIR / "rul_predictor_final.keras"))
+                      str(_FINAL_DIR / "rul_predictor_final.h5"))
     # Warm-up call: paksa TF compile graph sebelum request pertama masuk
     _dummy = np.zeros((1, 24, 69), dtype=np.float32)
     _rul_model.predict(_dummy, verbose=0)
