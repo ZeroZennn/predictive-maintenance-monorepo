@@ -47,11 +47,11 @@
 | No | Deliverable | Status |
 |---|---|---|
 | 1 | Halaman Authentication (/login) | 🔄 Shell selesai, form belum |
-| 2 | Halaman Real-Time Dashboard (/) | 🔄 In Progress |
+| 2 | Halaman Real-Time Dashboard (/) | ✅ Selesai |
 | 3 | Halaman AI Copilot Hub (/copilot-hub) | ⏳ Fase 9 |
 | 4 | Halaman Admin Panel /admin (4 tab)         | ⏳ Fase 11        |
-| 5 | Modul AI Copilot Sliding Panel | ⏳ Fase 8 |
-| 6 | Halaman Maintenance Scheduler (/scheduler) | 🔄 Fase 10 — Next |
+| 5 | Modul AI Copilot Sliding Panel | ✅ Selesai |
+| 6 | Halaman Maintenance Scheduler (/scheduler) | ✅ Selesai |
 | 7 | Halaman Historical Logs & Reports          | ❌ Dimerge ke /admin Tab 4 |
 | 8 | Sistem Global Toast Alert (cross-route) | ✅ Selesai |
 
@@ -233,8 +233,8 @@
 
 ---
 
-## FASE 6 — Dashboard Atomic Components 🔄
-**Status:** IN PROGRESS
+## FASE 6 — Dashboard Atomic Components ✅
+**Status:** SELESAI
 
 ### Atoms
 - [x] SensorGaugeChart.tsx:
@@ -338,8 +338,8 @@
 
 ---
 
-## FASE 8 — AI Copilot Sliding Panel 🔄
-**Status:** IN PROGRESS
+## FASE 8 — AI Copilot Sliding Panel ✅
+**Status:** SELESAI
 
 ### Atoms
 - [x] ChatBubble.tsx:
@@ -353,15 +353,15 @@
   - cursor-pointer hanya jika ada onClick prop
 
 ### Berikutnya
-- [ ] ChatInput.tsx — input + send button
-- [ ] CopilotSlidingPanel.tsx:
+- [x] ChatInput.tsx — input + send button
+- [x] CopilotSlidingPanel.tsx:
   - Framer Motion slide-in-right
   - Render di (app)/layout.tsx (persistent)
   - Tidak di-unmount saat navigasi
-- [ ] Floating trigger button (semua halaman)
-- [ ] Integrasi dengan nlp.api.ts queryCopilot()
-- [ ] copilotStore persistent validasi
-- [ ] npx tsc --noEmit: PASSED
+- [x] Floating trigger button (semua halaman)
+- [x] Integrasi dengan nlp.api.ts queryCopilot()
+- [x] copilotStore persistent validasi
+- [x] npx tsc --noEmit: PASSED ✅
 
 ---
 
@@ -377,22 +377,22 @@
 
 ---
 
-## FASE 10 — Halaman Maintenance Scheduler 🔄
-**Status:** IN PROGRESS
+## FASE 10 — Halaman Maintenance Scheduler ✅
+**Status:** SELESAI
 
-- [ ] /scheduler/page.tsx
-- [ ] Task Board 3 kolom:
+- [x] /scheduler/page.tsx
+- [x] Task Board 3 kolom:
   - 🔴 URGENT (< 3 hari)
   - 🟡 SOON (3–7 hari)
   - 🟢 SCHEDULED (> 7 hari)
-- [ ] TaskCard: machineId, type, tanggal, 
+- [x] TaskCard: machineId, type, tanggal, 
   durasi, teknisi
-- [ ] Badge MaintenanceType: 
+- [x] Badge MaintenanceType: 
   PREVENTIVE/CORRECTIVE/EMERGENCY
-- [ ] Auto-update dari WebSocket (mesin kritis 
+- [x] Auto-update dari WebSocket (mesin kritis 
   → kartu baru muncul)
-- [ ] Integration dengan maintenance.api.ts
-- [ ] npx tsc --noEmit: PASSED
+- [x] Integration dengan maintenance.api.ts
+- [x] npx tsc --noEmit: PASSED ✅
 
 ---
 
