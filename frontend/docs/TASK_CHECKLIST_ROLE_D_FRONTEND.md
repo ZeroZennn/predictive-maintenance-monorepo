@@ -1,6 +1,6 @@
 # TASK CHECKLIST — ROLE D: FRONTEND ENGINEER
 ### Lapis AI Predictive Maintenance System
-**Last Updated:** 2026-05-14
+**Last Updated:** 2026-05-15
 **Status Keseluruhan:** In Progress
 
 ---
@@ -47,12 +47,12 @@
 | No | Deliverable | Status |
 |---|---|---|
 | 1 | Halaman Authentication (/login) | 🔄 Shell selesai, form belum |
-| 2 | Halaman Real-Time Dashboard (/) | 🔄 In Progress |
+| 2 | Halaman Real-Time Dashboard (/) | ✅ Selesai |
 | 3 | Halaman AI Copilot Hub (/copilot-hub) | ⏳ Fase 9 |
-| 4 | Halaman Admin Panel (/admin) | ⏳ Fase 10 |
-| 5 | Modul AI Copilot Sliding Panel | ⏳ Fase 8 |
-| 6 | Halaman Maintenance Scheduler (/scheduler) | ⏳ Fase 11 |
-| 7 | Halaman Historical Logs & Reports (/logs) | ⏳ Fase 12 |
+| 4 | Halaman Admin Panel /admin (4 tab)         | ⏳ Fase 11        |
+| 5 | Modul AI Copilot Sliding Panel | ✅ Selesai |
+| 6 | Halaman Maintenance Scheduler (/scheduler) | ✅ Selesai |
+| 7 | Halaman Historical Logs & Reports          | ❌ Dimerge ke /admin Tab 4 |
 | 8 | Sistem Global Toast Alert (cross-route) | ✅ Selesai |
 
 ---
@@ -233,8 +233,8 @@
 
 ---
 
-## FASE 6 — Dashboard Atomic Components 🔄
-**Status:** IN PROGRESS
+## FASE 6 — Dashboard Atomic Components ✅
+**Status:** SELESAI
 
 ### Atoms
 - [x] SensorGaugeChart.tsx:
@@ -338,21 +338,30 @@
 
 ---
 
-## FASE 8 — AI Copilot Sliding Panel ⏳
-**Status:** BELUM DIMULAI
+## FASE 8 — AI Copilot Sliding Panel ✅
+**Status:** SELESAI
 
-- [ ] CopilotSlidingPanel.tsx:
+### Atoms
+- [x] ChatBubble.tsx:
+  - User bubble (kanan): avatar UserCircle, bg lapis-surface
+  - Assistant bubble (kiri): avatar Star neon, bg lapis-card border neon
+  - Prop: role, content, timestamp?
+- [x] CitationChip.tsx:
+  - Icon dinamis per ekstensi (pdf/docx/txt)
+  - Label bersih (ekstensi dihapus)
+  - Page number opsional
+  - cursor-pointer hanya jika ada onClick prop
+
+### Berikutnya
+- [x] ChatInput.tsx — input + send button
+- [x] CopilotSlidingPanel.tsx:
   - Framer Motion slide-in-right
   - Render di (app)/layout.tsx (persistent)
   - Tidak di-unmount saat navigasi
-- [ ] ChatBubble.tsx — user vs assistant style
-- [ ] CitationChip.tsx — source file + page number
-- [ ] SuggestedActionButton.tsx
-- [ ] ChatInput.tsx — input + send button
-- [ ] Integrasi dengan nlp.api.ts queryCopilot()
-- [ ] Floating trigger button (semua halaman)
-- [ ] copilotStore persistent validasi
-- [ ] npx tsc --noEmit: PASSED
+- [x] Floating trigger button (semua halaman)
+- [x] Integrasi dengan nlp.api.ts queryCopilot()
+- [x] copilotStore persistent validasi
+- [x] npx tsc --noEmit: PASSED ✅
 
 ---
 
@@ -368,60 +377,54 @@
 
 ---
 
-## FASE 10 — Halaman Admin Panel ⏳
+## FASE 10 — Halaman Maintenance Scheduler ✅
+**Status:** SELESAI
+
+- [x] /scheduler/page.tsx
+- [x] Task Board 3 kolom:
+  - 🔴 URGENT (< 3 hari)
+  - 🟡 SOON (3–7 hari)
+  - 🟢 SCHEDULED (> 7 hari)
+- [x] TaskCard: machineId, type, tanggal, 
+  durasi, teknisi
+- [x] Badge MaintenanceType: 
+  PREVENTIVE/CORRECTIVE/EMERGENCY
+- [x] Auto-update dari WebSocket (mesin kritis 
+  → kartu baru muncul)
+- [x] Integration dengan maintenance.api.ts
+- [x] npx tsc --noEmit: PASSED ✅
+
+---
+
+## FASE 11 — Halaman Admin Panel (4 Tab) ⏳
 **Status:** BELUM DIMULAI
 
 - [ ] /admin/page.tsx — tab layout
-- [ ] Tab Manajemen Dokumen:
+- [ ] Tab 1: Dashboard Admin (overview statistik)
+- [ ] Tab 2: Manajemen Dokumen:
+  - Menunggu konfirmasi NLP Engineer
   - Drag & drop file upload (PDF/DOCX/TXT)
   - Progress bar upload
   - Tabel dokumen terindeks (nama, tipe, status)
   - Delete dengan konfirmasi dialog
-- [ ] Tab Manajemen User:
+- [ ] Tab 3: Manajemen User:
   - Tabel CRUD pengguna
   - Modal tambah/edit user
   - Role dropdown (TECHNICIAN/ADMIN)
   - Delete dengan konfirmasi
+- [ ] Tab 4: Logs & Reports (dimerge dari Fase 12 lama):
+  - Tab Sensor Logs: Tabel Timestamp, Machine ID, Sensor, Nilai, Status, Anomaly Flag
+  - Tab Maintenance History: Tabel Tanggal, Machine ID, Tipe, Teknisi, Durasi, Hasil
+  - Export PDF & Excel buttons
+  - Integration dengan logs.api.ts
+- [ ] Catatan: Logs diputuskan Admin-only (tidak perlu route /logs terpisah)
 - [ ] RBAC: hanya ADMIN (middleware sudah handle)
 - [ ] npx tsc --noEmit: PASSED
 
 ---
 
-## FASE 11 — Halaman Maintenance Scheduler ⏳
-**Status:** BELUM DIMULAI
-
-- [ ] /scheduler/page.tsx
-- [ ] Task Board 3 kolom:
-  - 🔴 URGENT (< 3 hari)
-  - 🟡 SOON (3–7 hari)
-  - 🟢 SCHEDULED (> 7 hari)
-- [ ] TaskCard: machineId, type, tanggal, 
-  durasi, teknisi
-- [ ] Badge MaintenanceType: 
-  PREVENTIVE/CORRECTIVE/EMERGENCY
-- [ ] Auto-update dari WebSocket (mesin kritis 
-  → kartu baru muncul)
-- [ ] Integration dengan maintenance.api.ts
-- [ ] npx tsc --noEmit: PASSED
-
----
-
-## FASE 12 — Halaman Historical Logs & Reports ⏳
-**Status:** BELUM DIMULAI
-
-- [ ] /logs/page.tsx — tab layout
-- [ ] Tab Sensor Logs:
-  - Tabel: Timestamp, Machine ID, Sensor, 
-    Nilai, Status, Anomaly Flag
-  - Filter: Date Range, Machine ID, Status
-  - Pagination 50 baris
-- [ ] Tab Maintenance History:
-  - Tabel: Tanggal, Machine ID, Tipe, 
-    Teknisi, Durasi, Hasil
-- [ ] Export PDF button
-- [ ] Export Excel button
-- [ ] Integration dengan logs.api.ts
-- [ ] npx tsc --noEmit: PASSED
+## FASE 12 — DEPRECATED
+Konten dimerge ke Fase 11 Tab 4 (Admin Panel — Logs)
 
 ---
 
@@ -481,6 +484,8 @@
 | NOTE-03 | Fase 6 | Background pattern image belum diintegrasikan ke globals.css | ⏳ |
 | NOTE-04 | Semua | API contracts bisa berubah — update src/lib/api/ dan src/types/ saja | 🔄 Ongoing |
 | NOTE-05 | Fase 15 | NEXT_PUBLIC_SKIP_AUTH WAJIB di-set false sebelum production deploy | ⚠️ |
+| NOTE-06 | Semua | Logs dimerge ke Admin Panel — /logs route dihapus | ✅ Dikunci |
+| NOTE-07 | Fase 11 | Tab Manajemen Dokumen menunggu konfirmasi NLP Engineer | ⏳ |
 | DFT-01 | Fase 2 | Middleware redirect loop (base64url) → FIXED | ✅ |
 | DFT-02 | Fase 4 | useWebSocketInit path not found → FIXED | ✅ |
 | DFT-03 | Fase 6 | Machine.sensors type missing → FIXED | ✅ |

@@ -45,8 +45,7 @@ export const useMaintenanceStore = create<MaintenanceState>((set) => ({
   setLoading: (val) => set({ isLoading: val }),
 }));
 
-// ─── Selector helpers (dipakai di KanbanColumn nanti) ───
-// Export sebagai fungsi biasa, bukan hook
+// ─── Selector helpers (dipakai di KanbanColumn) ───
 export const selectUrgentTasks = (tasks: MaintenanceTask[]) =>
   tasks.filter((t) => getKanbanColumn(t.rul_days) === "URGENT");
 

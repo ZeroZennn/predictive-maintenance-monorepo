@@ -1,10 +1,21 @@
-import { redirect } from "next/navigation";
+import {
+  Navbar,
+  HeroSection,
+  ProblemSection,
+  TheaterSection,
+  TechStackSection,
+  Footer,
+} from "@/components/landing";
 
-export default function RootPage() {
-  // DEV BYPASS — jika SKIP_AUTH aktif, langsung ke dashboard
-  // WAJIB dikembalikan ke redirect("/login") sebelum production
-  if (process.env.NEXT_PUBLIC_SKIP_AUTH === "true") {
-    redirect("/dashboard");
-  }
-  redirect("/login");
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-[#081819] text-white selection:bg-[#5FDA0A] selection:text-black font-sans">
+      <Navbar />
+      <HeroSection />
+      <ProblemSection />
+      <TheaterSection />
+      <TechStackSection />
+      <Footer />
+    </div>
+  );
 }
