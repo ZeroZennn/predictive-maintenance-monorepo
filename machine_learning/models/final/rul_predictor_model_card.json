@@ -3,7 +3,7 @@
   "model_type": "LSTM Regressor (Sequence-based)",
   "task": "Remaining Useful Life Prediction",
   "version": "v2.0-lstm",
-  "file": "rul_predictor_final.keras",
+  "file": "rul_predictor_final.h5",
   "exported_at": "2026-05-14T17:46:35.622358",
   "framework": "TensorFlow/Keras",
   "input": {
@@ -50,5 +50,6 @@
     "l2_reg": 0.001,
     "smote_applied": false,
     "note": "Regression target tidak di-SMOTE untuk menjaga distribusi natural"
-  }
+  },
+  "format_note": "HDF5 (.h5) — universal format, TF 2.x compatible"
 }

@@ -32,6 +32,8 @@ RUN printf 'tensorflow==2.15.0\n' > /tmp/tf_constraint.txt && \
 
 # ── Application files ─────────────────────────────────────────
 COPY src/ ./src/
+# Includes: preprocessing_pipeline.pkl, classifier_final.pkl,
+# rul_predictor_final.h5, scaler_final.pkl, model cards
 COPY models/final/ ./models/final/
 COPY data/processed/X_train_clf.parquet ./data/processed/
 
