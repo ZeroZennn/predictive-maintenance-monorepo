@@ -265,6 +265,41 @@ Alert trigger otomatis.
 - **Verified:** warn: ML Engine unavailable — skipping prediction ✅
 - **Verified:** Pipeline complete tanpa crash saat ML tidak aktif ✅
 
+## FASE 5B — ML Orchestration Contract Fix & Full Integration ✅
+**Tanggal:** 2026-05-19
+
+### Perbaikan dari Handover ML Engineer:
+
+**Files Modified:**
+- `src/config/migrate5.js` — tambah maintenance_type + confidence
+- `src/services/mlService.js` — fix health_score formula + is_active + sensor_history
+- `src/services/dispatcherService.js` — SEQ_LEN=24 + fetchMaintenanceKPIs
+- `src/services/safetyMarginService.js` — min buffer 0.5d + maintenance_type
+- `src/services/alertService.js` — urgency_level mapping FINAL contract
+- `src/websockets/broadcastService.js` — new payload structure
+
+**Critical Fixes:**
+| Fix | Before | After |
+|-----|--------|-------|
+| health_score | P(H)*100 | clip((P(H)*100)-(P(W)*30)-(P(C)*70), 0, 100) |
+| sensor_history | tidak ada | 23 baris history dari TimescaleDB |
+| is_active | tidak dihandle | null RUL jika HEALTHY |
+| urgency_level | draft mapping | IMMEDIATE/CRITICAL/WARNING/MONITOR |
+| safety buffer | 20% RUL | max(20% RUL, 0.5 days) |
+| maintenance_type | tidak ada | EMERGENCY/CORRECTIVE/PREVENTIVE |
+| WebSocket payload | sensors/prediction flat | sensor_live/health_status/rul/kpis |
+
+**ML Service Docker Fix:**
+- Export ulang rul_predictor ke .h5 format (HDF5 universal)
+- Resolve Keras version mismatch (TF 2.15 → .h5 backward compatible)
+
+**End-to-End Verified:**
+- ML Engine: xgb_classifier_v2 + lstm_rul_v2 (healthy)
+- Full pipeline: M-01 CRITICAL | Health:0% | RUL:2d
+- Alert: rul_critical triggered dan disimpan ke DB
+- Schedule: EMERGENCY dibuat, 2026-05-21
+- WebSocket: sensor_live + health_status + rul + kpis terbroadcast
+
 ---
 
 ## FASE 6 — Smart NLP Router & Live Context Injection ✅
