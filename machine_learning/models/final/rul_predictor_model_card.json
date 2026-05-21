@@ -1,0 +1,55 @@
+{
+  "model_id": "rul_predictor_final",
+  "model_type": "LSTM Regressor (Sequence-based)",
+  "task": "Remaining Useful Life Prediction",
+  "version": "v2.0-lstm",
+  "file": "rul_predictor_final.h5",
+  "exported_at": "2026-05-14T17:46:35.622358",
+  "framework": "TensorFlow/Keras",
+  "input": {
+    "description": "Sequence dari output preprocessing_pipeline, di-reshape untuk LSTM",
+    "sequence_length": 24,
+    "features_per_step": 69,
+    "shape_before_reshape": "(-1, 69)",
+    "shape_after_reshape": "(-1, 24, 69)",
+    "reshape_note": "Ambil 24 timestep terakhir per mesin, reshape ke (1, 24, 69) untuk single inference"
+  },
+  "output": {
+    "shape": "(n_samples, 1)",
+    "unit": "days",
+    "interpretation": "Prediksi sisa umur mesin dalam satuan hari"
+  },
+  "performance": {
+    "mae_val_days": 1.6461,
+    "mae_test_days": 0.7985,
+    "rmse_val_days": 12.9167,
+    "rmse_test_days": 6.3803,
+    "r2_val": 0.1676,
+    "r2_test": 0.2594,
+    "error_leq_1day_test_pct": 98.04,
+    "error_leq_3days_test_pct": 98.04,
+    "inference_time_ms": 125.74,
+    "inference_time_sla_ms": 500,
+    "r2_note": "R2 rendah disebabkan outlier RUL tinggi pada CRITICAL akhir — bukan indikator kualitas model untuk prediksi jangka pendek"
+  },
+  "deployment_constraints": [
+    "HANYA aktif saat Model 1 mendeteksi WARNING atau CRITICAL",
+    "TIDAK dipanggil saat status HEALTHY — return null untuk rul_days",
+    "Input WAJIB di-reshape ke (1, 24, 69) sebelum model.predict()",
+    "Jika history < 24 timestep, pad dengan zeros di sisi kiri (pre-padding)",
+    "Output adalah scalar float — kalikan 24 untuk konversi ke jam"
+  ],
+  "training_metadata": {
+    "scope": "WARNING + CRITICAL only",
+    "train_samples": 1915,
+    "val_samples": 288,
+    "test_samples": 433,
+    "architecture": "LSTM(64) → LSTM(32) → Dense(16) → Dense(1)",
+    "total_params": 47649,
+    "dropout": 0.3,
+    "l2_reg": 0.001,
+    "smote_applied": false,
+    "note": "Regression target tidak di-SMOTE untuk menjaga distribusi natural"
+  },
+  "format_note": "HDF5 (.h5) — universal format, TF 2.x compatible"
+}

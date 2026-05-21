@@ -1,0 +1,218 @@
+{
+  "api_contract_version": "1.0-final",
+  "project": "Lapis AI Predictive Maintenance",
+  "generated_at": "2026-05-14T18:06:56.672673",
+  "authored_by": "ML Engineer — Role A (Zikran)",
+  "consumed_by": "Backend Engineer — Role C (Reynaldi)",
+  "base_url": "http://ml-service:8000",
+  "endpoint": "POST /api/ml/predict",
+  "content_type": "application/json",
+  "request_schema": {
+    "description": "Payload yang dikirim Backend ke ML Service.",
+    "required_fields": [
+      "machine_id",
+      "timestamp",
+      "sensor_readings"
+    ],
+    "body": {
+      "machine_id": {
+        "type": "string",
+        "example": "M-01",
+        "description": "ID unik mesin, format M-XX"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "ISO8601",
+        "example": "2025-09-30T03:00:00",
+        "description": "Waktu perekaman sensor"
+      },
+      "sensor_readings": {
+        "description": "Nilai mentah 8 sensor. ML Service yang melakukan transformasi.",
+        "fields": {
+          "temperature": {
+            "type": "float",
+            "unit": "Celsius"
+          },
+          "vibration": {
+            "type": "float",
+            "unit": "mm/s"
+          },
+          "pressure": {
+            "type": "float",
+            "unit": "bar"
+          },
+          "rpm": {
+            "type": "integer",
+            "unit": "RPM"
+          },
+          "power_consumption": {
+            "type": "float",
+            "unit": "kW"
+          },
+          "noise_level": {
+            "type": "float",
+            "unit": "dB"
+          },
+          "humidity": {
+            "type": "float",
+            "unit": "percent"
+          },
+          "operating_hours": {
+            "type": "float",
+            "unit": "hours"
+          }
+        }
+      },
+      "sensor_history": {
+        "type": "array of sensor_readings objects",
+        "required": false,
+        "description": "Opsional: 23 baris sensor sebelumnya untuk meningkatkan akurasi RUL LSTM. Jika tidak dikirim, ML Service akan pre-pad dengan zeros (akurasi RUL berkurang). Urutan: [t-23, t-22, ..., t-1] (oldest first). Panjang: tepat 23 entri.",
+        "example_length": 23
+      }
+    }
+  },
+  "response_schema": {
+    "description": "Response JSON dari ML Service ke Backend.",
+    "body": {
+      "machine_id": {
+        "type": "string"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "ISO8601"
+      },
+      "model_1_classifier": {
+        "predicted_label": {
+          "type": "string",
+          "enum": [
+            "HEALTHY",
+            "WARNING",
+            "CRITICAL"
+          ]
+        },
+        "predicted_code": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ],
+          "mapping": {
+            "0": "HEALTHY",
+            "1": "WARNING",
+            "2": "CRITICAL"
+          }
+        },
+        "confidence": {
+          "type": "float",
+          "description": "Probabilitas tertinggi dari tiga kelas"
+        },
+        "probabilities": {
+          "HEALTHY": {
+            "type": "float",
+            "range": "[0.0, 1.0]"
+          },
+          "WARNING": {
+            "type": "float",
+            "range": "[0.0, 1.0]"
+          },
+          "CRITICAL": {
+            "type": "float",
+            "range": "[0.0, 1.0]"
+          }
+        },
+        "threshold_used": {
+          "WARNING": 0.6,
+          "CRITICAL": 0.5,
+          "description": "WARNING threshold di-tune ke 0.60 untuk minimasi false alarm. Backend TIDAK perlu menerapkan threshold — sudah diterapkan di ML Service."
+        }
+      },
+      "model_2_rul": {
+        "is_active": {
+          "type": "boolean",
+          "description": "True hanya jika predicted_label adalah WARNING atau CRITICAL. Jika False, semua field lain bernilai null."
+        },
+        "rul_days": {
+          "type": "float or null",
+          "unit": "days",
+          "description": "Prediksi sisa umur mesin dalam hari. Null jika is_active=False."
+        },
+        "rul_hours": {
+          "type": "float or null",
+          "unit": "hours",
+          "description": "rul_days dikali 24. Untuk referensi scheduler. Null jika is_active=False."
+        },
+        "urgency_level": {
+          "type": "string",
+          "enum": [
+            "IMMEDIATE",
+            "CRITICAL",
+            "WARNING",
+            "MONITOR"
+          ],
+          "mapping": {
+            "IMMEDIATE": "rul_days <= 1.0  — servis dalam 24 jam",
+            "CRITICAL": "rul_days <= 2.0  — servis dalam 48 jam",
+            "WARNING": "rul_days <= 7.0  — jadwalkan dalam seminggu",
+            "MONITOR": "rul_days > 7.0 atau is_active=False"
+          }
+        }
+      },
+      "metadata": {
+        "model_1_version": {
+          "type": "string",
+          "value": "xgb_classifier_v2"
+        },
+        "model_2_version": {
+          "type": "string",
+          "value": "lstm_rul_v2"
+        },
+        "pipeline_version": {
+          "type": "string",
+          "value": "preprocessing_pipeline_v1"
+        },
+        "inference_time_ms": {
+          "type": "float",
+          "sla_ms": 500,
+          "description": "Total waktu inferensi. SLA: < 500ms untuk HEALTHY, < 500ms untuk WARNING/CRITICAL (setelah LSTM warm-up)."
+        }
+      }
+    }
+  },
+  "error_response_schema": {
+    "description": "Format error yang dikembalikan ML Service.",
+    "body": {
+      "status": {
+        "type": "string",
+        "value": "error"
+      },
+      "code": {
+        "type": "integer"
+      },
+      "message": {
+        "type": "string"
+      }
+    },
+    "error_codes": {
+      "400": "Bad Request — missing required field atau tipe data salah",
+      "422": "Unprocessable Entity — sensor_readings tidak valid (NaN, Inf, atau di luar range operasional)",
+      "500": "Internal Server Error — model gagal di-load atau inferensi gagal",
+      "503": "Service Unavailable — ML Service sedang cold start atau overload"
+    }
+  },
+  "integration_notes": {
+    "for_backend_reynaldi": [
+      "ML Service menerima raw sensor — TIDAK perlu preprocessing di sisi Backend",
+      "Kirim sensor_history (23 entri) untuk akurasi RUL optimal. Tanpa history, LSTM pre-pad zeros dan akurasi RUL berkurang.",
+      "WARNING threshold (0.60) sudah diterapkan di ML Service — Backend cukup baca predicted_label",
+      "model_2_rul.is_active=False saat HEALTHY — Backend tidak perlu cek rul_days",
+      "LSTM warm-up sudah dilakukan saat ML Service startup — tidak ada cold start per-request",
+      "Untuk WebSocket broadcast: gunakan predicted_label dan urgency_level sebagai trigger"
+    ],
+    "deployment_constraints": [
+      "ML Service harus di-deploy sebagai long-running process (bukan serverless/FaaS) karena model di-load ke memory",
+      "Minimum RAM: 2GB (LSTM + XGBoost + pipeline dalam memory)",
+      "Endpoint ini TIDAK thread-safe untuk concurrent requests — gunakan async queue atau worker pool"
+    ]
+  }
+}

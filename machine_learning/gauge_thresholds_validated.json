@@ -1,0 +1,116 @@
+{
+  "_metadata": {
+    "generated_at": "2026-05-16T15:30:27.366112",
+    "source": "df_sensor_labeled.parquet",
+    "method": "P90 HEALTHY=Warning | P95/P10-Critical validated=Critical",
+    "total_healthy_rows": 97315,
+    "total_warning_rows": 1296,
+    "total_critical_rows": 1389
+  },
+  "sensors": {
+    "temperature": {
+      "min": 58.1,
+      "max": 103.3,
+      "warning_p90": 76.3,
+      "critical_p95_proxy": 77.8,
+      "critical_p10_actual": 78.4,
+      "critical_recommended": 77.8,
+      "validation_verdict": "P95 VALID — tidak ada overlap",
+      "gap_p95_to_p10critical": 0.6000000000000085,
+      "zone_healthy": "< 76.3",
+      "zone_warning": "76.3 – 77.8",
+      "zone_critical": ">= 77.8"
+    },
+    "vibration": {
+      "min": -0.09,
+      "max": 2.25,
+      "warning_p90": 0.59,
+      "critical_p95_proxy": 0.64,
+      "critical_p10_actual": 0.61,
+      "critical_recommended": 0.625,
+      "validation_verdict": "OVERLAP — gunakan rata-rata",
+      "gap_p95_to_p10critical": -0.030000000000000027,
+      "zone_healthy": "< 0.59",
+      "zone_warning": "0.59 – 0.62",
+      "zone_critical": ">= 0.62"
+    },
+    "pressure": {
+      "min": 92.1,
+      "max": 125.1,
+      "warning_p90": 103.8,
+      "critical_p95_proxy": 104.8,
+      "critical_p10_actual": 104.68,
+      "critical_recommended": 104.74000000000001,
+      "validation_verdict": "OVERLAP — gunakan rata-rata",
+      "gap_p95_to_p10critical": -0.11999999999999034,
+      "zone_healthy": "< 103.8",
+      "zone_warning": "103.8 – 104.74",
+      "zone_critical": ">= 104.74"
+    },
+    "rpm": {
+      "min": 1964.0,
+      "max": 3537.0,
+      "warning_p90": 2540.0,
+      "critical_p95_proxy": 2589.0,
+      "critical_p10_actual": 2536.0,
+      "critical_recommended": 2562.5,
+      "validation_verdict": "OVERLAP — gunakan rata-rata",
+      "gap_p95_to_p10critical": -53.0,
+      "zone_healthy": "< 2540.0",
+      "zone_warning": "2540.0 – 2562.5",
+      "zone_critical": ">= 2562.5"
+    },
+    "power_consumption": {
+      "min": 52.6,
+      "max": 126.7,
+      "warning_p90": 82.1,
+      "critical_p95_proxy": 84.6,
+      "critical_p10_actual": 84.5,
+      "critical_recommended": 84.55,
+      "validation_verdict": "OVERLAP — gunakan rata-rata",
+      "gap_p95_to_p10critical": -0.09999999999999432,
+      "zone_healthy": "< 82.1",
+      "zone_warning": "82.1 – 84.55",
+      "zone_critical": ">= 84.55"
+    },
+    "noise_level": {
+      "min": 57.0,
+      "max": 102.9,
+      "warning_p90": 74.3,
+      "critical_p95_proxy": 75.9,
+      "critical_p10_actual": 78.98,
+      "critical_recommended": 75.9,
+      "validation_verdict": "P95 VALID — tidak ada overlap",
+      "gap_p95_to_p10critical": 3.0799999999999983,
+      "zone_healthy": "< 74.3",
+      "zone_warning": "74.3 – 75.9",
+      "zone_critical": ">= 75.9"
+    },
+    "humidity": {
+      "min": 18.4,
+      "max": 92.9,
+      "warning_p90": 65.3,
+      "critical_p95_proxy": 68.2,
+      "critical_p10_actual": 45.3,
+      "critical_recommended": 56.75,
+      "validation_verdict": "OVERLAP — gunakan rata-rata",
+      "gap_p95_to_p10critical": -22.900000000000006,
+      "zone_healthy": "< 65.3",
+      "zone_warning": "65.3 – 56.75",
+      "zone_critical": ">= 56.75"
+    },
+    "operating_hours": {
+      "min": 0.0,
+      "max": 4022.7,
+      "warning_p90": 3609.7,
+      "critical_p95_proxy": 3804.73,
+      "critical_p10_actual": 623.72,
+      "critical_recommended": 2214.225,
+      "validation_verdict": "OVERLAP — gunakan rata-rata",
+      "gap_p95_to_p10critical": -3181.01,
+      "zone_healthy": "< 3609.7",
+      "zone_warning": "3609.7 – 2214.22",
+      "zone_critical": ">= 2214.22"
+    }
+  }
+}
