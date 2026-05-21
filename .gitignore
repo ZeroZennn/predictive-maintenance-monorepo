@@ -1,9 +1,3 @@
-# ============================================================
-# LAPIS AI — Monorepo .gitignore
-# ============================================================
-
-# === PYTHON VIRTUAL ENVIRONMENTS ===
-.venv/
 # ==============================================================================
 # LAPIS AI — MONOREPO GITIGNORE
 # ==============================================================================
@@ -15,72 +9,38 @@
 .env.*.local
 **/.env
 **/.env.local
-!.env.example
-venv/
-env/
-ENV/
-nlp/.venv/
-*/.venv/
-
-# === PYTHON CACHE ===
-__pycache__/
-*.py[cod]
-*$py.class
-*.pyc
-.pytest_cache/
-.mypy_cache/
-
-# === NLP DATA — RAW & PROCESSED (Generated, tidak di-track) ===
-nlp/data/raw/*.pdf
-nlp/data/raw/*.PDF
-nlp/data/processed/*.txt
-nlp/data/processed/*.json
-nlp/data/processed/*.csv
-# Kecuali gitkeep
-!nlp/data/raw/.gitkeep
-!nlp/data/processed/.gitkeep
-!nlp/data/knowledge_base/.gitkeep
-
-# === VECTOR DATABASE (Bisa gigabytes) ===
-nlp/data/vector_db/
-*.chroma
-chroma.sqlite3
-
-# === ENVIRONMENT VARIABLES (RAHASIA) ===
-.env
 *.env
+!.env.example
 !*.env.example
 
-# === MODEL CACHE (Hugging Face, bisa puluhan GB) ===
-.cache/
-nlp/.cache/
-~/.cache/huggingface/
-
-# === IDE & EDITOR ===
-.vscode/settings.json
-.idea/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
-
-# === LOGS ===
-*.log
-logs/
-nlp/logs/
-
-# === JUPYTER ===
+venv/
 env/
 .venv/
+ENV/
+*/.venv/
+nlp/.venv/
 
 # 2. Machine Learning Data & Databases
 # Jangan commit data (bisa bergiga-giga dan melanggar aturan data privacy)
 machine_learning/data/raw/
 machine_learning/data/interim/
 machine_learning/data/processed/
+
 *.csv
 *.parquet
 *.xlsx
+
+# NLP Data — Generated files (tidak di-track)
+nlp/data/raw/*.pdf
+nlp/data/raw/*.PDF
+nlp/data/processed/*.txt
+nlp/data/processed/*.json
+nlp/data/processed/*.csv
+
+# Tetap simpan struktur folder kosong
+!nlp/data/raw/.gitkeep
+!nlp/data/processed/.gitkeep
+!nlp/data/knowledge_base/.gitkeep
 
 # Docker Volumes & Local Database Data
 postgres_data/
@@ -88,9 +48,16 @@ redis_data/
 influxdb_data/
 timescaledb_data/
 
+# Vector Database (bisa sangat besar)
+nlp/data/vector_db/
+nlp/data/vector_db/qdrant/
+*.chroma
+chroma.sqlite3
+
 # 3. Machine Learning Models & Artifacts
-# Jangan commit model file secara langsung (ukurannya besar)
-# Gunakan Git LFS jika memang perlu di-commit, atau simpan di cloud storage
+# Jangan commit model file langsung (ukurannya besar)
+# Gunakan Git LFS jika perlu, atau cloud storage
+
 *.pkl
 *.h5
 *.keras
@@ -98,16 +65,27 @@ timescaledb_data/
 *.pyd
 *.pyo
 .Python
+
 *.egg-info/
+*.egg
+
 .cache/
-# Opsional: Jika ingin mengabaikan seluruh folder model kecuali yang final
+nlp/.cache/
+~/.cache/huggingface/
+
+# Opsional:
 # machine_learning/models/dl_track/
 # machine_learning/models/ml_track/
 
 # 4. Jupyter Notebook & IDE / Editor Files
 .ipynb_checkpoints/
+*.ipynb
+
 .vscode/
+.vscode/settings.json
+
 .idea/
+
 *.swp
 *.swo
 *~
@@ -115,9 +93,14 @@ timescaledb_data/
 # 5. Python Build, Cache & Testing
 __pycache__/
 **/__pycache__/
+
 *.py[cod]
+*.pyc
 *$py.class
+
 .pytest_cache/
+.mypy_cache/
+
 htmlcov/
 .coverage
 coverage/
@@ -127,13 +110,17 @@ coverage/
 # 6. Node.js & Web Development (Frontend/Backend / Monorepo)
 node_modules/
 **/node_modules/
+
 dist/
 **/dist/
+
 build/
 **/build/
+
 .next/
 out/
 .turbo/
+
 *.tgz
 *.tar.gz
 
@@ -141,6 +128,8 @@ out/
 *.log
 logs/
 **/logs/
+nlp/logs/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -150,7 +139,9 @@ pnpm-debug.log*
 .DS_Store
 .DS_Store?
 ._*
+
 .Spotlight-V100
 .Trashes
+
 ehthumbs.db
 Thumbs.db
