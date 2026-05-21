@@ -1,0 +1,72 @@
+{
+  "timestamp": "20260518_055457",
+  "cases_evaluated": 3,
+  "scores_mean": {
+    "faithfulness": NaN,
+    "answer_relevancy": 0.4719,
+    "context_precision": NaN,
+    "context_recall": 0.3333,
+    "context_entity_recall": 0.5,
+    "answer_correctness": NaN,
+    "answer_similarity": 0.8889
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+      "retrieved_contexts": [
+        "[EVENT_EMERGENCY | M-01 | Agustus 2025] Tanggal: 26/08/2025 | Log: ML-0447 | Kejadian: Short circuit pada panel kontrol | Downtime: 33.5 jam | Part Diganti: Bearing | Biaya: Rp 31,560,747",
+        "[EVENT_EMERGENCY | M-01 | Agustus 2025] Tanggal: 02/08/2025 | Log: ML-0119 | Kejadian: Kegagalan sistem pendingin kritis | Downtime: 21.6 jam | Part Diganti: Motor | Biaya: Rp 49,643,133",
+        "[EVENT_EMERGENCY | M-01 | November 2025] Tanggal: 10/11/2025 | Log: ML-0230 | Kejadian: Kebocoran besar pada hydraulic\nsystem | Downtime: 21.7 jam | Part Diganti: Belt | Biaya: Rp 13,696,714",
+        "[EVENT_EMERGENCY | M-01 | November 2025] Tanggal: 26/11/2025 | Log: ML-0222 | Kejadian: Short circuit pada panel kontrol | Downtime: 38.9 jam | Part Diganti: Filter | Biaya: Rp 21,083,914",
+        "[EVENT_EMERGENCY | M-01 | Oktober 2025] Tanggal: 10/10/2025 | Log: ML-0205 | Kejadian: Kegagalan sistem pendingin kritis | Downtime: 38.0 jam | Part Diganti: Bearing | Biaya: Rp 13,678,071"
+      ],
+      "response": "## ANALISIS\n\nBerdasarkan data historis yang tersedia, pada bulan Agustus 2025, Mesin M-01 mengalami **dua kejadian emergency**:\n\n1. **2 Agustus 2025** — Kegagalan sistem pendingin kritis (Log: ML-0119)\n   - Downtime: 21,6 jam\n   - Part yang diganti: Motor\n   - Biaya: Rp 49.643.133\n\n2. **26 Agustus 2025** — Short circuit pada panel kontrol (Log: ML-0447)\n   - Downtime: 33,5 jam\n   - Part yang diganti: Bearing\n   - Biaya: Rp 31.560.747\n\nKedua kejadian ini menyebabkan total downtime **55,1 jam** dan total kerugian **Rp 81.203.880** dalam satu bulan yang sama.\n\n**Catatan penting:** Kondisi real-time saat ini (18 Mei 2026) menunjukkan M-01 dalam status **HEALTHY** dengan suhu 67,5°C, getaran 0,49 mm/s, tekanan 98,1 PSI, dan sisa umur (RUL) 88 hari. Tidak ada alert aktif.\n\n## REKOMENDASI\n\n**[PREVENTIF]** Lakukan inspeksi menyeluruh pada sistem pendingin dan panel kontrol M-01 secara berkala, mengingat riwayat kegagalan kritis pada komponen tersebut di Agustus 2025. Prioritaskan pemeriksaan:\n- Kondisi motor sistem pendingin\n- Integritas kabel dan koneksi panel kontrol\n- Kondisi bearing sebagai komponen yang rawan diganti\n\n## REFERENSI\n\n- Referensi 1: [EVENT_EMERGENCY | M-01 | Agustus 2025] Log: ML-0447 — Short circuit panel kontrol (Sumber: LAP-BUNDLE | Hal. 1)\n- Referensi 2: [EVENT_EMERGENCY | M-01 | Agustus 2025] Log: ML-0119 — Kegagalan sistem pendingin kritis (Sumber: LAP-BUNDLE | Hal. 1)",
+      "reference": "M-01 mengalami kegagalan sistem pendingin kritis pada 02/08/2025 yang menyebabkan motor berhenti beroperasi selama lebih dari 48 jam.",
+      "faithfulness": NaN,
+      "answer_relevancy": 0.9438206663704776,
+      "context_precision": NaN,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.6666666644444444,
+      "answer_correctness": NaN,
+      "answer_similarity": 0.8927008491174182
+    },
+    {
+      "user_input": "Berapa batas kritis suhu operasional mesin M-01?",
+      "retrieved_contexts": [
+        "[EVENT_EMERGENCY | M-01 | Oktober 2025] Tanggal: 10/10/2025 | Log: ML-0205 | Kejadian: Kegagalan sistem pendingin kritis | Downtime: 38.0 jam | Part Diganti: Bearing | Biaya: Rp 13,678,071",
+        "[EVENT_EMERGENCY | M-01 | Agustus 2025] Tanggal: 02/08/2025 | Log: ML-0119 | Kejadian: Kegagalan sistem pendingin kritis | Downtime: 21.6 jam | Part Diganti: Motor | Biaya: Rp 49,643,133",
+        "[EVENT_EMERGENCY | M-01 | November 2025] Tanggal: 10/11/2025 | Log: ML-0230 | Kejadian: Kebocoran besar pada hydraulic\nsystem | Downtime: 21.7 jam | Part Diganti: Belt | Biaya: Rp 13,696,714",
+        "[EVENT_EMERGENCY | M-01 | Agustus 2025] Tanggal: 26/08/2025 | Log: ML-0447 | Kejadian: Short circuit pada panel kontrol | Downtime: 33.5 jam | Part Diganti: Bearing | Biaya: Rp 31,560,747",
+        "[EVENT_EMERGENCY | M-01 | November 2025] Tanggal: 26/11/2025 | Log: ML-0222 | Kejadian: Short circuit pada panel kontrol | Downtime: 38.9 jam | Part Diganti: Filter | Biaya: Rp 21,083,914"
+      ],
+      "response": "Berdasarkan data yang tersedia, **informasi mengenai batas kritis suhu operasional mesin M-01 tidak ditemukan** dalam dokumen yang diberikan. Data real-time hanya menampilkan suhu saat ini (67,5°C) tanpa menyertakan ambang batas kritis, dan dokumen historis yang ada hanya mencatat kejadian kegagalan tanpa menyebutkan parameter batas suhu.\n\n**ANALISIS:**  \nKondisi real-time mesin M-01 saat ini menunjukkan status **HEALTHY** dengan suhu **67,5°C**, getaran **0,49 mm/s**, tekanan **98,1 PSI**, dan prediksi ML **normal** dengan sisa umur (RUL) **88 hari**. Tidak ada alert aktif. Namun, konteks historis mencatat beberapa kejadian kegagalan serius pada mesin M-01 di tahun 2025, termasuk kegagalan sistem pendingin kritis (Oktober dan Agustus 2025) yang mungkin terkait dengan manajemen suhu. Tanpa data batas kritis suhu, tidak dapat dipastikan apakah suhu saat ini mendekati ambang bahaya.\n\n**REKOMENDASI:**  \n[SEGERA] Hubungi tim engineering atau lihat manual teknis resmi mesin M-01 untuk mendapatkan data spesifik batas kritis suhu operasional (upper/lower limit).  \n[PREVENTIF] Catat dan pantau tren suhu harian mesin M-01 untuk mendeteksi kenaikan abnormal yang bisa mengindikasikan masalah pendinginan, mengingat riwayat kegagalan sistem pendingin kritis pada Oktober dan Agustus 2025.\n\n**REFERENSI:**  \n- [KONDISI REAL-TIME MESIN M-01 — 2026-05-18]  \n- [EVENT_EMERGENCY | M-01 | Oktober 2025] (Sumber: LAP-BUNDLE | Hal. 2)  \n- [EVENT_EMERGENCY | M-01 | Agustus 2025] (Sumber: LAP-BUNDLE | Hal. 1)  \n\nInformasi tidak ditemukan dalam dokumen yang tersedia mengenai batas kritis suhu operasional mesin M-01.",
+      "reference": "Batas kritis suhu adalah lebih dari 95°C yang menyebabkan risiko overheat motor. Batas warning dimulai dari 85°C.",
+      "faithfulness": NaN,
+      "answer_relevancy": 0.0,
+      "context_precision": NaN,
+      "context_recall": 0.0,
+      "context_entity_recall": NaN,
+      "answer_correctness": NaN,
+      "answer_similarity": 0.8741237476164709
+    },
+    {
+      "user_input": "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
+      "retrieved_contexts": [
+        "[SAFETY | M-01 | MANUAL] 5. Keselamatan Kerja & Prosedur Darurat: - APD Wajib: Teknisi wajib menggunakan sarung tangan tahan panas, pelindung telinga (earmuff), dan sepatu safety.\n- Lock Out Tag Out (LOTO): Pastikan aliran listrik diputus total sebelum membuka panel motor atau menyentuh sabuk transmisi.\n- Tombol Emergency Stop: Jika mesin mengeluarkan asap atau getaran hebat secara mendadak, tekan tombol merah Emergency Stop di panel samping kanan.",
+        "[PROCEDURE | M-01 | MANUAL] 3. Prosedur Pemeliharaan: - Inspeksi Rutin\nDilakukan setiap 500 jam operasional.\nTindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal.\n- Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley.\nJika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus.",
+        "[PROCEDURE | M-01 | MANUAL] 1. Deskripsi Umum Mesin: Mesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama.",
+        "[TROUBLESHOOTING | M-01 | MANUAL] 4. Panduan Troubleshouting: Gejala Kemungkinan\nTindakan Perbaikan\nTerdeteksi Penyebab\nKurangnya pelumasan Tambahkan pelumas pada\nSuhu > 85°C atau kegagalan sistem poros utama atau cek kipas pendingin. pendingin motor.\n\nKencangkan baut housing\nGetaran > 1.2 Bearing aus atau baut atau ganti komponen Bearing mm/s poros kendur.\n(Part Code: BRG-M01).\nKebocoran pada katup Lakukan pengecekan pada\nTekanan Drop (<\n(Valve) atau Seal seal jalur pengisian (Part\n90 PSI)\nrobek. Code: SEAL-M01).\nGesekan antar\nSuara Berisik (> komponen mekanis Matikan mesin segera, cek\n85 dB) (Log: Noise Level area transmisi sabuk/belt.\ntinggi).",
+        "[SPECIFICATION | M-01 | MANUAL] 2. Spesifikasi Teknis & Batas Operasional (Threshold): - Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).\n- Getaran (Vibration):\no Normal: 0.35 - 0.55 mm/s o Batas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi).\n- Tekanan Udara (Pressure):\no Normal: 98 - 105 PSI\no Batas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve).\n- Kecepatan Putaran (RPM):\no Standar Produksi: 2300 - 2500 RPM.\no Mode High-Speed: Maksimal 3500$RPM."
+      ],
+      "response": "Berdasarkan data yang tersedia, berikut adalah prosedur keselamatan dan Lock Out Tag Out (LOTO) yang wajib dilakukan sebelum membuka panel motor M-01:\n\n**ANALISIS:**\nDokumen keselamatan kerja secara spesifik menyebutkan prosedur LOTO dan APD wajib saat akan membuka panel motor atau menyentuh sabuk transmisi pada mesin M-01.\n\n**REKOMENDASI:**\n**[SEGERA]** Sebelum membuka panel motor, ikuti langkah berikut:\n1. **Lock Out Tag Out (LOTO):** Putuskan total aliran listrik ke mesin. Pastikan sumber daya telah diisolasi dan kunci (lock) dipasang pada panel pemutus daya. Pasang juga tag peringatan bahwa mesin sedang dalam perbaikan.\n2. **Gunakan APD Wajib:** Kenakan sarung tangan tahan panas, pelindung telinga (earmuff), dan sepatu safety.\n3. **Prosedur Tambahan:** Jika mesin menunjukkan gejala bahaya seperti asap atau getaran hebat mendadak, tekan tombol merah Emergency Stop yang terletak di panel samping kanan mesin sebelum melakukan LOTO.\n\n**REFERENSI:**\n- [SAFETY | M-01 | MANUAL] 5. Keselamatan Kerja & Prosedur Darurat (Buku_Manual_M01.pdf | Hal. 6)",
+      "reference": "Teknisi wajib menggunakan APD lengkap dan menerapkan prosedur LOTO (Lockout/Tagout) sebelum membuka panel manapun untuk mencegah kecelakaan kerja.",
+      "faithfulness": NaN,
+      "answer_relevancy": NaN,
+      "context_precision": NaN,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.3333333322222222,
+      "answer_correctness": NaN,
+      "answer_similarity": 0.8998935417525491
+    }
+  ]
+}
