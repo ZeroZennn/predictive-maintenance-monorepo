@@ -63,9 +63,13 @@ from ragas.metrics.collections import (
     answer_similarity,
 )
 from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI # CHANGED
 from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
 from langchain_core.embeddings import Embeddings
+from langchain_core.language_models.chat_models import BaseChatModel # CHANGED
+from langchain_core.outputs import ChatResult # CHANGED
+from typing import Any, List, Optional # CHANGED
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -270,6 +274,45 @@ def run_pipeline(
     return samples
 
 
+class LLMSingleGenWrapper(BaseChatModel): # CHANGED
+    """ # CHANGED
+    Provider-agnostic wrapper yang memotong parameter 'n' dari setiap # CHANGED
+    LLM API call. Wajib karena RAGAS secara internal request n=3 # CHANGED
+    untuk multi-generation scoring, sedangkan sebagian besar provider # CHANGED
+    free tier hanya support n=1 dan akan throw BadRequestError jika n>1. # CHANGED
+    """ # CHANGED
+    inner: Any # CHANGED
+    model_config = {"arbitrary_types_allowed": True} # CHANGED
+# CHANGED
+    @property # CHANGED
+    def _llm_type(self) -> str: # CHANGED
+        return "llm_single_gen_wrapper" # CHANGED
+# CHANGED
+    def _generate( # CHANGED
+        self, # CHANGED
+        messages: List, # CHANGED
+        stop: Optional[List[str]] = None, # CHANGED
+        run_manager=None, # CHANGED
+        **kwargs, # CHANGED
+    ) -> ChatResult: # CHANGED
+        kwargs.pop("n", None)  # Strip n — provider only supports n=1 # CHANGED
+        return self.inner._generate( # CHANGED
+            messages, stop=stop, run_manager=run_manager, **kwargs # CHANGED
+        ) # CHANGED
+# CHANGED
+    async def _agenerate( # CHANGED
+        self, # CHANGED
+        messages: List, # CHANGED
+        stop: Optional[List[str]] = None, # CHANGED
+        run_manager=None, # CHANGED
+        **kwargs, # CHANGED
+    ) -> ChatResult: # CHANGED
+        kwargs.pop("n", None)  # Strip n — async path # CHANGED
+        return await self.inner._agenerate( # CHANGED
+            messages, stop=stop, run_manager=run_manager, **kwargs # CHANGED
+        ) # CHANGED
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # TIMEOUT GUARD FOR RAGAS EVALUATE
 # ══════════════════════════════════════════════════════════════════════════════
@@ -307,22 +350,21 @@ def main(quick: bool = False) -> None:
     if quick: # CHANGED
         dataset = dataset[0:min(3, len(dataset))] # CHANGED
 
-    # ── Step 2: Konfigurasi RAGAS — ChatGroq LLM ───────────────────────────────
-    groq_llm = ChatGroq(
-        model="llama-3.1-8b-instant",
-        api_key=groq_key,
-        temperature=0,
-        max_tokens=1024, # CHANGED
-        max_retries=2,
-        timeout=30,  # prevent hanging
-    )
-    ragas_llm = LangchainLLMWrapper(groq_llm)
+    openai_llm = ChatOpenAI( # CHANGED
+        model="gpt-4o-mini", # CHANGED
+        api_key=os.getenv("OPENAI_API_KEY"), # CHANGED
+        temperature=0, # CHANGED
+        max_tokens=2048, # CHANGED
+        max_retries=2, # CHANGED
+        timeout=30, # CHANGED
+    ) # CHANGED
+    ragas_llm = LangchainLLMWrapper(openai_llm) # CHANGED
     ragas_embeddings = LangchainEmbeddingsWrapper(_E5Embeddings())
 
     ragas_run_config = RunConfig( # CHANGED
         max_workers=1, # CHANGED
         max_retries=2, # CHANGED
-        timeout=45, # CHANGED
+        timeout=120, # CHANGED
     ) # CHANGED
 
     # ── Step 3: Set LLM & Embeddings ke semua metrik secara eksplisit ──────────
@@ -351,7 +393,7 @@ def main(quick: bool = False) -> None:
 
     # ── Step 4: Evaluate dengan Timeout Guard ──────────────────────────────────
     logger.info("Menjalankan ragas.evaluate() dengan %d metrik (Timeout Guard: 120s)...", len(metrics))
-    result = asyncio.run(run_evaluation_with_timeout(dataset, metrics, run_config=ragas_run_config, timeout_seconds=120)) # CHANGED
+    result = asyncio.run(run_evaluation_with_timeout(dataset, metrics, run_config=ragas_run_config, timeout_seconds=600)) # CHANGED
 
     if result is None:
         logger.error("❌ Evaluasi gagal atau terhenti karena timeout.")
