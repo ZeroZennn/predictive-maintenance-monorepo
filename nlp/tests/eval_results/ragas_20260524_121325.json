@@ -1,0 +1,69 @@
+{
+  "timestamp": "20260524_121325",
+  "cases_evaluated": 3,
+  "scores_mean": {
+    "faithfulness": 0.5972,
+    "answer_relevancy": 0.8706,
+    "context_precision": 1.0,
+    "context_recall": 0.75,
+    "context_entity_recall": 0.5529,
+    "answer_correctness": 0.5651,
+    "answer_similarity": 0.9417
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+      "retrieved_contexts": [
+        "[TIMELINE PEMELIHARAAN]\n02/08/2025 (Log ID: ML-0119): Dilakukan tindakan Emergency. Teknisi mencatat bahwa kegagalan sistem pendingin kritis. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini memakan waktu downtime 21.6 jam dengan biaya Rp 49.643.133. 05/08/2025 (Log ID: ML-0096): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing.",
+        "Aktivitas ini memakan waktu downtime 5.4 jam dengan biaya Rp 2.537.231. 16/08/2025 (Log ID: ML-0189): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 15.8 jam dengan biaya Rp 3.385.783. 26/08/2025 (Log ID: ML-0447): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol.",
+        "Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 33.5 jam dengan biaya Rp 31.560.747. 28/08/2025 (Log ID: ML-0201): Dilakukan tindakan Corrective. Teknisi mencatat bahwa belt putus, ganti belt dan pulley. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini menyebabkan downtime selama 18.9 jam dengan biaya Rp 7.085.779.",
+        "Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini memakan waktu downtime 5.5 jam dengan biaya Rp 2.496.700. 06/08/2025 (Log ID: ML-0009): Dilakukan tindakan Preventive. Teknisi mencatat bahwa lubrikasi komponen, cek belt. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini memakan waktu downtime 5.4 jam dengan biaya Rp 2.537.231."
+      ],
+      "response": "## ANALISIS\nPada bulan Agustus 2025, terdapat dua kejadian emergency pada M-01 (Log ID: ML-0119 dan ML-0447). Pada kejadian pertama (ML-0119), terjadi kegagalan sistem pendingin kritis dan downtime 21.6 jam dengan biaya Rp 49.643.133. Pada kejadian kedua (ML-0447), terjadi short circuit pada panel kontrol dan downtime 33.5 jam dengan biaya Rp 31.560.747.\n\n## REKOMENDASI\n- [SEGERA] Lakukan pemeriksaan kondisi sistem pendingin dan panel kontrol untuk mencegah kegagalan sistem yang serupa di masa depan.\n\n## REFERENSI\n- [Referensi 1]: Laporan_M-01_Agustus_2025 (Log ID: ML-0119 dan ML-0447)",
+      "reference": "Pada 02/08/2025 (Log ID: ML-0119) terjadi tindakan Emergency pada M-01 berupa kegagalan sistem pendingin kritis. Part yang diganti adalah Motor dengan downtime 21.6 jam dan biaya Rp 49.643.133. Selain itu pada 26/08/2025 (Log ID: ML-0447) terjadi short circuit pada panel kontrol dengan downtime 33.5 jam dan biaya Rp 31.560.747. Total downtime M-01 bulan Agustus 2025 mencapai 100.7 jam.",
+      "faithfulness": 0.7,
+      "answer_relevancy": 0.9014313606355318,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.75,
+      "context_entity_recall": 0.49999999964285713,
+      "answer_correctness": 0.7923183802085159,
+      "answer_similarity": 0.9587472050445898
+    },
+    {
+      "user_input": "Short circuit pada panel kontrol mesin M-02 November 2025",
+      "retrieved_contexts": [
+        "[TIMELINE PEMELIHARAAN]\n07/11/2025 (Log ID: ML-0058): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Tidak ada. Aktivitas ini memakan waktu downtime 59.6 jam dengan biaya Rp 17.616.249. 10/11/2025 (Log ID: ML-0419): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli.",
+        "Aktivitas ini menyebabkan downtime selama 9.6 jam dengan biaya Rp 7.392.873. 26/11/2025 (Log ID: ML-0108): Dilakukan tindakan Corrective. Teknisi mencatat bahwa sensor rusak, ganti sensor baru. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 23.0 jam dengan biaya Rp 5.269.657. 30/11/2025 (Log ID: ML-0006): Dilakukan tindakan Corrective. Teknisi mencatat bahwa motor overheat, ganti komponen pendingin.",
+        "Teknisi mencatat bahwa motor overheat, ganti komponen pendingin. Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini menyebabkan downtime selama 14.2 jam dengan biaya Rp 5.763.765. 30/11/2025 (Log ID: ML-0479): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Valve. Aktivitas ini memakan waktu downtime 6.3 jam dengan biaya Rp 1.641.143.",
+        "Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 8.0 jam dengan biaya Rp 2.561.045. 21/11/2025 (Log ID: ML-0022): Dilakukan tindakan Corrective. Teknisi mencatat bahwa sensor rusak, ganti sensor baru. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 9.6 jam dengan biaya Rp 7.392.873."
+      ],
+      "response": "## ANALISIS\nLog ID: ML-0058 telah mencatat short circuit pada panel kontrol mesin pada tanggal 07/11/2025. Downtime yang terjadi selama 59.6 jam dengan biaya Rp 17.616.249. Aktivitas ini merupakan Emergency dan telah dilakukan tindakan ganti part yang tidak disebutkan. \n\n## REKOMENDASI\n- [SEGERA] Lakukan investigasi untuk menentukan penyebab short circuit pada panel kontrol mesin M-02 November 2025.\n- [PREVENTIF] Pastikan semua komponen listrik dan panel kontrol dalam kondisi yang baik dan aman.\n\n## REFERENSI\n- [Referensi 1]: Laporan_M-02_November_2025 (Log ID: ML-0058)\n- [Referensi 2]: Laporan_M-02_November_2025 (Log ID: ML-0108)\n- [Referensi 3]: Tidak ada referensi yang relevan dengan penyebab short circuit pada panel kontrol mesin.",
+      "reference": "Pada 07/11/2025 (Log ID: ML-0058) dilakukan tindakan Emergency pada M-02 karena short circuit pada panel kontrol. Part yang diganti tercatat sebagai Tidak ada. Aktivitas ini menyebabkan downtime selama 59.6 jam dengan biaya Rp 17.616.249.",
+      "faithfulness": 0.4444444444444444,
+      "answer_relevancy": 0.8364919347551344,
+      "context_precision": 0.999999999975,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.4444444439506172,
+      "answer_correctness": 0.5385295675568089,
+      "answer_similarity": 0.9541182702272355
+    },
+    {
+      "user_input": "Kebocoran hydraulic system pada M-01 November 2025",
+      "retrieved_contexts": [
+        "Teknisi mencatat bahwa kebocoran besar pada hydraulic system. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 21.7 jam dengan biaya Rp 13.696.714. 12/11/2025 (Log ID: ML-0154): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327.",
+        "[TIMELINE PEMELIHARAAN]\n04/11/2025 (Log ID: ML-0339): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 5.0 jam dengan biaya Rp 2.323.582. 10/11/2025 (Log ID: ML-0230): Dilakukan tindakan Emergency. Teknisi mencatat bahwa kebocoran besar pada hydraulic system.",
+        "Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327. 23/11/2025 (Log ID: ML-0181): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Valve. Aktivitas ini memakan waktu downtime 3.2 jam dengan biaya Rp 728.959. 26/11/2025 (Log ID: ML-0222): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Filter.",
+        "Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini memakan waktu downtime 38.9 jam dengan biaya Rp 21.083.914."
+      ],
+      "response": "## ANALISIS\nPada bulan November 2025, terdapat beberapa kejadian penting pada sistem hydraulic M-01 PT Tirta Segar. Terdapat kebocoran besar pada hydraulic system yang menyebabkan downtime selama 21.7 jam dengan biaya Rp 13.696.714 pada tanggal 12/11/2025 (Log ID: ML-0154). Kemudian, pada tanggal 23/11/2025 (Log ID: ML-0181) terdapat inspeksi rutin yang menyebabkan downtime selama 3.2 jam dengan biaya Rp 728.959. Namun, kebocoran hydraulic system kembali terjadi pada tanggal 10/11/2025 (Log ID: ML-0230) dan menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327.\n\n## REKOMENDASI\n- SEGERA: Lakukan inspeksi lebih lanjut pada sistem hydraulic untuk mengidentifikasi penyebab kebocoran.\n- PREVENTIF: Pastikan bahwa semua part yang diganti pada sistem hydraulic dalam kondisi baik dan sesuai standar.\n\n## REFERENSI\n- [Referensi 1]: Laporan_M-01_November_2025 | Log ID: ML-0154\n- [Referensi 2]: Laporan_M-01_November_2025 | Log ID: ML-0339\n- [Referensi 3]: Laporan_M-01_November_2025 | Log ID: ML-0181\n- [Referensi 4]: Laporan_M-01_November_2025 | Log ID: ML-0222",
+      "reference": "Pada 10/11/2025 (Log ID: ML-0230) dilakukan tindakan Emergency pada M-01 karena kebocoran besar pada hydraulic system. Part yang diganti tercatat sebagai Belt dengan downtime 21.7 jam dan biaya Rp 13.696.714.",
+      "faithfulness": 0.6470588235294118,
+      "answer_relevancy": 0.8737837910414678,
+      "context_precision": 0.99999999995,
+      "context_recall": 0.5,
+      "context_entity_recall": 0.7142857132653061,
+      "answer_correctness": 0.3644202218874599,
+      "answer_similarity": 0.9122263420952942
+    }
+  ]
+}
