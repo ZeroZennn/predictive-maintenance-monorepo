@@ -170,27 +170,12 @@ class QueryRouter:
     def build_chunk_type_filter(
         self, text: str, mode: QueryMode
     ) -> List[str]:
-        """Tentukan chunk_type filter berdasarkan konten query dan mode."""
-        text_lower  = text.lower()
-        chunk_types: List[str] = []
-
-        if self.detect_keywords(text_lower, self.EMERGENCY_KEYWORDS):
-            chunk_types.append("event_emergency")
-
-        if self.detect_keywords(text_lower, self.MAINTENANCE_KEYWORDS):
-            chunk_types.extend(["event_corrective", "event_emergency"])
-
-        if (self.detect_keywords(text_lower, self.SOP_KEYWORDS)
-                and mode == QueryMode.GENERAL):
-            chunk_types.extend([
-                "specification", "procedure",
-                "troubleshooting", "safety", "prose",
-            ])
-
-        if "summary" in text_lower or "ringkasan" in text_lower:
-            chunk_types.append("machine_summary")
-
-        return list(set(chunk_types))
+        """
+        Tentukan chunk_type filter. Karena sistem chunking baru (AdaptiveChunker)
+        menggunakan strategy_used untuk chunk_type, filter kategori lama tidak
+        lagi valid. Kita return [] agar pencarian tidak terhambat oleh filter ini. # CHANGED
+        """
+        return [] # CHANGED
 
     def build_doc_type_filter(
         self, text: str, mode: QueryMode

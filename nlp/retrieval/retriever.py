@@ -115,6 +115,33 @@ class HybridRetriever:
             except (json.JSONDecodeError, OSError) as err:
                 self.logger.error("Failed to load '%s': %s", path.name, err)
 
+        # Map equivalent metadata fields for backward compatibility # CHANGED
+        for c in all_chunks: # CHANGED
+            c["text_content"] = c.get("text", "") # CHANGED
+            meta = c.get("metadata", {}) # CHANGED
+            m_ids = meta.get("detected_machine_ids", []) # CHANGED
+            c["machine_ids"] = m_ids if m_ids else ["ALL"] # CHANGED
+            c["chunk_type"] = c.get("strategy_used", "unknown") # CHANGED
+            
+            # Infer doc_type from filename to support downsteam routing/filtering # CHANGED
+            source_file = meta.get("source_file", "").lower() # CHANGED
+            doc_type = "unknown" # CHANGED
+            if "laporan" in source_file: # CHANGED
+                doc_type = "maintenance_report" # CHANGED
+            elif "knowledge" in source_file: # CHANGED
+                doc_type = "knowledge_base" # CHANGED
+            elif "schema" in source_file: # CHANGED
+                doc_type = "schema" # CHANGED
+            elif "api" in source_file or "contract" in source_file: # CHANGED
+                doc_type = "api_contract" # CHANGED
+            elif any(kw in source_file for kw in ["manual", "buku", "handbook", "panduan"]): # CHANGED
+                doc_type = "manual" # CHANGED
+            elif "sop" in source_file: # CHANGED
+                doc_type = "sop" # CHANGED
+            
+            c["doc_type"] = doc_type # CHANGED
+            c["priority"] = 1 # CHANGED
+
         self.logger.info(
             "_load_all_chunks: %d file(s) → %d chunks total.",
             len(chunk_files),
@@ -135,7 +162,7 @@ class HybridRetriever:
             self.logger.warning("Empty chunk list — BM25 index not built.")
             return
 
-        corpus = [c["text_content"].lower().split() for c in chunks]
+        corpus = [c.get("text_content", c.get("text", "")).lower().split() for c in chunks]  # CHANGED
         self._bm25_index  = BM25Okapi(corpus)
         self._bm25_chunks = chunks
         self.logger.info("BM25 index built: %d documents.", len(corpus))
@@ -236,7 +263,7 @@ class HybridRetriever:
                 "chunk_id"    : chunk.get("chunk_id", ""),
                 "score"       : bm25_norm,
                 "bm25_score"  : bm25_norm,
-                "text_content": chunk.get("text_content", ""),
+                "text_content": chunk.get("text_content", chunk.get("text", "")),  # CHANGED
                 "source_doc"  : chunk.get("source_doc", ""),
                 "source_page" : chunk.get("source_page", 0),
                 "chunk_type"  : chunk.get("chunk_type", ""),
@@ -349,7 +376,7 @@ class HybridRetriever:
                 source_page     = int(r.get("source_page") or 0),
                 doc_type        = r.get("doc_type", ""),
                 priority        = int(r.get("priority") or 1),
-                text_content    = r.get("text_content", ""),
+                text_content    = r.get("text_content", r.get("text", "")),  # CHANGED
                 retrieval_method= r.get("retrieval_method", retrieval_method),
             ))
 
