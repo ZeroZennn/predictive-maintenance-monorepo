@@ -1,0 +1,17 @@
+﻿# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python files — selalu LF
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.env.example text eol=lf
+
+# Binary files — jangan disentuh
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
