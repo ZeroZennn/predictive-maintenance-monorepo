@@ -8,3 +8,4 @@ imbalanced-learn
 tensorflow
 jupyter
 ipykernel
+langchain-groq
