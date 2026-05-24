@@ -265,6 +265,41 @@ Alert trigger otomatis.
 - **Verified:** warn: ML Engine unavailable — skipping prediction ✅
 - **Verified:** Pipeline complete tanpa crash saat ML tidak aktif ✅
 
+## FASE 5B — ML Orchestration Contract Fix & Full Integration ✅
+**Tanggal:** 2026-05-19
+
+### Perbaikan dari Handover ML Engineer:
+
+**Files Modified:**
+- `src/config/migrate5.js` — tambah maintenance_type + confidence
+- `src/services/mlService.js` — fix health_score formula + is_active + sensor_history
+- `src/services/dispatcherService.js` — SEQ_LEN=24 + fetchMaintenanceKPIs
+- `src/services/safetyMarginService.js` — min buffer 0.5d + maintenance_type
+- `src/services/alertService.js` — urgency_level mapping FINAL contract
+- `src/websockets/broadcastService.js` — new payload structure
+
+**Critical Fixes:**
+| Fix | Before | After |
+|-----|--------|-------|
+| health_score | P(H)*100 | clip((P(H)*100)-(P(W)*30)-(P(C)*70), 0, 100) |
+| sensor_history | tidak ada | 23 baris history dari TimescaleDB |
+| is_active | tidak dihandle | null RUL jika HEALTHY |
+| urgency_level | draft mapping | IMMEDIATE/CRITICAL/WARNING/MONITOR |
+| safety buffer | 20% RUL | max(20% RUL, 0.5 days) |
+| maintenance_type | tidak ada | EMERGENCY/CORRECTIVE/PREVENTIVE |
+| WebSocket payload | sensors/prediction flat | sensor_live/health_status/rul/kpis |
+
+**ML Service Docker Fix:**
+- Export ulang rul_predictor ke .h5 format (HDF5 universal)
+- Resolve Keras version mismatch (TF 2.15 → .h5 backward compatible)
+
+**End-to-End Verified:**
+- ML Engine: xgb_classifier_v2 + lstm_rul_v2 (healthy)
+- Full pipeline: M-01 CRITICAL | Health:0% | RUL:2d
+- Alert: rul_critical triggered dan disimpan ke DB
+- Schedule: EMERGENCY dibuat, 2026-05-21
+- WebSocket: sensor_live + health_status + rul + kpis terbroadcast
+
 ---
 
 ## FASE 6 — Smart NLP Router & Live Context Injection ✅
@@ -353,6 +388,73 @@ migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
 - **INTERNAL_API_KEY:** Generated & configured di .env ✅
 - **Verified:** GET /api/admin/users → 2 users ✅
 - **Verified:** Technician akses admin → 403 Access denied ✅
+
+---
+
+## FASE 8 — Historical Logs, Simulator & Maintenance Scheduler ✅
+**Tanggal:** 2026-05-24
+
+### Langkah 8.A — Historical & Anomaly Endpoints ✅
+### Langkah 8.B — Maintenance KPIs & Scheduler ✅
+### Langkah 8.C — Dynamic IoT Simulator ✅
+
+**Files Created:**
+- `src/controllers/telemetryHistoryController.js`
+- `src/controllers/maintenanceController.js`
+- `src/services/simulatorService.js`
+- `src/controllers/simulatorController.js`
+- `src/routes/apiRoutes.js`
+
+**Files Modified:**
+- `src/app.js` — mount apiRoutes at /api
+- `src/websockets/socketManager.js` — add join:simulator channel
+
+**Endpoints Added:**
+| Method | Endpoint | Access | Fungsi |
+|--------|----------|--------|--------|
+| GET | /api/telemetry/history/:machine_id | Protected | 24 baris historis sensor |
+| GET | /api/telemetry/anomaly/:machine_id | Protected | State transition + P90 threshold crossing |
+| GET | /api/maintenance/kpis/:machine_id | Protected | KPIs cached Redis 5 menit |
+| GET | /api/maintenance/schedules | Protected | Kanban board data |
+| GET | /api/maintenance/schedules/:machine_id | Protected | Per-mesin schedule |
+| PATCH | /api/maintenance/schedules/:id/status | Protected | Update status jadwal |
+| POST | /api/simulator/start | Admin | Start simulasi dengan parameter |
+| POST | /api/simulator/stop | Admin | Stop simulasi |
+| GET | /api/simulator/status | Protected | Status simulasi |
+
+**P90 Anomaly Thresholds (dari ML Engineer):**
+| Sensor | P90 Threshold |
+|--------|--------------|
+| temperature | 76.30°C |
+| vibration | 0.59 mm/s |
+| pressure | 103.80 bar |
+| rpm | 2,540 RPM |
+| power_consumption | 82.10 kW |
+| noise_level | 74.30 dB |
+
+**Simulator Features:**
+- Baca CSV dari machine_learning/data/raw/sensor_readings.csv
+- Group by timestamp → 20 mesin per tick
+- Parameter: start_date (opsional), tick_interval_seconds (0.1-60)
+- Kirim 20 mesin paralel via Promise.all()
+- WebSocket broadcast: simulator:tick event ke channel 'simulator'
+
+**Verified:**
+- GET /api/telemetry/history/M-01?limit=5 → 5 readings ASC ✅
+- GET /api/maintenance/schedules → M-01 URGENT EMERGENCY ✅
+- GET /api/simulator/status → csv_loaded, is_running fields ✅
+- POST /api/simulator/start → ticks_sent=1 berhasil ✅
+- 20 mesin paralel: Redis berurutan, TimescaleDB non-deterministic (expected) ✅
+
+**Known Issue (ML Engineer side):**
+- ML Engine HTTP 500 saat Replay Script:
+  TypeError di preprocessing_pipeline.py line 100
+  sort_values(["machine_id", "timestamp"]) — Categorical type issue
+  Status: Dilaporkan ke ML Engineer, menunggu fix
+
+**Git:**
+- Branch: backend-feature/fase-8
+- Merge: development → rey-workspace (include FE Fase 11 dari Amir)
 
 ---
 

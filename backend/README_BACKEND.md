@@ -185,6 +185,27 @@ Server berjalan di: `http://localhost:3000`
 | alert:new | machine:{id} + global | Alert kritis |
 | machine:status_update | global | Perubahan status mesin |
 
+### Telemetry History & Anomaly
+| Method | Endpoint | Access | Keterangan |
+|--------|----------|--------|------------|
+| GET | /api/telemetry/history/:machine_id | Protected | Last N sensor readings untuk chart |
+| GET | /api/telemetry/anomaly/:machine_id | Protected | Anomaly timeline (state transition + P90) |
+
+### Maintenance
+| Method | Endpoint | Access | Keterangan |
+|--------|----------|--------|------------|
+| GET | /api/maintenance/kpis/:machine_id | Protected | KPIs dashboard |
+| GET | /api/maintenance/schedules | Protected | Kanban board data |
+| GET | /api/maintenance/schedules/:machine_id | Protected | Schedule per mesin |
+| PATCH | /api/maintenance/schedules/:id/status | Protected | Update status jadwal |
+
+### Simulator
+| Method | Endpoint | Access | Keterangan |
+|--------|----------|--------|------------|
+| POST | /api/simulator/start | Admin | Start IoT simulation |
+| POST | /api/simulator/stop | Admin | Stop simulation |
+| GET | /api/simulator/status | Protected | Simulation progress |
+
 ---
 
 ## Default Accounts (Development Only)
@@ -245,7 +266,7 @@ main                          ← Production ready
 | 5 | ✅ | ML Orchestration Layer |
 | 6 | ✅ | Smart NLP Router & Context Injection |
 | 7 | ✅ | Admin Panel APIs |
-| 8 | ⏳ | Historical Logs, Replay Script & Maintenance Scheduler |
+| 8 | ✅ | Historical Logs, Replay Script & Maintenance Scheduler |
 | 9 | ⏳ | Hardening & End-to-End Integration Test |
 
 Lihat `backend/HISTORY_LOG.md` untuk detail setiap fase.

@@ -4,27 +4,52 @@ const socketManager = require('./socketManager');
 const logger = require('../config/logger');
 
 /**
- * broadcastService — clean emit interface for all real-time push events.
+ * broadcastService - clean emit interface for all real-time push events.
  * All methods are fire-and-forget: they never throw or block callers.
  */
 const broadcastService = {
   /**
-   * Pushes the latest sensor reading (+ optional ML prediction) to all
+   * Pushes the latest sensor reading + ML prediction + KPIs to all
    * clients subscribed to a specific machine room.
-   *
-   * @param {string} machineId - e.g. 'M-01'
-   * @param {Object} sensorData - validated IoT payload
-   * @param {Object|null} prediction - ML output, if available
+   
+   * @param {string} machineId
+   * @param {Object} sensorData
+   * @param {Object|null} prediction
+   * @param {Object|null} kpis
    */
-  broadcastSensorUpdate(machineId, sensorData, prediction = null) {
+  broadcastSensorUpdate(machineId, sensorData, prediction = null, kpis = null) {
     try {
       const io = socketManager.getIO();
 
       const payload = {
         machine_id: machineId,
         timestamp: sensorData.timestamp,
-        sensors: sensorData.sensors,
-        prediction: prediction,
+
+        // Raw sensor snapshot (field name changed from 'sensors' to 'sensor_live')
+        sensor_live: sensorData.sensors,
+
+        // Structured classifier output
+        health_status: prediction ? {
+          label: prediction.classification,
+          health_score: prediction.health_score,
+          confidence: prediction.confidence,
+          probabilities: prediction.probabilities,
+        } : null,
+
+        // Structured RUL output - safe defaults when model_2_rul is inactive
+        rul: prediction ? {
+          is_active: prediction.rul_is_active,
+          rul_days: prediction.rul_days,
+          urgency_level: prediction.urgency_level,
+        } : {
+          is_active: false,
+          rul_days: null,
+          urgency_level: 'MONITOR',
+        },
+
+        // Maintenance KPIs - cached in Redis (5 min TTL), null on first tick
+        maintenance_kpis: kpis || null,
+
         broadcast_at: new Date().toISOString(),
       };
 
