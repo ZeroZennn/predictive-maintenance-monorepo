@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 import yaml
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
@@ -115,6 +116,33 @@ class HybridRetriever:
             except (json.JSONDecodeError, OSError) as err:
                 self.logger.error("Failed to load '%s': %s", path.name, err)
 
+        # Map equivalent metadata fields for backward compatibility # CHANGED
+        for c in all_chunks: # CHANGED
+            c["text_content"] = c.get("text", "") # CHANGED
+            meta = c.get("metadata", {}) # CHANGED
+            m_ids = meta.get("detected_machine_ids", []) # CHANGED
+            c["machine_ids"] = m_ids if m_ids else ["ALL"] # CHANGED
+            c["chunk_type"] = c.get("strategy_used", "unknown") # CHANGED
+            
+            # Infer doc_type from filename to support downsteam routing/filtering # CHANGED
+            source_file = meta.get("source_file", "").lower() # CHANGED
+            doc_type = "unknown" # CHANGED
+            if "laporan" in source_file: # CHANGED
+                doc_type = "maintenance_report" # CHANGED
+            elif "knowledge" in source_file: # CHANGED
+                doc_type = "knowledge_base" # CHANGED
+            elif "schema" in source_file: # CHANGED
+                doc_type = "schema" # CHANGED
+            elif "api" in source_file or "contract" in source_file: # CHANGED
+                doc_type = "api_contract" # CHANGED
+            elif any(kw in source_file for kw in ["manual", "buku", "handbook", "panduan"]): # CHANGED
+                doc_type = "manual" # CHANGED
+            elif "sop" in source_file: # CHANGED
+                doc_type = "sop" # CHANGED
+            
+            c["doc_type"] = doc_type # CHANGED
+            c["priority"] = 1 # CHANGED
+
         self.logger.info(
             "_load_all_chunks: %d file(s) → %d chunks total.",
             len(chunk_files),
@@ -135,7 +163,7 @@ class HybridRetriever:
             self.logger.warning("Empty chunk list — BM25 index not built.")
             return
 
-        corpus = [c["text_content"].lower().split() for c in chunks]
+        corpus = [c.get("text_content", c.get("text", "")).lower().split() for c in chunks]  # CHANGED
         self._bm25_index  = BM25Okapi(corpus)
         self._bm25_chunks = chunks
         self.logger.info("BM25 index built: %d documents.", len(corpus))
@@ -236,7 +264,7 @@ class HybridRetriever:
                 "chunk_id"    : chunk.get("chunk_id", ""),
                 "score"       : bm25_norm,
                 "bm25_score"  : bm25_norm,
-                "text_content": chunk.get("text_content", ""),
+                "text_content": chunk.get("text_content", chunk.get("text", "")),  # CHANGED
                 "source_doc"  : chunk.get("source_doc", ""),
                 "source_page" : chunk.get("source_page", 0),
                 "chunk_type"  : chunk.get("chunk_type", ""),
@@ -294,6 +322,195 @@ class HybridRetriever:
         self.logger.info("RRF fusion → %d results.", len(fused))
         return fused
 
+    # ── Section-Aware Score Boosting ───────────────────────────────────────────
+
+    # Keyword sets untuk deteksi intent query                         # CHANGED
+    _EVENT_KEYWORDS = {                                               # CHANGED
+        "emergency", "corrective", "short circuit", "kebocoran",       # CHANGED
+        "bearing", "overheat", "kerusakan", "ganti", "rusak",          # CHANGED
+        "putus", "berhenti", "mati", "shutdown",                       # CHANGED
+    }                                                                 # CHANGED
+    _SPEC_KEYWORDS = {                                                # CHANGED
+        "batas", "suhu", "getaran", "tekanan", "rpm", "threshold",     # CHANGED
+        "kritis", "warning", "normal", "spesifikasi", "operasional",   # CHANGED
+    }                                                                 # CHANGED
+    _AGGREGATION_KEYWORDS = {                                         # CHANGED
+        "ringkasan", "total", "summary", "rangkum", "berapa kali",     # CHANGED
+        "sepanjang", "seluruh", "agregasi", "statistik",               # CHANGED
+    }                                                                 # CHANGED
+    _EVENT_PATTERNS = re.compile(                                     # CHANGED
+        r"ML-\d{3,4}|\d{2}/\d{2}/\d{4}", re.IGNORECASE               # CHANGED
+    )                                                                 # CHANGED
+
+    def _apply_section_boost(                                         # CHANGED
+        self, raw_results: List[Dict], query: str                     # CHANGED
+    ) -> List[Dict]:                                                  # CHANGED
+        """
+        Boost/penalize score berdasarkan section_name chunk dan intent query.
+        Diterapkan setelah RRF fusion, sebelum konversi ke RetrievalResult.
+        """                                                           # CHANGED
+        q_lower = query.lower()                                       # CHANGED
+
+        is_event_query = (                                            # CHANGED
+            any(kw in q_lower for kw in self._EVENT_KEYWORDS)         # CHANGED
+            or bool(self._EVENT_PATTERNS.search(query))               # CHANGED
+        )                                                             # CHANGED
+        is_spec_query = any(                                          # CHANGED
+            kw in q_lower for kw in self._SPEC_KEYWORDS               # CHANGED
+        )                                                             # CHANGED
+        is_agg_query = any(                                           # CHANGED
+            kw in q_lower for kw in self._AGGREGATION_KEYWORDS        # CHANGED
+        )                                                             # CHANGED
+
+        for r in raw_results:                                         # CHANGED
+            # Ambil section_name dari berbagai kemungkinan field       # CHANGED
+            section = (
+                r.get("section_name")
+                or r.get("chunk_type")
+                or ""
+            ).upper()                                                 # CHANGED
+            doc_id = r.get("chunk_id", "")                             # CHANGED
+            payload = r.get("payload") or {}                           # CHANGED
+            if not section and isinstance(payload, dict):              # CHANGED
+                section = (payload.get("section_name") or "").upper()  # CHANGED
+
+            original = r["score"]                                     # CHANGED
+
+            # Rule 1: Event query → boost TIMELINE                    # CHANGED
+            if is_event_query and "TIMELINE" in section:               # CHANGED
+                r["score"] *= 1.3                                     # CHANGED
+
+            # Rule 2: Spec query → boost manual/spesifikasi           # CHANGED
+            if is_spec_query and (                                    # CHANGED
+                "SPESIFIKASI" in section                               # CHANGED
+                or "SPEC" in section                                   # CHANGED
+                or "Buku_Manual" in doc_id                             # CHANGED
+                or "buku_manual" in doc_id.lower()                     # CHANGED
+            ):                                                        # CHANGED
+                r["score"] *= 1.2                                     # CHANGED
+
+            # Rule 3: METADATA penalty (kecuali aggregation query)    # CHANGED
+            if "METADATA" in section and not is_agg_query:            # CHANGED
+                r["score"] *= 0.85                                    # CHANGED
+
+            if r["score"] != original:                                # CHANGED
+                self.logger.debug(                                    # CHANGED
+                    "Boost %s: %.4f → %.4f (section=%s)",             # CHANGED
+                    r.get("chunk_id", "?"), original,                  # CHANGED
+                    r["score"], section,                               # CHANGED
+                )                                                     # CHANGED
+
+        # Re-sort setelah boosting                                    # CHANGED
+        raw_results.sort(key=lambda x: x["score"], reverse=True)      # CHANGED
+        return raw_results                                            # CHANGED
+
+    # ── Document-Level Grouping ───────────────────────────────────────────────
+
+    # Section priority untuk sorting intra-dokumen                    # CHANGED
+    _SECTION_PRIORITY = {                                             # CHANGED
+        "TIMELINE": 0, "TIMELINE PEMELIHARAAN": 0,                    # CHANGED
+        "SUMMARY": 1,                                                 # CHANGED
+        "METADATA": 2,                                                # CHANGED
+    }                                                                 # CHANGED
+
+    def _get_section_priority(self, chunk: Dict) -> int:              # CHANGED
+        """Return section priority (lower = higher priority)."""      # CHANGED
+        section = (                                                   # CHANGED
+            chunk.get("section_name") or chunk.get("chunk_type") or ""# CHANGED
+        ).upper()                                                     # CHANGED
+        for key, prio in self._SECTION_PRIORITY.items():              # CHANGED
+            if key in section:                                        # CHANGED
+                return prio                                           # CHANGED
+        return 3  # lainnya                                           # CHANGED
+
+    def _expand_to_document_chunks(                                   # CHANGED
+        self,                                                         # CHANGED
+        raw_results: List[Dict],                                      # CHANGED
+        query: str,                                                   # CHANGED
+        max_docs: int = 1,                                            # CHANGED
+        max_per_doc: int = 4,                                         # CHANGED
+        max_total: int = 4,                                           # CHANGED
+    ) -> List[Dict]:                                                  # CHANGED
+        """
+        Expand hasil retrieval ke sibling chunks dari dokumen yang sama.
+        Memastikan LLM mendapat konteks lengkap (TIMELINE + SUMMARY + METADATA)
+        dari setiap dokumen yang relevan.
+        """                                                           # CHANGED
+        if not raw_results:                                           # CHANGED
+            return raw_results                                        # CHANGED
+
+        # Pastikan _all_chunks sudah di-load                          # CHANGED
+        all_chunks = self._load_all_chunks()                          # CHANGED
+        # Index semua chunks by doc_id                                # CHANGED
+        chunks_by_doc: Dict[str, List[Dict]] = defaultdict(list)      # CHANGED
+        for c in all_chunks:                                          # CHANGED
+            did = c.get("doc_id", "")                                  # CHANGED
+            if did:                                                   # CHANGED
+                chunks_by_doc[did].append(c)                          # CHANGED
+
+        # Step 1: Top doc_ids unik berdasarkan skor tertinggi         # CHANGED
+        seen_docs: Dict[str, float] = {}                              # CHANGED
+        existing_ids: set = set()                                     # CHANGED
+        for r in raw_results:                                         # CHANGED
+            did = r.get("doc_id", "")                                  # CHANGED
+            # Fallback: parse doc_id dari chunk_id                    # CHANGED
+            if not did and "__" in r.get("chunk_id", ""):              # CHANGED
+                did = r["chunk_id"].split("__")[0]                     # CHANGED
+            if did and did not in seen_docs:                          # CHANGED
+                seen_docs[did] = r["score"]                           # CHANGED
+            existing_ids.add(r.get("chunk_id", ""))                    # CHANGED
+
+        top_doc_ids = sorted(                                         # CHANGED
+            seen_docs, key=lambda d: seen_docs[d], reverse=True       # CHANGED
+        )[:max_docs]                                                  # CHANGED
+
+        self.logger.info(                                             # CHANGED
+            "Document expansion: top %d docs = %s",                   # CHANGED
+            len(top_doc_ids), top_doc_ids,                            # CHANGED
+        )                                                             # CHANGED
+
+        # Step 2-4: Pull + sort + limit per doc                       # CHANGED
+        expanded: List[Dict] = []                                     # CHANGED
+        for did in top_doc_ids:                                       # CHANGED
+            doc_score = seen_docs[did]                                 # CHANGED
+            siblings  = chunks_by_doc.get(did, [])                    # CHANGED
+
+            # Sort siblings by section priority                       # CHANGED
+            siblings.sort(key=self._get_section_priority)             # CHANGED
+
+            count = 0                                                 # CHANGED
+            for sib in siblings:                                      # CHANGED
+                if count >= max_per_doc:                               # CHANGED
+                    break                                             # CHANGED
+                cid = sib.get("chunk_id", "")                          # CHANGED
+                if cid in existing_ids:                                # CHANGED
+                    # Sudah ada di raw_results → ambil dari sana      # CHANGED
+                    for r in raw_results:                              # CHANGED
+                        if r.get("chunk_id") == cid:                   # CHANGED
+                            expanded.append(r)                        # CHANGED
+                            break                                     # CHANGED
+                else:                                                 # CHANGED
+                    # Chunk baru dari ekspansi                        # CHANGED
+                    new_chunk = sib.copy()                             # CHANGED
+                    new_chunk["score"]            = 0.5 * doc_score    # CHANGED
+                    new_chunk["retrieval_method"] = "doc_expansion"     # CHANGED
+                    new_chunk["rrf_score"]        = None               # CHANGED
+                    new_chunk["dense_score"]      = None               # CHANGED
+                    new_chunk["bm25_score"]       = None               # CHANGED
+                    expanded.append(new_chunk)                        # CHANGED
+                    existing_ids.add(cid)                              # CHANGED
+                count += 1                                            # CHANGED
+
+        # Step 5: Sort final by score desc, limit to max_total        # CHANGED
+        expanded.sort(key=lambda x: x.get("score", 0), reverse=True)  # CHANGED
+        expanded = expanded[:max_total]                                # CHANGED
+
+        self.logger.info(                                             # CHANGED
+            "Document expansion: %d → %d chunks.",                    # CHANGED
+            len(raw_results), len(expanded),                          # CHANGED
+        )                                                             # CHANGED
+        return expanded                                               # CHANGED
+
     # ── Main Retrieve ──────────────────────────────────────────────────────────
 
     def retrieve(
@@ -331,6 +548,14 @@ class HybridRetriever:
                 r["retrieval_method"] = "dense"
             retrieval_method = "dense"
 
+        # Section-aware score boosting                                # CHANGED
+        raw_results = self._apply_section_boost(raw_results, query)   # CHANGED
+
+        # Document-level grouping — expand ke sibling chunks          # CHANGED
+        raw_results = self._expand_to_document_chunks(                 # CHANGED
+            raw_results, query                                        # CHANGED
+        )                                                             # CHANGED
+
         # Potong ke top_k_final
         raw_results = raw_results[: self.top_k_final]
 
@@ -349,7 +574,7 @@ class HybridRetriever:
                 source_page     = int(r.get("source_page") or 0),
                 doc_type        = r.get("doc_type", ""),
                 priority        = int(r.get("priority") or 1),
-                text_content    = r.get("text_content", ""),
+                text_content    = r.get("text_content", r.get("text", "")),  # CHANGED
                 retrieval_method= r.get("retrieval_method", retrieval_method),
             ))
 

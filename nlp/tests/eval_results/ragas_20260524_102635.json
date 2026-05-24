@@ -1,0 +1,72 @@
+{
+  "timestamp": "20260524_102635",
+  "cases_evaluated": 3,
+  "scores_mean": {
+    "faithfulness": 0.3783,
+    "answer_relevancy": 0.5496,
+    "context_precision": 0.9,
+    "context_recall": 0.5833,
+    "context_entity_recall": 0.4497,
+    "answer_correctness": 0.3954,
+    "answer_similarity": 0.9205
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Oktober 2025. Terjadi total 1 aktivitas pemeliharaan yang terdiri dari 0 tindakan Preventive dan 0 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 38.0 jam dengan total biaya pemeliharaan sebesar Rp 13.678.071. Masalah utama bulan ini berpusat pada komponen Bearing, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Desember 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 3 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 53.4 jam dengan total biaya pemeliharaan sebesar Rp 36.651.838. Masalah utama bulan ini berpusat pada komponen Valve dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Agustus 2025\nTotal_Downtime: 100.7 Jam\nTotal_Cost: Rp 96.709.373\nLog_Count: 6 (2 Corrective, 2 Preventive)"
+      ],
+      "response": "## ANALISIS\nBerdasarkan data kondisi real-time dan laporan pemeliharaan bulanan, kondisi Mesin M-01 di Agustus 2025 dapat dianalisis sebagai berikut:\n\n- Laporan pemeliharaan bulanan menunjukkan bahwa total downtime mesin selama bulan Agustus 2025 mencapai 100,7 jam, dengan total biaya pemeliharaan sebesar Rp 96.709.373.\n- Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.\n- Tidak ada informasi yang tersedia mengenai emergency yang terjadi pada M-01 di Agustus 2025.\n\n## REKOMENDASI\nBerdasarkan analisis di atas, saya tidak dapat menemukan informasi yang relevan mengenai emergency yang terjadi pada M-01 di Agustus 2025. Namun, berdasarkan laporan pemeliharaan bulanan, saya merekomendasikan:\n\n- Pemeliharaan rutin pada komponen Seal dan Motor untuk memastikan kinerja mesin optimal.\n- [SEGERA] Pastikan untuk memeriksa kondisi komponen Seal dan Motor dalam 24 jam.\n\n## REFERENSI\nReferensi: Dokumen laporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025 (Referensi 1).",
+      "reference": "Pada 02/08/2025 (Log ID: ML-0119) terjadi tindakan Emergency pada M-01 berupa kegagalan sistem pendingin kritis. Part yang diganti adalah Motor dengan downtime 21.6 jam dan biaya Rp 49.643.133. Selain itu pada 26/08/2025 (Log ID: ML-0447) terjadi short circuit pada panel kontrol dengan downtime 33.5 jam dan biaya Rp 31.560.747. Total downtime M-01 bulan Agustus 2025 mencapai 100.7 jam.",
+      "faithfulness": 0.4444444444444444,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.699999999965,
+      "context_recall": 0.25,
+      "context_entity_recall": 0.14285714275510203,
+      "answer_correctness": 0.3184021001823293,
+      "answer_similarity": 0.920667224258729
+    },
+    {
+      "user_input": "Short circuit pada panel kontrol mesin M-02 November 2025",
+      "retrieved_contexts": [
+        "[TIMELINE PEMELIHARAAN]\n07/11/2025 (Log ID: ML-0058): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Tidak ada. Aktivitas ini memakan waktu downtime 59.6 jam dengan biaya Rp 17.616.249. 10/11/2025 (Log ID: ML-0419): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli.",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: November 2025\nTotal_Downtime: 120.7 Jam\nTotal_Cost: Rp 40.244.732\nLog_Count: 6 (3 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: September 2025\nTotal_Downtime: 48.0 Jam\nTotal_Cost: Rp 30.200.889\nLog_Count: 5 (1 Corrective, 3 Preventive)",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: Agustus 2025\nTotal_Downtime: 47.2 Jam\nTotal_Cost: Rp 33.016.100\nLog_Count: 4 (1 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: Desember 2025\nTotal_Downtime: 47.0 Jam\nTotal_Cost: Rp 27.646.777\nLog_Count: 5 (2 Corrective, 3 Preventive)"
+      ],
+      "response": "## ANALISIS\nBerdasarkan [KONDISI REAL-TIME], mesin M-02 sedang mengalami kondisi kritik dengan suhu 88.3°C, getaran 0.98 mm/s, dan tekanan 116.7 PSI. Prediksi ML juga menunjukkan kondisi kritis. Sisa umur mesin (RUL) hanya 1 hari. Sebelumnya, mesin M-02 telah mengalami beberapa permasalahan, termasuk short circuit pada panel kontrol pada November 2025, yang menyebabkan downtime 59.6 jam dan biaya Rp 17.616.249.\n\n## REKOMENDASI\n[SEGERA] Hentikan operasi mesin M-02 dan lakukan inspeksi menyeluruh untuk memastikan tidak ada kerusakan lain. Lakukan perbaikan segera untuk menghindari kerusakan lebih lanjut.\n\n## REFERENSI\n- Referensi 1: Timeline Perawatan (07/11/2025, Log ID: ML-0058)\n- Referensi 2: Metadata (Periode: November 2025)\n- Referensi 3: Metadata (Periode: Desember 2025)\n- Referensi 4: Metadata (Periode: Agustus 2025)\n- Referensi 5: Metadata (Periode: September 2025)",
+      "reference": "Pada 07/11/2025 (Log ID: ML-0058) dilakukan tindakan Emergency pada M-02 karena short circuit pada panel kontrol. Part yang diganti tercatat sebagai Tidak ada. Aktivitas ini menyebabkan downtime selama 59.6 jam dengan biaya Rp 17.616.249.",
+      "faithfulness": 0.3333333333333333,
+      "answer_relevancy": 0.8323888331221779,
+      "context_precision": 0.9999999999,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.7777777769135802,
+      "answer_correctness": 0.49410635673348413,
+      "answer_similarity": 0.9176018975221719
+    },
+    {
+      "user_input": "Kebocoran hydraulic system pada M-01 November 2025",
+      "retrieved_contexts": [
+        "Teknisi mencatat bahwa kebocoran besar pada hydraulic system. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 21.7 jam dengan biaya Rp 13.696.714. 12/11/2025 (Log ID: ML-0154): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: November 2025\nTotal_Downtime: 87.8 Jam\nTotal_Cost: Rp 44.562.496\nLog_Count: 5 (1 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Agustus 2025\nTotal_Downtime: 100.7 Jam\nTotal_Cost: Rp 96.709.373\nLog_Count: 6 (2 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Desember 2025\nTotal_Downtime: 53.4 Jam\nTotal_Cost: Rp 36.651.838\nLog_Count: 5 (3 Corrective, 2 Preventive)"
+      ],
+      "response": "## ANALISIS\nMenurut kondisi real-time mesin M-01, mesin sedang dalam kondisi sehat (HEALTHY) dengan suhu 67.1°C, getaran 0.47 mm/s, tekanan 104.8 PSI, dan RPM 2407.0. Namun, analisis historis menunjukkan bahwa mesin telah mengalami kebocoran hydraulic system pada November 2025, yang menyebabkan downtime 21.7 jam dengan biaya Rp 13.696.714.\n\n## REKOMENDASI\nDengan mempertimbangkan kondisi real-time dan historis, saya merekomendasikan untuk melakukan inspeksi lebih lanjut pada sistem hydraulic mesin M-01 untuk memastikan bahwa tidak ada kebocoran atau kerusakan lainnya. Saya juga merekomendasikan untuk memantau kondisi mesin secara lebih ketat dalam waktu dekat.\n\n* [SEGERA] Lakukan inspeksi sistem hydraulic mesin M-01 dalam waktu 24 jam.\n* [7 HARI] Periksa dan ganti part yang rusak jika diperlukan.\n\n## REFERENSI\nSumber dokumen yang digunakan:\n- Referensi 1: Log ID: ML-0154 (Kebocoran besar pada hydraulic system)\n- Referensi 2: Laporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025",
+      "reference": "Pada 10/11/2025 (Log ID: ML-0230) dilakukan tindakan Emergency pada M-01 karena kebocoran besar pada hydraulic system. Part yang diganti tercatat sebagai Belt dengan downtime 21.7 jam dan biaya Rp 13.696.714.",
+      "faithfulness": 0.35714285714285715,
+      "answer_relevancy": 0.81646963867361,
+      "context_precision": 0.9999999999,
+      "context_recall": 0.5,
+      "context_entity_recall": 0.4285714279591837,
+      "answer_correctness": 0.373650947075336,
+      "answer_similarity": 0.9231752168727727
+    }
+  ]
+}
