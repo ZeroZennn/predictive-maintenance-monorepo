@@ -4,9 +4,8 @@ const { Router } = require('express');
 const { body } = require('express-validator');
 const telemetryController = require('../controllers/telemetryController');
 
-// ---------------------------------------------------------------------------
-// Validation middleware — runs before the controller on every POST /ingest
-// ---------------------------------------------------------------------------
+// Validation middleware - runs before the controller on every POST /ingest
+
 const validateTelemetry = [
   // Top-level fields
   body('machine_id')
