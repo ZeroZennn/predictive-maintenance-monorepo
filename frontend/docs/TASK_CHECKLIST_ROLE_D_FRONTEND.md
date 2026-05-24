@@ -48,8 +48,8 @@
 |---|---|---|
 | 1 | Halaman Authentication (/login) | 🔄 Shell selesai, form belum |
 | 2 | Halaman Real-Time Dashboard (/) | ✅ Selesai |
-| 3 | Halaman AI Copilot Hub (/copilot-hub) | ⏳ Fase 9 |
-| 4 | Halaman Admin Panel /admin (4 tab)         | ⏳ Fase 11        |
+| 3 | Halaman AI Copilot Hub (/copilot-hub) | ✅ Selesai |
+| 4 | Halaman Admin Panel /admin (4 tab)         | 🔄 In Progress    |
 | 5 | Modul AI Copilot Sliding Panel | ✅ Selesai |
 | 6 | Halaman Maintenance Scheduler (/scheduler) | ✅ Selesai |
 | 7 | Halaman Historical Logs & Reports          | ❌ Dimerge ke /admin Tab 4 |
@@ -365,15 +365,15 @@
 
 ---
 
-## FASE 9 — Halaman AI Copilot Hub ⏳
-**Status:** BELUM DIMULAI
+## FASE 9 — Halaman AI Copilot Hub ✅
+**Status:** SELESAI
 
-- [ ] /copilot-hub/page.tsx — full page chat
-- [ ] Layout dua panel: history + input area
-- [ ] CitationCard (expanded version dari chip)
-- [ ] session_id management
-- [ ] RBAC: accessible semua role authenticated
-- [ ] npx tsc --noEmit: PASSED
+- [x] /copilot-hub/page.tsx — full page chat
+- [x] Layout dua panel: history + input area
+- [x] CitationCard (expanded version dari chip)
+- [x] session_id management
+- [x] RBAC: accessible semua role authenticated
+- [x] npx tsc --noEmit: PASSED
 
 ---
 
@@ -396,22 +396,22 @@
 
 ---
 
-## FASE 11 — Halaman Admin Panel (4 Tab) ⏳
-**Status:** BELUM DIMULAI
+## FASE 11 — Halaman Admin Panel (4 Tab) 🔄
+**Status:** IN PROGRESS
 
 - [ ] /admin/page.tsx — tab layout
-- [ ] Tab 1: Dashboard Admin (overview statistik)
-- [ ] Tab 2: Manajemen Dokumen:
-  - Menunggu konfirmasi NLP Engineer
-  - Drag & drop file upload (PDF/DOCX/TXT)
-  - Progress bar upload
-  - Tabel dokumen terindeks (nama, tipe, status)
-  - Delete dengan konfirmasi dialog
-- [ ] Tab 3: Manajemen User:
-  - Tabel CRUD pengguna
-  - Modal tambah/edit user
-  - Role dropdown (TECHNICIAN/ADMIN)
-  - Delete dengan konfirmasi
+- [x] Tab 1: Dashboard Admin (overview statistik)
+- [x] Tab 2: Manajemen Dokumen:
+  - [x] Menunggu konfirmasi NLP Engineer
+  - [x] Drag & drop file upload (PDF/DOCX/TXT)
+  - [x] Progress bar upload
+  - [x] Tabel dokumen terindeks (nama, tipe, status)
+  - [x] Delete dengan konfirmasi dialog
+- [x] Tab 3: Manajemen User:
+  - [x] Tabel CRUD pengguna
+  - [x] Modal tambah/edit user
+  - [x] Role dropdown (TECHNICIAN/ADMIN)
+  - [x] Delete dengan konfirmasi
 - [ ] Tab 4: Logs & Reports (dimerge dari Fase 12 lama):
   - Tab Sensor Logs: Tabel Timestamp, Machine ID, Sensor, Nilai, Status, Anomaly Flag
   - Tab Maintenance History: Tabel Tanggal, Machine ID, Tipe, Teknisi, Durasi, Hasil
