@@ -5,6 +5,9 @@ export const ROUTES = {
   SCHEDULER: "/scheduler",
   LOGS: "/logs",
   ADMIN: "/admin",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_DOCUMENTS: "/admin/documents",
+  ADMIN_LOGS: "/admin/logs",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];

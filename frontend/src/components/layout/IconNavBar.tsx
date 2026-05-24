@@ -7,22 +7,34 @@ import {
   FileText,
   Settings,
   ShieldCheck,
+  Users,
+  ClipboardList
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@/config";
 import { clsx } from "clsx";
 
-const NAV_ITEMS = [
+const TECHNICIAN_NAV_ITEMS = [
   { icon: LayoutDashboard, href: ROUTES.DASHBOARD, label: "Dashboard" },
   { icon: Bot, href: ROUTES.COPILOT_HUB, label: "AI Copilot" },
   { icon: Calendar, href: ROUTES.SCHEDULER, label: "Scheduler" },
   { icon: FileText, href: ROUTES.LOGS, label: "Logs" },
-  // { icon: ShieldCheck, href: ROUTES.ADMIN, label: "Admin" },
+];
+
+const ADMIN_NAV_ITEMS = [
+  { icon: LayoutDashboard, href: ROUTES.ADMIN, label: "Dashboard" },
+  { icon: Users, href: ROUTES.ADMIN_USERS, label: "Users" },
+  { icon: FileText, href: ROUTES.ADMIN_DOCUMENTS, label: "Docs" },
+  { icon: ClipboardList, href: ROUTES.ADMIN_LOGS, label: "Logs" },
 ];
 
 export default function IconNavBar() {
   const pathname = usePathname();
+  
+  // MOCK ROLE: "ADMIN" or "TECHNICIAN"
+  const MOCK_ROLE = process.env.NEXT_PUBLIC_MOCK_ROLE || "ADMIN";
+  const navItems = MOCK_ROLE === "ADMIN" ? ADMIN_NAV_ITEMS : TECHNICIAN_NAV_ITEMS;
 
   return (
     <nav
@@ -45,8 +57,8 @@ export default function IconNavBar() {
 
       {/* Nav items */}
       <div className="flex-1 flex flex-row md:flex-col items-center justify-around md:justify-center gap-2 w-full md:w-auto">
-        {NAV_ITEMS.map(({ icon: Icon, href, label }) => {
-          const isActive = pathname === href || (href === ROUTES.DASHBOARD && pathname.startsWith("/dashboard"));
+        {navItems.map(({ icon: Icon, href, label }) => {
+          const isActive = pathname === href || (href === ROUTES.DASHBOARD && pathname.startsWith("/dashboard")) || (href === ROUTES.ADMIN && pathname === "/admin");
           return (
             <Link
               key={href}
