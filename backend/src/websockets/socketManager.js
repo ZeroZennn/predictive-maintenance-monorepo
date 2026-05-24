@@ -44,6 +44,12 @@ class SocketManager {
         logger.debug(`[WebSocket] ${socket.id} joined global alerts channel`);
       });
 
+      // Client subscribes to the simulator progress channel
+      socket.on('join:simulator', () => {
+        socket.join('simulator');
+        logger.debug(`[WebSocket] ${socket.id} joined simulator channel`);
+      });
+
       socket.on('disconnect', (reason) => {
         logger.info(`[WebSocket] Client disconnected: ${socket.id} - ${reason}`);
       });

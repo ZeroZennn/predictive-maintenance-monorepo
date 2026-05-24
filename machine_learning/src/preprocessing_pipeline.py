@@ -225,6 +225,16 @@ class FeatureEngineeringTransformer(BaseEstimator, TransformerMixin):
         pd.DataFrame (n_samples x 69) — diteruskan ke StandardScaler
         """
         df = X.copy()
+        
+        # ── Type Safety Guard ─────────────────────────────────
+        # Enforce dtype sebelum operasi apapun.
+        # Wajib karena payload JSON membaca timestamp sebagai
+        # object/category, bukan datetime64. Tanpa ini,
+        # sort_values dan rolling window AKAN crash di container.
+        df['timestamp']  = pd.to_datetime(df['timestamp'])
+        df['machine_id'] = df['machine_id'].astype(str)
+        # ──────────────────────────────────────────────────────
+        
         log.debug(f"transform() start | input shape: {df.shape}")
 
         df = self._clip_negatives(df)

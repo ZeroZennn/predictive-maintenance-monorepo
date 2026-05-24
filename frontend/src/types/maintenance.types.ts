@@ -77,3 +77,16 @@ export interface MaintenanceTask {
   downtime_hrs?: number;
   cost_idr?: number;
 }
+
+export interface MaintenanceLog {
+  log_id: string
+  machine_id: string
+  date: string
+  maintenance_type: 'PREVENTIVE' | 'CORRECTIVE' | 'EMERGENCY'
+  component_replaced?: string | null
+  duration_hrs?: number | null
+  cost_idr?: number | null
+  technician_notes?: string | null
+  created_at: string
+  updated_at: string
+}

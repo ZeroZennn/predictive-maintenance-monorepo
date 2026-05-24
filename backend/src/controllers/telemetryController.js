@@ -16,7 +16,7 @@ const telemetryController = {
    * @param {import('express').Response} res
    */
   ingest(req, res) {
-    // STEP 1 - Validate input using express-validator results
+    // Validate input using express-validator results
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -26,20 +26,20 @@ const telemetryController = {
       });
     }
 
-    // STEP 2 - Extract payload from the request body
+    // Extract payload from the request body
     const payload = req.body;
 
-    // STEP 3 - Log receipt of the telemetry data
+    // Log receipt of the telemetry data
     logger.info(`[Ingestion] Received data from ${payload.machine_id} @ ${payload.timestamp}`);
 
-    // STEP 4 - Fire dispatcher asynchronously (NON-BLOCKING)
+    // Fire dispatcher asynchronously (NON-BLOCKING)
     // setImmediate defers execution to the next iteration of the event loop,
     // guaranteeing the HTTP 202 response is flushed before any DB work starts.
     setImmediate(() => {
       dispatcher.dispatch(payload);
     });
 
-    // STEP 5 - Immediately return 202 Accepted
+    // Immediately return 202 Accepted
     return res.status(202).json({
       status: 'accepted',
       message: 'Telemetry data received and queued for processing',

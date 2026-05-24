@@ -7,9 +7,10 @@ const broadcastService = require('../websockets/broadcastService');
 // Alert thresholds - tune these without touching business logic
 const THRESHOLDS = {
   CRITICAL_HEALTH: 30,
-  WARNING_HEALTH: 60,
-  CRITICAL_RUL: 7,
-  WARNING_RUL: 14,
+  WARNING_HEALTH:  60,
+  IMMEDIATE_RUL: 1.0,
+  CRITICAL_RUL: 2.0,
+  WARNING_RUL: 7.0,
 };
 
 const alertService = {
@@ -27,33 +28,28 @@ const alertService = {
 
       let alertData = null;
 
-      // Health-based classification
-      if (
-        prediction.classification === 'CRITICAL' ||
-        prediction.health_score <= THRESHOLDS.CRITICAL_HEALTH
-      ) {
+      // Primary trigger: urgency_level from ML model_2_rul (most authoritative)
+      if (prediction.urgency_level === 'IMMEDIATE') {
         alertData = {
-          type:     'health_critical',
-          message:  `CRITICAL: Machine ${machineId} health at ${prediction.health_score}%. RUL: ${prediction.rul_days} days.`,
+          type: 'rul_critical',
+          message: `IMMEDIATE: Machine ${machineId} requires service within 24 hours. RUL: ${prediction.rul_days} days.`,
+          severity: 'critical',
+        };
+      } else if (prediction.urgency_level === 'CRITICAL') {
+        alertData = {
+          type: 'rul_critical',
+          message: `CRITICAL: Machine ${machineId} requires service within 48 hours. RUL: ${prediction.rul_days} days.`,
           severity: 'critical',
         };
       } else if (
         prediction.classification === 'WARNING' ||
         prediction.health_score <= THRESHOLDS.WARNING_HEALTH
       ) {
+        // Fallback: health-score based when urgency is not IMMEDIATE/CRITICAL
         alertData = {
           type: 'health_warning',
           message: `WARNING: Machine ${machineId} health at ${prediction.health_score}%. RUL: ${prediction.rul_days} days.`,
           severity: 'warning',
-        };
-      }
-
-      // RUL override - more urgent than health classification
-      if (prediction.rul_days <= THRESHOLDS.CRITICAL_RUL) {
-        alertData = {
-          type: 'rul_critical',
-          message: `URGENT: Machine ${machineId} has only ${prediction.rul_days} days remaining. Immediate service required.`,
-          severity: 'critical',
         };
       }
 
