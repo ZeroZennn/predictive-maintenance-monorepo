@@ -80,45 +80,24 @@ logger = logging.getLogger("lapis_eval")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# GOLDEN DATASET
+# GOLDEN DATASET — Verified against nlp/data/processed/ (audit 2026-05-24)
 # ══════════════════════════════════════════════════════════════════════════════
 
 # Setiap entri: (query, machine_ids untuk filter, ground_truth)
+# ground_truth HANYA berisi fakta yang ada verbatim di file processed.
 GOLDEN_DATASET = [
+    # ── Emergency / Incident Spesifik (4 kasus) ───────────────────────────────
     {
         "case_id"     : "E001",
         "query"       : "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
         "machine_ids" : ["M-01"],
         "ground_truth": (
-            "M-01 mengalami kegagalan sistem pendingin kritis pada 02/08/2025 "
-            "yang menyebabkan motor berhenti beroperasi selama lebih dari 48 jam."
-        ),
-    },
-    {
-        "case_id"     : "E002",
-        "query"       : "Berapa batas kritis suhu operasional mesin M-01?",
-        "machine_ids" : ["M-01"],
-        "ground_truth": (
-            "Batas kritis suhu adalah lebih dari 95°C yang menyebabkan risiko overheat motor. "
-            "Batas warning dimulai dari 85°C."
-        ),
-    },
-    {
-        "case_id"     : "E003",
-        "query"       : "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
-        "machine_ids" : [],
-        "ground_truth": (
-            "Teknisi wajib menggunakan APD lengkap dan menerapkan prosedur LOTO "
-            "(Lockout/Tagout) sebelum membuka panel manapun untuk mencegah kecelakaan kerja."
-        ),
-    },
-    {
-        "case_id"     : "E004",
-        "query"       : "Ringkasan total downtime dan emergency pada mesin M-02",
-        "machine_ids" : ["M-02"],
-        "ground_truth": (
-            "M-02 memiliki 3 kejadian emergency dengan total downtime lebih dari 300 jam "
-            "sepanjang tahun 2025, penyebab utamanya adalah overheating dan kegagalan elektrikal."
+            "Pada 02/08/2025 (Log ID: ML-0119) terjadi tindakan Emergency pada M-01 "
+            "berupa kegagalan sistem pendingin kritis. Part yang diganti adalah Motor "
+            "dengan downtime 21.6 jam dan biaya Rp 49.643.133. Selain itu pada "
+            "26/08/2025 (Log ID: ML-0447) terjadi short circuit pada panel kontrol "
+            "dengan downtime 33.5 jam dan biaya Rp 31.560.747. Total downtime M-01 "
+            "bulan Agustus 2025 mencapai 100.7 jam."
         ),
     },
     {
@@ -126,17 +105,10 @@ GOLDEN_DATASET = [
         "query"       : "Short circuit pada panel kontrol mesin M-02 November 2025",
         "machine_ids" : ["M-02"],
         "ground_truth": (
-            "Short circuit terjadi pada panel kontrol M-02 pada 07/11/2025 "
-            "dengan total downtime 59.6 jam akibat kabel korsleting karena kelembaban tinggi."
-        ),
-    },
-    {
-        "case_id"     : "E006",
-        "query"       : "Getaran kritis dan cara menangani bearing aus pada mesin",
-        "machine_ids" : [],
-        "ground_truth": (
-            "Getaran lebih dari 1.0 mm/s mengindikasikan bearing aus dan perlu segera diganti "
-            "dengan komponen BRG-M01. Inspeksi bearing dilakukan setiap 250 jam operasional."
+            "Pada 07/11/2025 (Log ID: ML-0058) dilakukan tindakan Emergency pada M-02 "
+            "karena short circuit pada panel kontrol. Part yang diganti tercatat sebagai "
+            "Tidak ada. Aktivitas ini menyebabkan downtime selama 59.6 jam dengan biaya "
+            "Rp 17.616.249."
         ),
     },
     {
@@ -144,17 +116,43 @@ GOLDEN_DATASET = [
         "query"       : "Kebocoran hydraulic system pada M-01 November 2025",
         "machine_ids" : ["M-01"],
         "ground_truth": (
-            "Kebocoran besar pada hydraulic system M-01 terjadi pada 10/11/2025 "
-            "yang menyebabkan mesin dihentikan untuk perbaikan darurat selama 36 jam."
+            "Pada 10/11/2025 (Log ID: ML-0230) dilakukan tindakan Emergency pada M-01 "
+            "karena kebocoran besar pada hydraulic system. Part yang diganti tercatat "
+            "sebagai Belt dengan downtime 21.7 jam dan biaya Rp 13.696.714."
         ),
     },
     {
-        "case_id"     : "E008",
-        "query"       : "Inspeksi rutin dan penggantian oli mesin M-03",
-        "machine_ids" : ["M-03"],
+        "case_id"     : "E010",
+        "query"       : "Motor overheat dan penggantian komponen pendingin M-02 Juli 2025",
+        "machine_ids" : ["M-02"],
         "ground_truth": (
-            "Inspeksi rutin M-03 dilakukan setiap 500 jam operasional meliputi penggantian oli "
-            "pelumas, filter udara, dan pengecekan sistem pendingin."
+            "Pada 25/07/2025 (Log ID: ML-0266) dilakukan tindakan Corrective pada M-02 "
+            "karena motor overheat, ganti komponen pendingin. Part yang diganti tercatat "
+            "sebagai Belt dengan downtime 12.8 jam dan biaya Rp 7.067.223."
+        ),
+    },
+
+    # ── Spesifikasi Teknis dari Manual (3 kasus) ──────────────────────────────
+    {
+        "case_id"     : "E002",
+        "query"       : "Berapa batas kritis suhu operasional mesin M-01?",
+        "machine_ids" : ["M-01"],
+        "ground_truth": (
+            "Berdasarkan Buku Manual Operasional Mesin M-01, suhu operasional normal "
+            "adalah 65°C-75°C. Batas Peringatan (Warning) dimulai dari 80°C. Batas "
+            "Kritis (Critical/Shut-off) adalah lebih dari 95°C yang menyebabkan risiko "
+            "overheat pada motor."
+        ),
+    },
+    {
+        "case_id"     : "E006",
+        "query"       : "Getaran kritis dan cara menangani bearing aus pada mesin M-01",
+        "machine_ids" : ["M-01"],
+        "ground_truth": (
+            "Getaran normal M-01 adalah 0.35-0.55 mm/s. Batas kritis getaran adalah "
+            "lebih dari 1.0 mm/s yang mengindikasikan kerusakan bearing atau poros tidak "
+            "presisi. Jika getaran melebihi 1.2 mm/s, tindakan perbaikan adalah "
+            "kencangkan baut housing atau ganti komponen Bearing dengan Part Code BRG-M01."
         ),
     },
     {
@@ -162,17 +160,50 @@ GOLDEN_DATASET = [
         "query"       : "Prosedur pemeliharaan rutin setiap 500 jam operasional",
         "machine_ids" : [],
         "ground_truth": (
-            "Pemeliharaan rutin 500 jam mencakup: penggantian oli pelumas, pembersihan filter "
-            "udara, inspeksi sistem elektrikal, dan pengecekan tegangan belt serta kondisi bearing."
+            "Inspeksi rutin dilakukan setiap 500 jam operasional. Tindakan yang dilakukan "
+            "mencakup penggantian oli pelumas, pembersihan filter udara, dan pengecekan "
+            "koneksi elektrikal. Selain itu dilakukan pemeriksaan ketegangan sabuk (belt) "
+            "dan kondisi pulley, serta penggantian belt jika ditemukan retakan halus."
+        ),
+    },
+
+    # ── Prosedur / SOP (2 kasus) ──────────────────────────────────────────────
+    {
+        "case_id"     : "E003",
+        "query"       : "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
+        "machine_ids" : [],
+        "ground_truth": (
+            "Teknisi wajib menggunakan APD berupa sarung tangan tahan panas, pelindung "
+            "telinga (earmuff), dan sepatu safety. Prosedur Lock Out Tag Out (LOTO) "
+            "mengharuskan aliran listrik diputus total sebelum membuka panel motor atau "
+            "menyentuh sabuk transmisi."
         ),
     },
     {
-        "case_id"     : "E010",
-        "query"       : "Motor overheat dan penggantian komponen pendingin M-02",
+        "case_id"     : "E008",
+        "query"       : "Bearing aus dan penggantian komponen pada M-01 Juli 2025",
+        "machine_ids" : ["M-01"],
+        "ground_truth": (
+            "Pada 31/07/2025 (Log ID: ML-0105) dilakukan tindakan Corrective pada M-01 "
+            "karena bearing aus, perlu penggantian. Part yang diganti tercatat sebagai "
+            "Seal dengan downtime 20.3 jam dan biaya Rp 4.531.286. Total downtime M-01 "
+            "bulan Juli 2025 mencapai 58.0 jam dari 7 aktivitas pemeliharaan "
+            "(2 Corrective, 5 Preventive)."
+        ),
+    },
+
+    # ── Ringkasan / Agregasi (1 kasus) ────────────────────────────────────────
+    {
+        "case_id"     : "E004",
+        "query"       : "Ringkasan kejadian emergency pada mesin M-02 sepanjang 2025",
         "machine_ids" : ["M-02"],
         "ground_truth": (
-            "Motor M-02 mengalami overheat pada Juli 2025 yang memerlukan penggantian komponen "
-            "pendingin berupa kipas, heat sink, dan thermal paste. Perbaikan memakan waktu 24 jam."
+            "M-02 mengalami 3 kejadian Emergency: (1) 28/08/2025 (ML-0216) mesin berhenti "
+            "total karena kerusakan motor utama, downtime 32.1 jam, biaya Rp 16.044.880; "
+            "(2) 17/09/2025 (ML-0055) short circuit pada panel kontrol, downtime 18.9 jam, "
+            "biaya Rp 21.218.618; (3) 07/11/2025 (ML-0058) short circuit pada panel kontrol, "
+            "downtime 59.6 jam, biaya Rp 17.616.249. Total downtime emergency M-02 adalah "
+            "110.6 jam."
         ),
     },
 ]
@@ -235,17 +266,16 @@ def run_pipeline(
             )
             contexts = [r.text_content for r in results if r.text_content]
 
-            # 2. Live context (opsional, hanya jika ada machine_ids)
-            live_data = (
-                [fetcher.fetch(mid) for mid in case["machine_ids"]]
-                if case["machine_ids"] else []
-            )
+            # 2. Live context DISABLED untuk evaluasi RAGAS — agar faithfulness  # CHANGED
+            #    diukur secara akurat hanya terhadap retrieved_contexts,          # CHANGED
+            #    tanpa kontaminasi dari mock sensor data.                         # CHANGED
+            live_data = None  # CHANGED
 
             # 3. Build prompt + generate
             pkg      = builder.build(
                 query             = case["query"],
                 results           = results,
-                live_context_data = live_data or None,
+                live_context_data = live_data,  # CHANGED: always None for eval
             )
             llm_resp = llm.generate(pkg)
             answer   = llm_resp.answer
