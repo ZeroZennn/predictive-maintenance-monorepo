@@ -7,6 +7,22 @@ const timescalePool = require('../config/timescaleClient');
 
 const mlService = {
   /**
+   * Normalizes any timestamp to "YYYY-MM-DD HH:MM:SS" (tz-naive, no ms).
+   *
+   * @param {string|Date} ts - any timestamp value
+   * @returns {string}
+   */
+  normalizeTimestamp(ts) {
+    if (!ts) return ts;
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return ts;
+    // "2025-07-01T00:00:00.000Z" → "2025-07-01 00:00:00"
+    return d.toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d{3}Z$/, '');
+  },
+
+  /**
    * Sends sensor data to the ML Engine and parses the nested response.
    * Returns a normalized prediction object, or null if ML Engine is unavailable.
    *
@@ -18,7 +34,7 @@ const mlService = {
       // Build request body per confirmed ML Engineer contract
       const requestBody = {
         machine_id: payload.machine_id,
-        timestamp: payload.timestamp,
+        timestamp: this.normalizeTimestamp(payload.timestamp),
         sensor_readings: {
           temperature: payload.sensors.temperature,
           vibration: payload.sensors.vibration,
@@ -35,7 +51,7 @@ const mlService = {
       // (LSTM SEQ_LEN=24: dispatcher sends last 23 rows, current reading = 24th)
       if (sensorHistory && sensorHistory.length > 0) {
         requestBody.sensor_history = sensorHistory.map(row => ({
-          timestamp: row.timestamp,
+          timestamp: this.normalizeTimestamp(row.timestamp),
           temperature: parseFloat(row.temperature),
           vibration: parseFloat(row.vibration),
           pressure: parseFloat(row.pressure),
