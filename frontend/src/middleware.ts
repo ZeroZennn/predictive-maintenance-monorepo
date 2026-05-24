@@ -45,10 +45,19 @@ export default function middleware(request: NextRequest): NextResponse {
   const token = request.cookies.get("lapis_token")?.value ?? null;
 
   // ============================================================
-  // DEV BYPASS — Hanya aktif jika NEXT_PUBLIC_SKIP_AUTH=true
+  // DEV BYPASS / MOCK ROLE — Hanya aktif jika NEXT_PUBLIC_SKIP_AUTH=true
   // WAJIB dihapus atau di-set false sebelum production build
   // ============================================================
   if (process.env.NEXT_PUBLIC_SKIP_AUTH === "true") {
+    const mockRole = process.env.NEXT_PUBLIC_MOCK_ROLE;
+    if (mockRole) {
+      const isAdminRoute = ADMIN_ONLY_ROUTES.some((route) =>
+        pathname.startsWith(route)
+      );
+      if (isAdminRoute && mockRole !== "ADMIN") {
+        return NextResponse.redirect(new URL(DASHBOARD, request.url));
+      }
+    }
     return NextResponse.next();
   }
 

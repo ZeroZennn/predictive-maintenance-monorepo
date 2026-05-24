@@ -10,5 +10,4 @@ export { default as DocumentManagementTab }
   from './DocumentManagementTab'
 export { default as MaintenanceLogsTab } 
   from './MaintenanceLogsTab'
-export { default as AdminTabBar } 
-  from './AdminTabBar'
+
