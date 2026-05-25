@@ -134,6 +134,7 @@ export const useMachineStore = create<MachineStore>()((set, get) => ({
           history: [
             ...(state.machines[reading.machine_id].history || []).slice(-23),
             {
+              timestamp: reading.timestamp, // Raw timestamp for Tooltip and XAxis formatting
               time: new Date(reading.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
               ...reading.sensors,
             }

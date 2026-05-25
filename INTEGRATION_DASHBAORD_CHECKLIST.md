@@ -121,5 +121,6 @@
 | ISS-002 | 2026-05-25 | Health Score collapse ke 0 saat WARNING/CRITICAL akibat logika pengurangan (substraksi) bobot negatif | ✅ Fixed (Weighted Average) | Antigravity |
 | ISS-003 | 2026-05-25 | Alert & notifikasi bocor untuk mesin yang tidak sedang dipantau di filter | ✅ Fixed (WebSocket Filtered by activeMachineIds) | Antigravity |
 | ISS-004 | 2026-05-25 | WebSocket race condition / stuck loading data akibat array re-render loop di useWebSocketInit | ✅ Fixed (State Caching & Dependency Fix) | Antigravity |
+| ISS-005 | 2026-05-26 | Terlempar ke /login karena API Anomaly Timeline ter-block Auth (Bypass auth hanya ada di Frontend sebelumnya) | ✅ Fixed (Tambah fitur bypass auth middleware di Backend) | Antigravity |
 
 ---

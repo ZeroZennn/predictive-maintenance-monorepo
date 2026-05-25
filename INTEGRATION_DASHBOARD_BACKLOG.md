@@ -30,7 +30,7 @@ Item yang HARUS selesai sebelum demo/presentasi.
 
 | ID | Story | PIC | Estimasi | Status |
 |---|---|---|---|---|
-| INT-013 | Anomaly Timeline di dashboard (dari ml_predictions) | Reynaldi + Amir | 3 jam | ⏳ |
+| INT-013 | Anomaly Timeline di dashboard (dari ml_predictions) | Reynaldi + Amir / Antigravity | 3 jam | ✅ |
 | INT-014 | Maintenance KPIs widget (issues/week, MTBF, dll) | Reynaldi + Amir | 3 jam | ⏳ |
 | INT-015 | Export PDF/Excel di Historical Logs | Reynaldi | 4 jam | ⏳ |
 | INT-016 | Completion Form: mark maintenance selesai | Amir | 2 jam | ⏳ |

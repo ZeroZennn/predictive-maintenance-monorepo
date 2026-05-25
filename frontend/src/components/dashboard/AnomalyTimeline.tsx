@@ -1,13 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import type { MachineStatus } from "@/types";
 import { clsx } from "clsx";
+import { fetchAnomalyTimeline, BackendAnomaly } from "@/lib/api/telemetry.api";
+import { useMachineStore } from "@/stores";
 
 export interface AnomalyEvent {
   timestamp: string;
   status: MachineStatus;
   machineId: string;
+  description?: string;
+  sensor?: string;
 }
 
 interface AnomalyTimelineProps {
@@ -15,34 +19,65 @@ interface AnomalyTimelineProps {
   windowMinutes?: number; // default: 60
 }
 
-const MOCK_EVENTS: AnomalyEvent[] = [
-  {
-    timestamp: new Date(Date.now() - 50 * 60000).toISOString(),
-    status: "WARNING",
-    machineId: "M-03",
-  },
-  {
-    timestamp: new Date(Date.now() - 35 * 60000).toISOString(),
-    status: "CRITICAL",
-    machineId: "M-01",
-  },
-  {
-    timestamp: new Date(Date.now() - 20 * 60000).toISOString(),
-    status: "WARNING",
-    machineId: "M-07",
-  },
-  {
-    timestamp: new Date(Date.now() - 8 * 60000).toISOString(),
-    status: "CRITICAL",
-    machineId: "M-01",
-  },
-];
-
 export default function AnomalyTimeline({
   events,
   windowMinutes = 60,
 }: AnomalyTimelineProps) {
-  const data = events ?? MOCK_EVENTS;
+  const selectedMachineId = useMachineStore((state) => state.selectedMachineId) || "M-01";
+  const [fetchedEvents, setFetchedEvents] = useState<AnomalyEvent[]>([]);
+
+  useEffect(() => {
+    // If events are passed explicitly as props, we don't fetch
+    if (events) return;
+
+    let isMounted = true;
+    const loadTimeline = async () => {
+      try {
+        const anomalies = await fetchAnomalyTimeline(selectedMachineId, 50);
+        if (!isMounted) return;
+
+        // Map BackendAnomaly to AnomalyEvent
+        const mapped: AnomalyEvent[] = anomalies
+          .map((a) => {
+            let status: MachineStatus = "HEALTHY";
+            if (a.anomaly_type === "state_transition") {
+              status = a.predicted_label as MachineStatus;
+            } else if (a.anomaly_type === "threshold_crossing") {
+              // We treat threshold crossings as WARNINGs visually in the timeline
+              status = "WARNING";
+            }
+
+            return {
+              timestamp: a.timestamp,
+              status,
+              machineId: a.machine_id,
+              description: a.description,
+              sensor: a.sensor_triggered,
+            };
+          })
+          // Filter out HEALTHY transitions because timeline only shows anomalies
+          .filter((a) => a.status !== "HEALTHY");
+
+        setFetchedEvents(mapped);
+      } catch (err) {
+        console.error("Failed to fetch anomaly timeline", err);
+      }
+    };
+
+    loadTimeline();
+
+    // Optionally set up a polling interval if you want the timeline to refresh
+    // Since WebSocket already gives us realtime, we might just rely on that
+    // or re-fetch every minute. For now, fetch on mount/machine change.
+    const interval = setInterval(loadTimeline, 60000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [selectedMachineId, events]);
+
+  const data = events ?? fetchedEvents;
   const windowMs = windowMinutes * 60 * 1000;
   const now = Date.now();
   const startTime = now - windowMs;
@@ -103,6 +138,50 @@ export default function AnomalyTimeline({
               </div>
             ))}
           </div>
+
+          {/* Anomaly Dots */}
+          {visibleEvents.map((e, idx) => {
+            const leftPos = getEventPosition(e.timestamp);
+            return (
+              <div
+                key={`${e.timestamp}-${idx}`}
+                className="absolute top-0 -mt-[7px] group"
+                style={{ left: `${leftPos}%`, transform: 'translateX(-50%)' }}
+              >
+                <div
+                  className={clsx(
+                    "w-4 h-4 rounded-full border-2 border-[#121A1A] shadow-glow-sm relative z-20 transition-transform hover:scale-125 cursor-pointer",
+                    e.status === "CRITICAL"
+                      ? "bg-[#F43F5E] shadow-glow-red"
+                      : "bg-[#F59E0B] shadow-glow-amber"
+                  )}
+                />
+                
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[200px] bg-[#121A1A] border border-[#1E3D40] text-white text-xs rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl flex flex-col gap-1">
+                  <span className="font-bold text-[#5FDA0A]">
+                    {new Date(e.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </span>
+                  {e.sensor && (
+                    <span className="text-gray-300">
+                      Sensor Spike: <span className="text-white uppercase font-mono">{e.sensor}</span>
+                    </span>
+                  )}
+                  {e.description && (
+                    <span className="text-gray-400 text-[10px] leading-tight">
+                      {e.description}
+                    </span>
+                  )}
+                  {!e.sensor && !e.description && (
+                    <span className="text-gray-400">
+                      Status: {e.status}
+                    </span>
+                  )}
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#121A1A] border-b border-r border-[#1E3D40] rotate-45" />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
