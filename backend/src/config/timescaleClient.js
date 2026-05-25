@@ -11,7 +11,7 @@ const pool = new Pool({
   database: process.env.TIMESCALE_DB,
   max: 30, // higher than postgres - time-series has more write volume
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000,
 });
 
 async function testConnection() {

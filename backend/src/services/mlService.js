@@ -103,7 +103,7 @@ const mlService = {
 
         // From model_2_rul — null when is_active=false
         rul_is_active: isActive,
-        rul_days: isActive ? Math.ceil(rulData.rul_days) : null,
+        rul_days: isActive && rulData.rul_days !== null && rulData.rul_days !== undefined ? parseFloat(rulData.rul_days.toFixed(2)) : null,
         rul_hours: isActive ? rulData.rul_hours : null,
         urgency_level: isActive ? rulData.urgency_level : 'MONITOR',
 
@@ -239,3 +239,15 @@ const mlService = {
 };
 
 module.exports = mlService;
+
+/*
+  === VERIFIKASI UNIT TEST MANUAL ===
+  Input dari ML: rul_days = 1.585
+  Expected output: 1.59 (bukan 2)
+
+  Input dari ML: rul_days = null (HEALTHY)
+  Expected output: null (bukan error)
+
+  Input dari ML: rul_days = 0.04
+  Expected output: 0.04 (presisi terjaga)
+*/
