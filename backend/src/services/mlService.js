@@ -103,7 +103,7 @@ const mlService = {
 
         // From model_2_rul — null when is_active=false
         rul_is_active: isActive,
-        rul_days: isActive ? Math.ceil(rulData.rul_days) : null,
+        rul_days: isActive ? Math.round(rulData.rul_days * 100) / 100 : null,
         rul_hours: isActive ? rulData.rul_hours : null,
         urgency_level: isActive ? rulData.urgency_level : 'MONITOR',
 
