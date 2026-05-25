@@ -38,6 +38,18 @@ const simulatorController = {
     });
   },
 
+  async reset(req, res) {
+    try {
+      await simulatorService.resetData();
+      return res.status(200).json({
+        status: 'success',
+        message: 'Simulator data reset successfully',
+      });
+    } catch (err) {
+      return res.status(500).json({ status: 'error', message: err.message });
+    }
+  },
+
   getStatus(req, res) {
     return res.status(200).json({
       status: 'success',

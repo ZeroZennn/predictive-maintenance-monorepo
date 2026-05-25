@@ -73,18 +73,19 @@ class Dispatcher {
    * Combined with the current reading, this gives SEQ_LEN=24 for LSTM input.
    *
    * @param {string} machineId
+   * @param {string} currentTimestamp
    * @returns {Object[]}
    */
-  async fetchSensorHistory(machineId) {
+  async fetchSensorHistory(machineId, currentTimestamp) {
     try {
       const result = await timescalePool.query(
-        `SELECT timestamp, temperature, vibration, pressure, rpm,
+        `SELECT DISTINCT ON (timestamp) timestamp, temperature, vibration, pressure, rpm,
                 power_consumption, noise_level, humidity, operating_hours
          FROM sensor_readings
-         WHERE machine_id = $1
+         WHERE machine_id = $1 AND timestamp < $2
          ORDER BY timestamp DESC
          LIMIT 23`,
-        [machineId]
+        [machineId, currentTimestamp]
       );
       // Reverse so array is oldest-first
       return result.rows.reverse();
@@ -190,7 +191,7 @@ class Dispatcher {
       ]);
 
       // Fetch sensor history for LSTM SEQ_LEN=24
-      const sensorHistory = await this.fetchSensorHistory(payload.machine_id);
+      const sensorHistory = await this.fetchSensorHistory(payload.machine_id, payload.timestamp);
       logger.debug(
         `[Dispatcher] History fetched for ${payload.machine_id}: ${sensorHistory.length} rows`
       );

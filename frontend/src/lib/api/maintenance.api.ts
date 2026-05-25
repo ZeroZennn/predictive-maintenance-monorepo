@@ -3,7 +3,7 @@ import type { MaintenanceTask, MaintenanceLog } from "@/types";
 
 export async function fetchMaintenanceTasks(): Promise<MaintenanceTask[]> {
   const response = await apiClient.get<MaintenanceTask[]>(
-    "/api/maintenance/tasks"
+    "/api/maintenance/schedules"
   );
   return response.data;
 }

@@ -8,33 +8,39 @@ import {
   Settings,
   ShieldCheck,
   Users,
-  ClipboardList
+  ClipboardList,
+  Terminal,
+  Settings2,
+  Sliders
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@/config";
 import { clsx } from "clsx";
+import { useSimulatorStore } from "@/stores/simulatorStore";
 
 const TECHNICIAN_NAV_ITEMS = [
   { icon: LayoutDashboard, href: ROUTES.DASHBOARD, label: "Dashboard" },
   { icon: Bot, href: ROUTES.COPILOT_HUB, label: "AI Copilot" },
   { icon: Calendar, href: ROUTES.SCHEDULER, label: "Scheduler" },
-  { icon: FileText, href: ROUTES.LOGS, label: "Logs" },
+  { icon: Terminal, href: ROUTES.DEBUG, label: "Logs" },
 ];
 
 const ADMIN_NAV_ITEMS = [
   { icon: LayoutDashboard, href: ROUTES.ADMIN, label: "Dashboard" },
   { icon: Users, href: ROUTES.ADMIN_USERS, label: "Users" },
   { icon: FileText, href: ROUTES.ADMIN_DOCUMENTS, label: "Docs" },
-  { icon: ClipboardList, href: ROUTES.ADMIN_LOGS, label: "Logs" },
+  { icon: Terminal, href: ROUTES.DEBUG, label: "Logs" },
 ];
 
 export default function IconNavBar() {
   const pathname = usePathname();
-  
+
   // MOCK ROLE: "ADMIN" or "TECHNICIAN"
   const MOCK_ROLE = process.env.NEXT_PUBLIC_MOCK_ROLE || "ADMIN";
   const navItems = MOCK_ROLE === "ADMIN" ? ADMIN_NAV_ITEMS : TECHNICIAN_NAV_ITEMS;
+
+  const toggleSimulator = useSimulatorStore((state) => state.togglePanel);
 
   return (
     <nav
@@ -90,8 +96,20 @@ export default function IconNavBar() {
         })}
       </div>
 
-      {/* Settings di bottom / sisi kanan pada mobile */}
-      <div className="mt-0 md:mt-auto">
+      {/* Settings & Simulator di bottom / sisi kanan pada mobile */}
+      <div className="mt-0 md:mt-auto flex md:flex-col gap-2">
+        <button
+          onClick={toggleSimulator}
+          className={clsx(
+            "w-10 h-10 md:w-12 md:h-12 rounded-lg",
+            "flex items-center justify-center",
+            "text-amber-400 hover:text-white hover:bg-amber-400/20",
+            "transition-all duration-200 cursor-pointer"
+          )}
+          title="Simulator Control Panel"
+        >
+          <Sliders size={16} />
+        </button>
         <button
           className={clsx(
             "w-10 h-10 md:w-12 md:h-12 rounded-lg",
@@ -99,6 +117,7 @@ export default function IconNavBar() {
             "text-lapis-muted hover:text-lapis-text hover:bg-lapis-card",
             "transition-all duration-200"
           )}
+          title="Settings"
         >
           <Settings size={16} />
         </button>

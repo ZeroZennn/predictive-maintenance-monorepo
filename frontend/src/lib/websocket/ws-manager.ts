@@ -42,6 +42,10 @@ class WebSocketManager {
     this.socket?.emit('join:machine', machineId)
   }
 
+  leaveMachine(machineId: string): void {
+    this.socket?.emit('leave:machine', machineId)
+  }
+
   joinGlobal(): void {
     this.socket?.emit('join:global')
   }

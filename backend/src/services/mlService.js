@@ -76,9 +76,9 @@ const mlService = {
       // Simple HEALTHY*100 over-estimates health when WARNING/CRITICAL probs are high
       const p = raw.model_1_classifier.probabilities || {};
       const rawHealthScore = (
-        (p.HEALTHY || 0) * 100 -
-        (p.WARNING || 0) * 30 -
-        (p.CRITICAL || 0) * 70
+        (p.HEALTHY || 0) * 100 +
+        (p.WARNING || 0) * 40 +
+        (p.CRITICAL || 0) * 0
       );
       const health_score = Math.min(100, Math.max(0, Math.round(rawHealthScore)));
 

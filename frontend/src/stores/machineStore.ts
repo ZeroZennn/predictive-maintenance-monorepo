@@ -6,7 +6,7 @@ interface MachineStore {
   // State
   machines: Record<string, Machine>;
   selectedMachineId: string | null;
-  statusFilter: "ALL" | MachineStatus;
+  machineFilter: string[];
   lastUpdated: string | null;
 
   // Actions
@@ -23,7 +23,7 @@ interface MachineStore {
     };
   }) => void;
   setSelectedMachine: (id: string | null) => void;
-  setStatusFilter: (filter: "ALL" | MachineStatus) => void;
+  setMachineFilter: (filter: string[]) => void;
 
   // Selector
   getMachineById: (id: string) => Machine | undefined;
@@ -116,7 +116,7 @@ export const useMachineStore = create<MachineStore>()((set, get) => ({
   // State
   machines: defaultMachines,
   selectedMachineId: null,
-  statusFilter: "ALL",
+  machineFilter: [],
   lastUpdated: null,
 
   // Actions
@@ -131,6 +131,13 @@ export const useMachineStore = create<MachineStore>()((set, get) => ({
           confidence: reading.prediction.confidence,
           last_updated: reading.timestamp,
           sensors: reading.sensors,  // ← update semua sensor sekaligus
+          history: [
+            ...(state.machines[reading.machine_id].history || []).slice(-23),
+            {
+              time: new Date(reading.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+              ...reading.sensors,
+            }
+          ],
           // ─── Field baru dari API Contract (backward-compatible) ───
           ...(reading.is_active !== undefined &&
             { is_active: reading.is_active }),
@@ -152,8 +159,8 @@ export const useMachineStore = create<MachineStore>()((set, get) => ({
 
   setSelectedMachine: (id: string | null) => set({ selectedMachineId: id }),
 
-  setStatusFilter: (filter: "ALL" | MachineStatus) =>
-    set({ statusFilter: filter }),
+  setMachineFilter: (filter: string[]) =>
+    set({ machineFilter: filter }),
 
   // Selector — reads live state via get()
   getMachineById: (id: string) => get().machines[id],

@@ -26,7 +26,7 @@ export default function ToastContainer() {
   }, [activeToasts.length]) // hanya re-run saat jumlah toast berubah
 
   return (
-    <div className="fixed top-4 right-4 z-50 
+    <div className="fixed top-4 right-4 z-[99] 
                     flex flex-col gap-3 
                     pointer-events-none w-80">
       <AnimatePresence mode="sync">

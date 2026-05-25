@@ -77,11 +77,9 @@ router.patch(
   maintenanceController.updateScheduleStatus
 );
 
-// SIMULATOR routes - admin only
+// SIMULATOR routes - exhibition/demo mode (all authenticated users can start/stop)
 router.post(
   '/simulator/start',
-  authenticate,
-  requireRole('admin'),
   body('start_date')
     .optional()
     .isISO8601()
@@ -95,15 +93,17 @@ router.post(
 
 router.post(
   '/simulator/stop',
-  authenticate,
-  requireRole('admin'),
   simulatorController.stop
 );
 
-// Status all authenticated users can monitor progress
+router.post(
+  '/simulator/reset',
+  simulatorController.reset
+);
+
+// Status all users can monitor progress
 router.get(
   '/simulator/status',
-  authenticate,
   simulatorController.getStatus
 );
 

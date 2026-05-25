@@ -19,7 +19,7 @@ Item yang HARUS selesai sebelum demo/presentasi.
 
 | ID | Story | PIC | Estimasi | Status |
 |---|---|---|---|---|
-| INT-007 | Sidebar machine cards update warna real-time | Amir | 2 jam | ⏳ |
+| INT-007 | Sidebar machine cards update warna real-time & Multi-Select Filter | Amir / Antigravity | 2 jam | ✅ |
 | INT-008 | Maintenance Scheduler: kartu baru dari WebSocket | Amir | 3 jam | ⏳ |
 | INT-009 | Konfirmasi jadwal predictive → update status DB | Reynaldi + Amir | 2 jam | ⏳ |
 | INT-010 | Tambah jadwal preventive manual (form + POST endpoint) | Reynaldi + Amir | 2 jam | ⏳ |

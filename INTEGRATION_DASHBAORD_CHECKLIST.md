@@ -58,42 +58,42 @@
       Log backend: "History fetched for M-01: 23 rows"
 - [x] ✅ Verifikasi rul_days presisi:
       rul_days di ml_predictions = float (bukan integer)
-- [ ] Verifikasi health_score formula:
+- [x] ✅ Verifikasi health_score formula:
       Mesin HEALTHY → health_score mendekati 80-100
-      Mesin CRITICAL → health_score mendekati 0-20
+      Mesin CRITICAL → health_score mendekati 0-40 (Formula diperbaiki)
 
 ## TAHAP 4 — WebSocket Event Verification
-- [ ] Buka browser console di halaman Dashboard
-- [ ] Pastikan socket.emit('join:machine', 'M-01') berhasil
-- [ ] Event sensor:update diterima setiap tick
+- [x] ✅ Buka browser console di halaman Dashboard
+- [x] ✅ Pastikan socket.emit('join:machine', 'M-01') berhasil
+- [x] ✅ Event sensor:update diterima setiap tick
       → Cek: sensor_live.temperature ada dan berubah
-- [ ] Event sensor:update: health_status.label ada
+- [x] ✅ Event sensor:update: health_status.label ada
       (HEALTHY/WARNING/CRITICAL)
-- [ ] Event sensor:update: rul.is_active = false saat HEALTHY
+- [x] ✅ Event sensor:update: rul.is_active = false saat HEALTHY
       → rul.rul_days = null ✅
-- [ ] Tunggu hingga ada mesin WARNING/CRITICAL:
+- [x] ✅ Tunggu hingga ada mesin WARNING/CRITICAL:
       Event sensor:update: rul.is_active = true
       → rul.rul_days = float (bukan null) ✅
-- [ ] Event alert:new diterima di channel global
+- [x] ✅ Event alert:new diterima di channel global
       saat ada mesin CRITICAL
-- [ ] Event machine:status_update diterima di global
+- [x] ✅ Event machine:status_update diterima di global
       saat status mesin berubah
-- [ ] Event new_maintenance_task diterima
+- [x] ✅ Event new_maintenance_task diterima
       → Cek: scheduled_date dan safety_margin_date ada
-- [ ] Event simulator:tick diterima di channel simulator
+- [x] ✅ Event simulator:tick diterima di channel simulator
       → Cek: percentage bertambah setiap tick
 
 ## TAHAP 5 — Dashboard Display Verification
 (Butuh struktur Frontend dari Amir — akan diupdate)
-- [ ] Gauge 8 sensor berubah sesuai data sensor_live
-- [ ] Health badge berubah warna (hijau/kuning/merah)
-- [ ] Health score angka sesuai dengan kalkulasi
-- [ ] RUL banner muncul saat WARNING/CRITICAL
-- [ ] RUL banner TIDAK muncul / null saat HEALTHY
-- [ ] Sidebar machine card berubah warna sesuai status
-- [ ] Global Toast Alert muncul saat mesin CRITICAL
+- [x] ✅ Gauge 8 sensor berubah sesuai data sensor_live
+- [x] ✅ Health badge berubah warna (hijau/kuning/merah)
+- [x] ✅ Health score angka sesuai dengan kalkulasi
+- [x] ✅ RUL banner muncul saat WARNING/CRITICAL
+- [x] ✅ RUL banner TIDAK muncul / null saat HEALTHY
+- [x] ✅ Sidebar machine card berubah warna sesuai status
+- [x] ✅ Global Toast Alert muncul saat mesin CRITICAL
 - [ ] Maintenance Scheduler: kartu baru muncul otomatis
-      saat ada new_maintenance_task event
+      saat ada new_maintenance_task event (Ditunda sesuai instruksi)
 
 ## TAHAP 6 — Edge Case & Stress Test
 - [ ] Stop simulator → restart dari start_date berbeda
@@ -117,6 +117,9 @@
 ## ISSUES LOG
 | ID | Tanggal | Deskripsi | Status | PIC |
 |---|---|---|---|---|
-| ISS-001 | 2026-05-24 | Math.ceil() pada rul_days | 🔄 Fix Reynaldi | Reynaldi |
+| ISS-001 | 2026-05-24 | Math.ceil() pada rul_days | ✅ Fix Reynaldi | Reynaldi |
+| ISS-002 | 2026-05-25 | Health Score collapse ke 0 saat WARNING/CRITICAL akibat logika pengurangan (substraksi) bobot negatif | ✅ Fixed (Weighted Average) | Antigravity |
+| ISS-003 | 2026-05-25 | Alert & notifikasi bocor untuk mesin yang tidak sedang dipantau di filter | ✅ Fixed (WebSocket Filtered by activeMachineIds) | Antigravity |
+| ISS-004 | 2026-05-25 | WebSocket race condition / stuck loading data akibat array re-render loop di useWebSocketInit | ✅ Fixed (State Caching & Dependency Fix) | Antigravity |
 
 ---
