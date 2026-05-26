@@ -14,7 +14,9 @@ export default function VitalSignBanner() {
   const selectedId = useMachineStore((state) => state.selectedMachineId) || "M-01";
   const machine = useMachineStore((state) => state.machines[selectedId]);
 
-  const status = machine?.status || "HEALTHY";
+  if (!machine) return null;
+
+  const status = machine.status || "HEALTHY";
   const rul_days = machine?.rul_days || 0;
   const healthScore = machine?.health_score ?? 0;
   const probabilities = machine?.probabilities || { HEALTHY: 1, WARNING: 0, CRITICAL: 0 };
@@ -36,7 +38,11 @@ export default function VitalSignBanner() {
 
         {/* Inner Content */}
         <div className="bg-lapis-dark-gray rounded-lg p-4 border border-lapis-border/30 font-heading">
-          {status === "HEALTHY" ? (
+          {machine?.sensors?.temperature === 0 ? (
+            <span className="text-[#F59E0B] uppercase font-bold tracking-wide text-xl md:text-[20px] lg:text-[26px] 2xl:text-[26px]">
+              ENGINE OFFLINE
+            </span>
+          ) : status === "HEALTHY" ? (
             <span className="text-[#5FDA0A] uppercase font-bold tracking-wide text-xl md:text-[20px] lg:text-[26px] 2xl:text-[36px]">
               Mesin dalam kondisi Prima
             </span>

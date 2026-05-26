@@ -1,0 +1,72 @@
+{
+  "timestamp": "20260524_063237",
+  "cases_evaluated": 3,
+  "scores_mean": {
+    "faithfulness": 0.5889,
+    "answer_relevancy": 0.8727,
+    "context_precision": 0.6667,
+    "context_recall": 0.5,
+    "context_entity_recall": 0.0556,
+    "answer_correctness": 0.3712,
+    "answer_similarity": 0.8877
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Oktober 2025. Terjadi total 1 aktivitas pemeliharaan yang terdiri dari 0 tindakan Preventive dan 0 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 38.0 jam dengan total biaya pemeliharaan sebesar Rp 13.678.071. Masalah utama bulan ini berpusat pada komponen Bearing, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Desember 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 3 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 53.4 jam dengan total biaya pemeliharaan sebesar Rp 36.651.838. Masalah utama bulan ini berpusat pada komponen Valve dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Agustus 2025\nTotal_Downtime: 100.7 Jam\nTotal_Cost: Rp 96.709.373\nLog_Count: 6 (2 Corrective, 2 Preventive)"
+      ],
+      "response": "### ANALISIS\nBerdasarkan data historis, terdapat beberapa kali emergency pada Mesin M-01, terutama pada komponen Seal, Motor, Bearing, Belt, dan Valve. Pada Agustus 2025, terdapat total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373.\n\n### REKOMENDASI\n[SEGERA] Lakukan periksa kondisi komponen Seal, Motor, Bearing, Belt, dan Valve pada Mesin M-01 untuk memastikan tidak ada kerusakan atau kebocoran yang berpotensi menyebabkan emergency di masa depan.\n\n### REFERENSI\nReferensi 1: Laporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025.",
+      "reference": "M-01 mengalami kegagalan sistem pendingin kritis pada 02/08/2025 yang menyebabkan motor berhenti beroperasi selama lebih dari 48 jam.",
+      "faithfulness": 0.5,
+      "answer_relevancy": 0.84351029603184,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.21502136523789278,
+      "answer_similarity": 0.8600854609515711
+    },
+    {
+      "user_input": "Berapa batas kritis suhu operasional mesin M-01?",
+      "retrieved_contexts": [
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).",
+        "Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor). - Getaran (Vibration):\no Normal: 0.35 - 0.55 mm/s o Batas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi). - Tekanan Udara (Pressure):\no Normal: 98 - 105 PSI\no Batas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve). - Kecepatan Putaran (RPM):\no Standar Produksi: 2300 - 2500 RPM. o Mode High-Speed: Maksimal 3500$RPM.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Oktober 2025. Terjadi total 1 aktivitas pemeliharaan yang terdiri dari 0 tindakan Preventive dan 0 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 38.0 jam dengan total biaya pemeliharaan sebesar Rp 13.678.071. Masalah utama bulan ini berpusat pada komponen Bearing, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Juli 2025. Terjadi total 7 aktivitas pemeliharaan yang terdiri dari 5 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 58.0 jam dengan total biaya pemeliharaan sebesar Rp 18.434.465. Masalah utama bulan ini berpusat pada komponen Sensor dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut."
+      ],
+      "response": "## [JAWABAN]\n### ANALISIS\nBerdasarkan [KONDISI REAL-TIME] mesin M-01, suhu mesin saat ini adalah 69.5°C, yang masih dalam batas normal (65°C - 75°C). Namun, perlu diingat bahwa suhu mesin yang terlalu tinggi dapat menyebabkan overheat pada motor. Selain itu, referensi 1 dan 2 menyebutkan bahwa batas kritis suhu operasional mesin M-01 adalah >95°C.\n\n### REKOMENDASI\n[SEGERA] Lakukan inspeksi dan pengujian suhu mesin untuk memastikan bahwa suhu mesin tetap dalam batas normal. Jika ditemukan suhu mesin yang tidak normal, segera lakukan perawatan atau pergantian komponen yang rusak.\n\n### REFERENSI\nReferensi 1: Deskripsi Umum Mesin\nReferensi 2: Spesifikasi Teknis & Batas Operasional (Threshold)",
+      "reference": "Batas kritis suhu adalah lebih dari 95°C yang menyebabkan risiko overheat motor. Batas warning dimulai dari 85°C.",
+      "faithfulness": 0.3333333333333333,
+      "answer_relevancy": 0.9088792757284612,
+      "context_precision": 0.99999999995,
+      "context_recall": 0.5,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.3930787673037878,
+      "answer_similarity": 0.9056484025484847
+    },
+    {
+      "user_input": "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
+      "retrieved_contexts": [
+        "Gesekan antar\nSuara Berisik (> komponen mekanis Matikan mesin segera, cek\n85 dB) (Log: Noise Level area transmisi sabuk/belt. Keselamatan Kerja & Prosedur Darurat\n- APD Wajib: Teknisi wajib menggunakan sarung tangan tahan panas, pelindung telinga (earmuff), dan sepatu safety. - Lock Out Tag Out (LOTO): Pastikan aliran listrik diputus total sebelum membuka panel motor atau menyentuh sabuk transmisi.",
+        "- Lock Out Tag Out (LOTO): Pastikan aliran listrik diputus total sebelum membuka panel motor atau menyentuh sabuk transmisi. - Tombol Emergency Stop: Jika mesin mengeluarkan asap atau getaran hebat secara mendadak, tekan tombol merah Emergency Stop di panel samping kanan.",
+        "o Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\n- Inspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. - Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus.",
+        "Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus. Panduan Troubleshouting\nGejala Kemungkinan\nTindakan Perbaikan\nTerdeteksi Penyebab\nKurangnya pelumasan Tambahkan pelumas pada\nSuhu > 85°C atau kegagalan sistem poros utama atau cek kipas pendingin. pendingin motor. Kencangkan baut housing\nGetaran > 1.2 Bearing aus atau baut atau ganti komponen Bearing mm/s poros kendur. (Part Code: BRG-M01).",
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor)."
+      ],
+      "response": "**ANALISIS:**\nProsedur keselamatan dan Lock Out Tag Out (LOTO) sebelum membuka panel motor sangat penting untuk mencegah cedera pada teknisi dan memastikan keamanan sistem. Berdasarkan referensi, beberapa hal yang harus dilakukan sebelum membuka panel motor adalah:\n\n* Matikan mesin secara total dan pastikan tidak ada aliran listrik ke panel motor.\n* Gunakan sarung tangan tahan panas, pelindung telinga (earmuff), dan sepatu safety.\n* Pastikan tidak ada getaran hebat atau asap yang keluar dari mesin sebelum membuka panel motor.\n\n**REKOMENDASI:**\n[SEGERA] Lakukan LOTO dan pastikan keselamatan teknisi sebelum membuka panel motor.\n\n**REFERENSI:**\n\n* Referensi 1: Log: Noise Level area transmisi sabuk/belt. Keselamatan Kerja & Prosedur Darurat (Hal. 0)\n* Referensi 2: Lock Out Tag Out (LOTO) dan Tombol Emergency Stop (Hal. 0)\n* Referensi 3: Prosedur Pemeliharaan, Mode High-Speed (Hal. 0)\n* Referensi 4: Pengecekan Komponen Transmisi dan Panduan Troubleshouting (Hal. 0)\n\nNamun, perlu diingat bahwa referensi 5 tidak relevan langsung dengan prosedur keselamatan dan LOTO sebelum membuka panel motor.",
+      "reference": "Teknisi wajib menggunakan APD lengkap dan menerapkan prosedur LOTO (Lockout/Tagout) sebelum membuka panel manapun untuk mencegah kecelakaan kerja.",
+      "faithfulness": 0.9333333333333333,
+      "answer_relevancy": 0.8657820829580459,
+      "context_precision": 0.99999999995,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.16666666638888888,
+      "answer_correctness": 0.5056173579439177,
+      "answer_similarity": 0.8974694317756711
+    }
+  ]
+}

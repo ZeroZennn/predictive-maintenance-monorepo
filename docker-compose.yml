@@ -76,6 +76,30 @@ services:
       - lapis_network
 
   # Infrastructure Services (Selalu aktif)
+  ml-service:
+    build:
+      context: ./machine_learning
+      dockerfile: Dockerfile.ml
+    container_name: lapis-ml-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - lapis_network
 
   postgres:
     image: postgres:15-alpine

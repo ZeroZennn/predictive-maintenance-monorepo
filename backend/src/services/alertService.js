@@ -7,9 +7,10 @@ const broadcastService = require('../websockets/broadcastService');
 // Alert thresholds - tune these without touching business logic
 const THRESHOLDS = {
   CRITICAL_HEALTH: 30,
-  WARNING_HEALTH: 60,
-  CRITICAL_RUL: 7,
-  WARNING_RUL: 14,
+  WARNING_HEALTH:  60,
+  IMMEDIATE_RUL: 1.0,
+  CRITICAL_RUL: 2.0,
+  WARNING_RUL: 7.0,
 };
 
 const alertService = {
@@ -27,34 +28,32 @@ const alertService = {
 
       let alertData = null;
 
-      // Health-based classification
-      if (
-        prediction.classification === 'CRITICAL' ||
-        prediction.health_score <= THRESHOLDS.CRITICAL_HEALTH
-      ) {
+      // Prioritas: classification dari Model 1 (health status)
+      // Bukan urgency_level dari Model 2 (RUL)
+      if (prediction.classification === 'CRITICAL') {
         alertData = {
-          type:     'health_critical',
-          message:  `CRITICAL: Machine ${machineId} health at ${prediction.health_score}%. RUL: ${prediction.rul_days} days.`,
+          type: 'health_critical',
+          message: `Machine ${machineId} dalam kondisi CRITICAL. RUL: ${prediction.rul_days} hari.`,
           severity: 'critical',
         };
-      } else if (
-        prediction.classification === 'WARNING' ||
-        prediction.health_score <= THRESHOLDS.WARNING_HEALTH
-      ) {
-        alertData = {
-          type: 'health_warning',
-          message: `WARNING: Machine ${machineId} health at ${prediction.health_score}%. RUL: ${prediction.rul_days} days.`,
-          severity: 'warning',
-        };
-      }
-
-      // RUL override - more urgent than health classification
-      if (prediction.rul_days <= THRESHOLDS.CRITICAL_RUL) {
-        alertData = {
-          type: 'rul_critical',
-          message: `URGENT: Machine ${machineId} has only ${prediction.rul_days} days remaining. Immediate service required.`,
-          severity: 'critical',
-        };
+      } else if (prediction.classification === 'WARNING') {
+        // Cek apakah RUL juga mendesak (IMMEDIATE / CRITICAL urgency)
+        if (
+          prediction.urgency_level === 'IMMEDIATE' ||
+          prediction.urgency_level === 'CRITICAL'
+        ) {
+          alertData = {
+            type: 'rul_critical',
+            severity: 'warning',   // WARNING, bukan critical — sesuai klasifikasi health
+            message: `WARNING: Machine ${machineId} membutuhkan servis segera. RUL: ${prediction.rul_days} hari.`,
+          };
+        } else {
+          alertData = {
+            type: 'health_warning',
+            severity: 'warning',
+            message: `Machine ${machineId} masuk zona WARNING. RUL: ${prediction.rul_days} hari.`,
+          };
+        }
       }
 
       // Only act if there's something to alert on

@@ -1,0 +1,60 @@
+{
+  "timestamp": "20260524_054741",
+  "cases_evaluated": 3,
+  "scores_mean": {
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0,
+    "context_recall": 0.0,
+    "context_entity_recall": 0.0,
+    "answer_correctness": 0.2864,
+    "answer_similarity": 0.8791
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+      "retrieved_contexts": [
+        ""
+      ],
+      "response": "**ANALISIS:**\nInformasi tentang kondisi M-01 pada saat emergency di Agustus 2025 tidak ditemukan dalam dokumen yang tersedia. Kondisi real-time saat ini menunjukkan bahwa M-01 berada dalam kondisi sehat dengan suhu 71.4°C, getaran 0.42 mm/s, tekanan 103.1 PSI, RPM 2400.0, prediksi ML \"normal\", dan sisa umur (RUL) 83 hari.\n\n**REKOMENDASI:**\nInformasi tidak ditemukan dalam dokumen yang tersedia.\n\n**REFERENSI:**\n[KONDISI REAL-TIME MESIN M-01 — 2026-05-24T05:45:52.629800+00:00]",
+      "reference": "M-01 mengalami kegagalan sistem pendingin kritis pada 02/08/2025 yang menyebabkan motor berhenti beroperasi selama lebih dari 48 jam.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.21787611014197958,
+      "answer_similarity": 0.8715044405679183
+    },
+    {
+      "user_input": "Berapa batas kritis suhu operasional mesin M-01?",
+      "retrieved_contexts": [
+        ""
+      ],
+      "response": "## [JAWABAN TEKNIS]\n\n### ANALISIS:\nBerdasarkan data konfigurasi mesin M-01, kondisi mesin saat ini dianggap sehat (HEALTHY) dengan suhu operasional 71.4°C. Namun, perlu diingat bahwa tidak ada data historis yang tersedia untuk melihat tren suhu di masa lalu. Dengan demikian, sulit untuk menentukan batas kritis suhu operasional mesin M-01 dengan pasti.\n\n### REKOMENDASI:\n[PREDIKSI 7 HARI] lakukan analisis suhu historis dari mesin M-01 sebelumnya jika dapat diakses, atau konsultasikan dengan tim yang berpengalaman untuk menentukan batas kritis suhu operasional mesin M-01.\n\n### REFERENSI:\nInformasi tidak ditemukan dalam dokumen yang tersedia. [KONDISI REAL-TIME] di atas merupakan sumber data yang tersedia.",
+      "reference": "Batas kritis suhu adalah lebih dari 95°C yang menyebabkan risiko overheat motor. Batas warning dimulai dari 85°C.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.21776652399850654,
+      "answer_similarity": 0.8710660959940262
+    },
+    {
+      "user_input": "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
+      "retrieved_contexts": [
+        ""
+      ],
+      "response": "## [JAWABAN ASISTEN AI]\n### ANALISIS:\nTidak ada data historis yang relevan ditemukan, sehingga tidak ada informasi tentang prosedur keselamatan dan LOTO (Lock Out Tag Out) sebelum membuka panel motor yang dapat dijadikan acuan. Namun, sebagai asisten AI, saya dapat memberikan informasi umum tentang prosedur keselamatan dan LOTO yang umum digunakan di industri.\n\n### REKOMENDASI:\n[SEGERA] Lakukan pelatihan dan pendidikan tentang prosedur keselamatan dan LOTO untuk teknisi dan operator di PT Tirta Segar, sehingga mereka dapat memahami dan mengikuti prosedur yang benar untuk meminimalkan risiko kecelakaan.\n\n### REFERENSI:\nInformasi ini berdasarkan pada standar keselamatan industri yang umum digunakan, seperti ANSI/ASSE Z244.1-2003 (Keselamatan Sistem Lockout/Tagout) dan OSHA (Departemen Tenaga Kerja Amerika Serikat) Guidance for Hazardous Lockout/Tagout.\n\n**CATATAN:** Pastikan untuk memeriksa dan memahami peraturan keselamatan yang berlaku di PT Tirta Segar sebelum melakukan apapun.",
+      "reference": "Teknisi wajib menggunakan APD lengkap dan menerapkan prosedur LOTO (Lockout/Tagout) sebelum membuka panel manapun untuk mencegah kecelakaan kerja.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.423668462621189,
+      "answer_similarity": 0.894673850484756
+    }
+  ]
+}

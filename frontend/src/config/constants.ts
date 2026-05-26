@@ -1,7 +1,7 @@
 import type { SensorData, MachineStatus } from "@/types";
 
-export const API_BASE_URL = "http://localhost:8000";
-export const WS_URL = "ws://localhost:8000/ws/telemetry";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+export const WS_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
 export const MACHINE_IDS: string[] = Array.from(
   { length: 20 },
