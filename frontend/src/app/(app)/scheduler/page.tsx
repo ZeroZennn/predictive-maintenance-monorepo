@@ -56,9 +56,9 @@ export default function SchedulerPage() {
   );
 
   return (
-    <div className="flex h-full w-full bg-[#081819] overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-full w-full bg-[#081819] overflow-y-auto lg:overflow-hidden pb-24 md:pb-8">
       {/* LEFT PANEL: Triage Action Center */}
-      <div className="w-[420px] shrink-0 border-r border-white/5 bg-[#040C0D]/40 flex flex-col h-full backdrop-blur-md">
+      <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 bg-[#040C0D]/40 flex flex-col h-auto lg:h-full backdrop-blur-md">
         {/* Panel Header */}
         <div className="p-6 border-b border-white/5 shrink-0 space-y-1">
           <div className="flex items-center justify-between">
@@ -93,7 +93,7 @@ export default function SchedulerPage() {
       </div>
 
       {/* RIGHT PANEL: Main Calendar View */}
-      <div className="flex-1 h-full overflow-hidden relative">
+      <div className="flex-1 min-h-[600px] lg:min-h-0 h-full overflow-hidden relative">
         <CalendarView schedules={schedules} onSchedulesChange={setSchedules} />
       </div>
     </div>

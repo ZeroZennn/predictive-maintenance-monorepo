@@ -250,21 +250,21 @@ if (isLoading) return <SkeletonChart />;
 
 ---
 
-## TAHAP 6 — Edge Case & Stress Test ⏳
+## TAHAP 6 — Edge Case & Stress Test ✅ (Selesai)
 **Prerequisite:** Audit 3 (Skeleton Loading) harus ✅ selesai dulu
 
-- [ ] ⏳ Stop simulator → restart dengan start_date berbeda
+- [x] ✅ Stop simulator → restart dengan start_date berbeda
       Kriteria PASS: data di UI berubah mengikuti periode baru
-- [ ] ⏳ Mesin CRITICAL → kembali HEALTHY saat data normal
+- [x] ✅ Mesin CRITICAL → kembali HEALTHY saat data normal
       Kriteria PASS: badge berubah hijau, RUL banner hilang
-- [ ] ⏳ Duplikasi maintenance schedule tidak terjadi
+- [x] ✅ Duplikasi maintenance schedule tidak terjadi
       Kriteria PASS: 1 mesin tidak punya 2 record PENDING_CONFIRMATION
       Query cek:
       ```sql
       SELECT machine_id, COUNT(*) FROM maintenance_schedules
       WHERE status = 'pending' GROUP BY machine_id HAVING COUNT(*) > 1;
       ```
-- [ ] ⏳ Stress test: tick_interval = 0.5 detik
+- [x] ✅ Stress test: tick_interval = 0.5 detik
       Cara:
       ```bash
       curl -X POST http://localhost:3000/api/simulator/start \
@@ -274,7 +274,7 @@ if (isLoading) return <SkeletonChart />;
       ```
       Monitor: `docker logs lapis-ml-service -f`
       Kriteria PASS: tidak ada "timeout" atau error 500 di log
-- [ ] ⏳ Semua 20 mesin terprediksi per tick
+- [x] ✅ Semua 20 mesin terprediksi per tick
       Kriteria PASS: 20 keys di Redis
       ```bash
       docker exec -it lapis_redis redis-cli -a lapis_redis_secret KEYS "machine:*:prediction"
@@ -282,12 +282,12 @@ if (isLoading) return <SkeletonChart />;
 
 ---
 
-## TAHAP 7 — Historical Logs & Reports ⏳
-- [ ] ⏳ GET /api/telemetry/history/M-01?limit=10 → ada data
-- [ ] ⏳ GET /api/maintenance/schedules → ada data
-- [ ] ⏳ Halaman Historical Logs tampil data dari TimescaleDB
-- [ ] ⏳ Export PDF berfungsi
-- [ ] ⏳ Export Excel berfungsi
+## TAHAP 7 — Historical Logs & Reports ✅ (Selesai)
+- [x] ✅ GET /api/telemetry/history/M-01?limit=10 → ada data
+- [x] ✅ GET /api/maintenance/schedules → ada data
+- [x] ✅ Halaman Historical Logs tampil data dari TimescaleDB
+- [x] ✅ Export PDF berfungsi
+- [x] ✅ Export Excel berfungsi
 
 ---
 
@@ -310,6 +310,9 @@ if (isLoading) return <SkeletonChart />;
 | ISS-014 | 2026-05-25 | TypeError sort_values timestamp JSON | ✅ Fixed | Zikran |
 | ISS-015 | 2026-05-26 | Jadwal prediktif ditolak constraint DB (UPPER_CASE) | ✅ Fixed (migrate7.js) | Antigravity |
 | ISS-016 | 2026-05-26 | Jadwal prediktif ditolak NOT NULL rul_days integer | ✅ Fixed (migrate7.js) | Antigravity |
+| ISS-017 | 2026-05-26 | Tampilan mobile UI rusak/terlalu besar di bbrp halaman | ✅ Fixed (Responsive) | Antigravity |
+| ISS-018 | 2026-05-26 | Admin Dashboard /dashboard bentrok dgn teknisi | ✅ Fixed (Middleware) | Antigravity |
+| ISS-019 | 2026-05-26 | Error AdminDashboardTab `filter is not a function` | ✅ Fixed (API Parse) | Antigravity |
 
 ---
 
@@ -320,8 +323,8 @@ if (isLoading) return <SkeletonChart />;
 | 2 | Audit 1 ML Quality passed | ✅ |
 | 3 | Audit 2 Scheduler WS passed | ✅ |
 | 4 | Audit 3 Idle/Offline Dashboard State | ✅ |
-| 5 | Tahap 6 Edge Case & Stress Test passed | ⏳ |
-| 6 | Tahap 7 Historical Logs passed | ⏳ |
+| 5 | Tahap 6 Edge Case & Stress Test passed | ✅ |
+| 6 | Tahap 7 Historical Logs passed | ✅ |
 | 7 | INT-022 Full Scheduler Revision dijadwalkan | ✅ Done |
 
 ---

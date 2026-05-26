@@ -18,12 +18,12 @@ export async function fetchMachineDetail(
 export async function fetchMachineHistory(
   machineId: string,
   limit?: number
-): Promise<MachineReading[]> {
-  const response = await apiClient.get<MachineReading[]>(
-    "/api/machines/" + machineId + "/history",
+): Promise<{ machine_id: string; count: number; readings: MachineReading[] }> {
+  const response = await apiClient.get<{ data: { machine_id: string; count: number; readings: MachineReading[] } }>(
+    "/api/telemetry/history/" + machineId,
     { params: { limit: limit ?? 100 } }
   );
-  return response.data;
+  return response.data.data;
 }
 
 export interface BackendAnomaly {

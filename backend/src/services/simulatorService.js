@@ -263,6 +263,16 @@ class SimulatorService {
       this.currentIndex = 0;
       this.stats.total_ticks = 0;
       this.stats.ticks_sent = 0;
+
+      // 5. Notify all connected clients so UI can clear stale live rows
+      try {
+        const socketManager = require('../websockets/socketManager');
+        const io = socketManager.getIO();
+        io.emit('simulator:reset', { reset_at: new Date().toISOString() });
+        logger.info('[Simulator] Broadcast simulator:reset to all clients.');
+      } catch (broadcastErr) {
+        logger.warn(`[Simulator] Could not broadcast reset: ${broadcastErr.message}`);
+      }
       
       logger.info('[Simulator] ✅ Data reset complete.');
     } catch (err) {

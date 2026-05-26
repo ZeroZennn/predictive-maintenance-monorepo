@@ -1,5 +1,5 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Bot,
@@ -23,22 +23,40 @@ const TECHNICIAN_NAV_ITEMS = [
   { icon: LayoutDashboard, href: ROUTES.DASHBOARD, label: "Dashboard" },
   { icon: Bot, href: ROUTES.COPILOT_HUB, label: "AI Copilot" },
   { icon: Calendar, href: ROUTES.SCHEDULER, label: "Scheduler" },
-  { icon: Terminal, href: ROUTES.DEBUG, label: "Logs" },
+  { icon: ClipboardList, href: ROUTES.LOGS, label: "Reports" },
+  { icon: Terminal, href: ROUTES.DEBUG, label: "Debug Stream" },
 ];
 
 const ADMIN_NAV_ITEMS = [
   { icon: LayoutDashboard, href: ROUTES.ADMIN, label: "Dashboard" },
   { icon: Users, href: ROUTES.ADMIN_USERS, label: "Users" },
   { icon: FileText, href: ROUTES.ADMIN_DOCUMENTS, label: "Docs" },
-  { icon: Terminal, href: ROUTES.DEBUG, label: "Logs" },
+  { icon: ClipboardList, href: ROUTES.LOGS, label: "Reports" },
+  { icon: Terminal, href: ROUTES.DEBUG, label: "Debug Stream" },
 ];
 
 export default function IconNavBar() {
   const pathname = usePathname();
 
-  // MOCK ROLE: "ADMIN" or "TECHNICIAN"
-  const MOCK_ROLE = process.env.NEXT_PUBLIC_MOCK_ROLE || "ADMIN";
-  const navItems = MOCK_ROLE === "ADMIN" ? ADMIN_NAV_ITEMS : TECHNICIAN_NAV_ITEMS;
+  const [role, setRole] = useState<string>("TECHNICIAN");
+
+  useEffect(() => {
+    const match = document.cookie.match(new RegExp('(^| )lapis_token=([^;]+)'));
+    if (match && match[2]) {
+      try {
+        const token = match[2];
+        const payloadBase64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(atob(payloadBase64));
+        if (payload && payload.role) {
+          setRole(payload.role.toUpperCase());
+        }
+      } catch (e) {
+        console.error("Failed to parse token in nav", e);
+      }
+    }
+  }, []);
+
+  const navItems = role === "ADMIN" ? ADMIN_NAV_ITEMS : TECHNICIAN_NAV_ITEMS;
 
   const toggleSimulator = useSimulatorStore((state) => state.togglePanel);
 
@@ -110,17 +128,20 @@ export default function IconNavBar() {
         >
           <Sliders size={16} />
         </button>
-        <button
+        <Link
+          href={ROUTES.SETTINGS}
           className={clsx(
             "w-10 h-10 md:w-12 md:h-12 rounded-lg",
             "flex items-center justify-center",
-            "text-lapis-muted hover:text-lapis-text hover:bg-lapis-card",
-            "transition-all duration-200"
+            "transition-all duration-200 group relative",
+            pathname === ROUTES.SETTINGS
+              ? "bg-gradient-to-b from-[#2B3739] to-[#1C2626] border border-lapis-neon text-lapis-neon"
+              : "border border-transparent text-lapis-muted hover:text-lapis-text hover:bg-lapis-card hover:border-lapis-border"
           )}
           title="Settings"
         >
           <Settings size={16} />
-        </button>
+        </Link>
       </div>
     </nav>
   );

@@ -120,14 +120,14 @@ export default function SimulatorDebugPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between mb-4 bg-[#121A1A] p-2 rounded-lg border border-[#1E3D40]">
-        <div className="flex items-center gap-4 px-2">
-          <div className="flex items-center gap-2 text-sm text-gray-300">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 bg-[#121A1A] p-2 rounded-lg border border-[#1E3D40]">
+        <div className="flex flex-wrap items-center gap-2 md:gap-4 px-2">
+          <div className="flex items-center gap-2 text-xs md:text-sm text-gray-300">
             <Activity size={16} className={connectionState === "CONNECTED" ? "text-lapis-neon animate-pulse" : "text-lapis-red"} />
             Connection: <span className="font-bold">{connectionState}</span>
           </div>
-          <div className="w-px h-4 bg-gray-700"></div>
-          <div className="flex items-center gap-2 text-sm text-gray-300">
+          <div className="hidden md:block w-px h-4 bg-gray-700"></div>
+          <div className="flex items-center gap-2 text-xs md:text-sm text-gray-300">
             <Database size={16} className="text-blue-400" />
             Total Logs: <span className="font-mono font-bold">{logs.length}</span>
           </div>
@@ -144,71 +144,73 @@ export default function SimulatorDebugPage() {
       {/* Table Container */}
       <div className="flex-1 bg-[#121A1A] border border-[#1E3D40] rounded-xl overflow-hidden flex flex-col relative shadow-lg shadow-black/50">
         
-        {/* Table Header */}
-        <div className="grid grid-cols-12 gap-2 p-3 bg-[#1C2626] border-b border-[#1E3D40] text-xs font-bold text-gray-400 uppercase tracking-wider">
-          <div className="col-span-1 pl-2"><Clock size={14} className="inline mr-1"/> Sys Time</div>
-          <div className="col-span-2">Dataset Timestamp</div>
-          <div className="col-span-1">Machine</div>
-          <div className="col-span-1 text-center">Status</div>
-          <div className="col-span-1 text-center">Score / RUL</div>
-          <div className="col-span-6">Raw Sensors (T, V, P, R, Pw, N, H, O)</div>
-        </div>
-
-        {/* Table Body */}
-        <div className="flex-1 overflow-y-auto" style={{ scrollBehavior: isAutoScroll ? 'smooth' : 'auto' }}>
-          {logs.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-gray-500">
-              <Terminal size={48} className="mb-4 opacity-50" />
-              <p>Waiting for WebSocket events...</p>
-              <p className="text-xs mt-2 opacity-70">Make sure the backend simulator is running.</p>
+        <div className="flex-1 overflow-auto flex flex-col" style={{ scrollBehavior: isAutoScroll ? 'smooth' : 'auto' }}>
+          <div className="min-w-[900px] flex flex-col h-full">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-2 p-3 bg-[#1C2626] border-b border-[#1E3D40] text-xs font-bold text-gray-400 uppercase tracking-wider sticky top-0 z-10">
+              <div className="col-span-1 pl-2"><Clock size={14} className="inline mr-1"/> Sys Time</div>
+              <div className="col-span-2">Dataset Timestamp</div>
+              <div className="col-span-1">Machine</div>
+              <div className="col-span-1 text-center">Status</div>
+              <div className="col-span-1 text-center">Score / RUL</div>
+              <div className="col-span-6">Raw Sensors (T, V, P, R, Pw, N, H, O)</div>
             </div>
-          ) : (
-            <div className="flex flex-col">
-              {logs.map((log, i) => (
-                <div 
-                  key={log.id} 
-                  className={clsx(
-                    "grid grid-cols-12 gap-2 p-2 px-3 border-b border-[#1E3D40]/30 hover:bg-[#1E3D40]/50 transition-colors text-sm font-mono items-center",
-                    i % 2 === 0 ? "bg-transparent" : "bg-black/20"
-                  )}
-                >
-                  <div className="col-span-1 text-gray-400 text-xs">{log.received_at}</div>
-                  <div className="col-span-2 text-blue-400">{log.timestamp}</div>
-                  <div className="col-span-1 font-bold text-white">{log.machine_id}</div>
-                  
-                  <div className="col-span-1 flex justify-center">
-                    <span className={clsx(
-                      "px-2 py-0.5 rounded text-[10px] font-bold tracking-wider",
-                      log.health_status === "HEALTHY" ? "bg-green-500/10 text-green-400 border border-green-500/20" :
-                      log.health_status === "WARNING" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
-                      log.health_status === "CRITICAL" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
-                      "bg-gray-500/10 text-gray-400"
-                    )}>
-                      {log.health_status}
-                    </span>
-                  </div>
 
-                  <div className="col-span-1 text-center flex flex-col text-xs">
-                    <span className="text-white">{Math.round(log.health_score)}</span>
-                    {log.rul_days !== null && (
-                      <span className="text-amber-400">{log.rul_days}d</span>
+            {/* Table Body */}
+            {logs.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-gray-500 min-h-[300px]">
+                <Terminal size={48} className="mb-4 opacity-50" />
+                <p>Waiting for WebSocket events...</p>
+                <p className="text-xs mt-2 opacity-70">Make sure the backend simulator is running.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                {logs.map((log, i) => (
+                  <div 
+                    key={log.id} 
+                    className={clsx(
+                      "grid grid-cols-12 gap-2 p-2 px-3 border-b border-[#1E3D40]/30 hover:bg-[#1E3D40]/50 transition-colors text-sm font-mono items-center",
+                      i % 2 === 0 ? "bg-transparent" : "bg-black/20"
                     )}
-                  </div>
+                  >
+                    <div className="col-span-1 text-gray-400 text-xs">{log.received_at}</div>
+                    <div className="col-span-2 text-blue-400">{log.timestamp}</div>
+                    <div className="col-span-1 font-bold text-white">{log.machine_id}</div>
+                    
+                    <div className="col-span-1 flex justify-center">
+                      <span className={clsx(
+                        "px-2 py-0.5 rounded text-[10px] font-bold tracking-wider",
+                        log.health_status === "HEALTHY" ? "bg-green-500/10 text-green-400 border border-green-500/20" :
+                        log.health_status === "WARNING" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
+                        log.health_status === "CRITICAL" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                        "bg-gray-500/10 text-gray-400"
+                      )}>
+                        {log.health_status}
+                      </span>
+                    </div>
 
-                  <div className="col-span-6 flex gap-3 text-xs text-gray-300 items-center overflow-x-auto no-scrollbar">
-                    <span title="Temperature" className="text-[#F59E0B]">{log.sensors?.temperature?.toFixed(1)}</span>
-                    <span title="Vibration" className="text-[#5FDA0A]">{log.sensors?.vibration?.toFixed(2)}</span>
-                    <span title="Pressure" className="text-[#3B82F6]">{log.sensors?.pressure?.toFixed(1)}</span>
-                    <span title="RPM" className="text-[#8B5CF6]">{log.sensors?.rpm}</span>
-                    <span title="Power" className="text-[#EC4899]">{log.sensors?.power_consumption?.toFixed(1)}</span>
-                    <span title="Noise" className="text-[#F43F5E]">{log.sensors?.noise_level?.toFixed(1)}</span>
-                    <span title="Humidity" className="text-gray-400">{log.sensors?.humidity?.toFixed(1)}</span>
-                    <span title="Op Hours" className="text-white font-bold">{log.sensors?.operating_hours}</span>
+                    <div className="col-span-1 text-center flex flex-col text-xs">
+                      <span className="text-white">{Math.round(log.health_score)}</span>
+                      {log.rul_days !== null && (
+                        <span className="text-amber-400">{log.rul_days}d</span>
+                      )}
+                    </div>
+
+                    <div className="col-span-6 flex gap-3 text-xs text-gray-300 items-center overflow-hidden">
+                      <span title="Temperature" className="text-[#F59E0B]">{log.sensors?.temperature?.toFixed(1)}</span>
+                      <span title="Vibration" className="text-[#5FDA0A]">{log.sensors?.vibration?.toFixed(2)}</span>
+                      <span title="Pressure" className="text-[#3B82F6]">{log.sensors?.pressure?.toFixed(1)}</span>
+                      <span title="RPM" className="text-[#8B5CF6]">{log.sensors?.rpm}</span>
+                      <span title="Power" className="text-[#EC4899]">{log.sensors?.power_consumption?.toFixed(1)}</span>
+                      <span title="Noise" className="text-[#F43F5E]">{log.sensors?.noise_level?.toFixed(1)}</span>
+                      <span title="Humidity" className="text-gray-400">{log.sensors?.humidity?.toFixed(1)}</span>
+                      <span title="Op Hours" className="text-white font-bold">{log.sensors?.operating_hours}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

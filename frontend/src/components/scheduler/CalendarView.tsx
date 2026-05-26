@@ -143,15 +143,15 @@ export default function CalendarView({ schedules: propSchedules, onSchedulesChan
                 </div>
 
                 {/* Filters & Actions */}
-                <div className="flex items-center gap-3">
-                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-sm rounded-lg px-4 py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer">
+                <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 w-full md:w-auto mt-2 md:mt-0">
+                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-xs md:text-sm rounded-lg px-3 py-2 md:px-4 md:py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer flex-1 md:flex-none">
                         <option>Semua Mesin</option>
                         <option>M-01</option>
                         <option>M-05</option>
                         <option>M-07</option>
                         <option>M-13</option>
                     </select>
-                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-sm rounded-lg px-4 py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer">
+                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-xs md:text-sm rounded-lg px-3 py-2 md:px-4 md:py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer flex-1 md:flex-none">
                         <option>Semua Tipe</option>
                         <option>Preventive</option>
                         <option>Corrective</option>
@@ -159,7 +159,7 @@ export default function CalendarView({ schedules: propSchedules, onSchedulesChan
                     </select>
                     <button
                         onClick={() => setIsAddModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#5FDA0A]/10 text-[#5FDA0A] border border-[#5FDA0A]/50 hover:bg-[#5FDA0A]/20 px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 md:gap-2 bg-[#5FDA0A]/10 text-[#5FDA0A] border border-[#5FDA0A]/50 hover:bg-[#5FDA0A]/20 px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold text-xs md:text-sm transition-colors cursor-pointer w-full sm:w-auto"
                     >
                         <Plus size={16} /> Tambah Jadwal
                     </button>

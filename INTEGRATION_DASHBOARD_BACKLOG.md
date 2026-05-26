@@ -31,8 +31,8 @@
 | INT-005 | RUL banner conditional (WARNING/CRITICAL only) | Amir | 1j | ✅ Done |
 | INT-006 | Global Toast Alert saat mesin CRITICAL | Amir | 1j | ✅ Done |
 | INT-015 | Idle/Offline Dashboard State | Amir | 3j | ✅ Done |
-| INT-016 | TAHAP 6: Edge Case & Stress Test | Zikran + Reynaldi | 2j | 🔴 Blocked (INT-015) |
-| INT-017 | TAHAP 7: Historical Logs & Reports | Amir + Reynaldi | 3j | ⏳ |
+| INT-016 | TAHAP 6: Edge Case & Stress Test | Zikran + Reynaldi | 2j | ✅ Done |
+| INT-017 | TAHAP 7: Historical Logs & Reports | Amir + Reynaldi | 3j | ✅ Done |
 
 ---
 
@@ -42,10 +42,10 @@
 |---|---|---|---|---|
 | INT-007 | Sidebar machine cards update warna real-time + Multi-Select Filter | Amir / Antigravity | 2j | ✅ Done |
 | INT-008 | Scheduler: kartu baru dari WebSocket (useMaintenanceSocket) | Amir / Antigravity | 3j | ✅ Done |
-| INT-009 | Konfirmasi jadwal predictive → update status DB | Reynaldi + Amir | 2j | 🔄 In Progress (UI Ready) |
-| INT-010 | Tambah jadwal preventive manual (form + POST endpoint) | Reynaldi + Amir | 2j | 🔄 In Progress (UI Ready) |
+| INT-009 | Konfirmasi jadwal predictive → update status DB | Reynaldi + Amir | 2j | ✅ Done |
+| INT-010 | Tambah jadwal preventive manual (form + POST endpoint) | Reynaldi + Amir | 2j | ✅ Done |
 | INT-011 | Calendar dot update real-time saat task dibuat | Amir | 2j | ✅ Done (via lifted state + useMaintenanceSocket) |
-| INT-012 | Historical Logs table tampil dari TimescaleDB | Amir + Reynaldi | 2j | ⏳ |
+| INT-012 | Historical Logs table tampil dari TimescaleDB | Amir + Reynaldi | 2j | ✅ Done (with pagination & filters) |
 | INT-022 | Full Scheduler Revision: schema baru, PREVENTIVE/PREDICTIVE | Reynaldi + Amir | 2h | ✅ Done |
 |         | split, confirmation flow, endpoints baru | | | |
 
@@ -57,11 +57,13 @@
 |---|---|---|---|---|
 | INT-013 | Anomaly Timeline dari TimescaleDB | Reynaldi + Amir / Antigravity | 3j | ✅ Done |
 | INT-014 | Maintenance KPIs widget (issues/week, MTBF) | Reynaldi + Amir | 3j | ✅ Done |
-| INT-018 | Export PDF di Historical Logs | Reynaldi | 4j | ⏳ |
-| INT-019 | Export Excel di Historical Logs | Reynaldi | 2j | ⏳ |
+| INT-018 | Export PDF di Historical Logs | Reynaldi | 4j | ✅ Done |
+| INT-019 | Export Excel di Historical Logs | Reynaldi | 2j | ✅ Done |
 | INT-020 | Completion Form: mark maintenance selesai | Amir | 2j | ✅ Done (UI Ready) |
-| INT-021 | Admin Panel: CRUD maintenance_logs | Amir + Reynaldi | 4j | ⏳ |
+| INT-021 | Admin Panel: CRUD maintenance_logs | Amir + Reynaldi | 4j | ✅ Done |
 | INT-023 | Admin Panel: CRUD maintenance_schedules | Amir + Reynaldi | 3j | ⏳ |
+| INT-028 | Responsive UI adjustments for mobile (Chat, Calendar, Debug) | Antigravity | 2j | ✅ Done |
+| INT-029 | Middleware Role Auth strict separation for Admin | Antigravity | 1j | ✅ Done |
 
 ---
 
@@ -71,7 +73,7 @@
 |---|---|---|---|---|
 | INT-024 | AI Copilot: Live context injection dari Redis | Aqsa + Reynaldi | 1h | 🔴 Blocked (NLP belum ready) |
 | INT-025 | Simulator control panel di Admin UI | Amir | 3j | ✅ Done |
-| INT-026 | Stress test tick_interval=0.5 formal | Zikran + Reynaldi | 1j | ⏳ |
+| INT-026 | Stress test tick_interval=0.5 formal | Zikran + Reynaldi | 1j | ✅ Done |
 | INT-027 | README.md update dengan integration status | Tim | 30m | ✅ Done |
 
 ---
@@ -94,8 +96,8 @@
 | 3 | RUL banner tampil float yang benar | ✅ |
 | 4 | Global Toast Alert muncul saat CRITICAL | ✅ |
 | 5 | Maintenance Scheduler auto-create kartu via WS | ✅ |
-| 6 | Skeleton Loading saat initial load / reconnect | ⏳ |
-| 7 | Stress test tick=0.5 tidak ada error 500 | ⏳ |
-| 8 | Historical Logs tampil data real dari TimescaleDB | ⏳ |
+| 6 | Skeleton Loading saat initial load / reconnect | ✅ |
+| 7 | Stress test tick=0.5 tidak ada error 500 | ✅ |
+| 8 | Historical Logs tampil data real dari TimescaleDB | ✅ |
 
 ---

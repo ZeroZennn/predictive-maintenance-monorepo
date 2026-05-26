@@ -13,7 +13,7 @@ const MOCK_DOCUMENTS = Array.from({ length: 7 }, (_, i) => ({
 
 export default function SopDocumentPanel() {
   return (
-    <div className="flex flex-col h-full w-[360px] flex-shrink-0 bg-gradient-to-b from-[#2B3739] to-[#1C2626] rounded-2xl border border-lapis-border overflow-hidden shadow-2xl">
+    <div className="flex flex-col h-[200px] lg:h-full w-full lg:w-[360px] flex-shrink-0 bg-gradient-to-b from-[#2B3739] to-[#1C2626] rounded-2xl border border-lapis-border overflow-hidden shadow-2xl">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-lapis-border flex-shrink-0">
         <div className="w-8 h-8 rounded-lg bg-lapis-neon/10 border border-lapis-neon/30 flex items-center justify-center">
