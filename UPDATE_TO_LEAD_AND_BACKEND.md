@@ -1,6 +1,6 @@
 # Laporan Update Integrasi Lanjutan & Klarifikasi Status Modul
 **To:** Lead Architect & Tim Backend (Reynaldi)
-**From:** Tim Frontend (Amir / Antigravity)
+**From:** Tim ML & Frontend (Zikran & Amir )
 **Date:** 26 Mei 2026
 
 Terima kasih atas verifikasi dan "Sertifikasi Resmi" untuk kelulusan *E2E Dashboard Monitoring*. Pencapaian ini tentunya berkat kolaborasi yang solid dari seluruh tim.
