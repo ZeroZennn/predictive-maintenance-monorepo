@@ -168,7 +168,7 @@ async function seedMachines() {
         ('M-04', 'Hydraulic Press B2', 'Production Line 2', 'Secondary hydraulic forming press', 'healthy', '2023-01-15'),
         ('M-05', 'Conveyor Belt C1', 'Assembly Area', 'Main assembly line conveyor', 'healthy', '2023-01-15'),
         ('M-06', 'Conveyor Belt C2', 'Assembly Area', 'Secondary assembly line conveyor', 'healthy', '2023-01-15'),
-        ('M-07', 'Air Compressor D1' 'Utility Room', 'Primary pneumatic system compressor', 'healthy', '2023-01-15'),
+        ('M-07', 'Air Compressor D1', 'Utility Room', 'Primary pneumatic system compressor', 'healthy', '2023-01-15'),
         ('M-08', 'Air Compressor D2', 'Utility Room', 'Backup pneumatic system compressor', 'healthy', '2023-01-15'),
         ('M-09', 'CNC Milling Machine E1', 'Machining Center', 'Precision milling unit 1', 'healthy', '2023-01-15'),
         ('M-10', 'CNC Milling Machine E2', 'Machining Center', 'Precision milling unit 2', 'healthy', '2023-01-15'),

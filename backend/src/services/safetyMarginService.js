@@ -12,7 +12,7 @@ const safetyMarginService = {
    * @param {number} rulDays
    * @returns {Object}
    */
-  calculateDates(rulDays) {
+  calculateDates(rulDays, currentTimestamp) {
     const SAFETY_MARGIN_PERCENTAGE = 0.20;
     // Minimum 0.5-day buffer per ML Engineer spec
     const safetyMarginDays = Math.max(
@@ -20,7 +20,7 @@ const safetyMarginService = {
       0.5
     );
 
-    const today = new Date();
+    const today = currentTimestamp ? new Date(currentTimestamp) : new Date();
 
     const scheduledDate = new Date(today);
     scheduledDate.setDate(today.getDate() + rulDays);
@@ -46,7 +46,7 @@ const safetyMarginService = {
    * @param {string} urgencyLevel - 'MONITOR' | 'WARNING' | 'CRITICAL' | 'IMMEDIATE'
    * @returns {Object|null}
    */
-  async createOrUpdateSchedule(machineId, rulDays, classification, urgencyLevel) {
+  async createOrUpdateSchedule(machineId, rulDays, classification, urgencyLevel, mlConfidence = null, currentTimestamp = null) {
     try {
       // No maintenance needed for healthy state
       if (classification === 'HEALTHY') {
@@ -54,7 +54,7 @@ const safetyMarginService = {
         return null;
       }
 
-      const dates = this.calculateDates(rulDays);
+      const dates = this.calculateDates(rulDays, currentTimestamp);
 
       // Determine scheduling priority
       let priority;
@@ -74,49 +74,70 @@ const safetyMarginService = {
         maintenanceType = 'CORRECTIVE';
       }
 
-      // Check for an existing pending schedule
+      // ── Dedup check: cek status UPPER_CASE sesuai schema baru ──────────────
       const existing = await pgPool.query(
         `SELECT id FROM maintenance_schedules
-         WHERE machine_id = $1 AND status = 'pending'
+         WHERE machine_id = $1
+           AND status IN ('PENDING_CONFIRMATION', 'SCHEDULED')
          ORDER BY created_at DESC LIMIT 1`,
         [machineId]
       );
 
       const existed = existing.rows.length > 0;
+      let scheduleId;
 
       if (existed) {
+        scheduleId = existing.rows[0].id;
         // Update existing pending schedule
         await pgPool.query(
           `UPDATE maintenance_schedules
-           SET rul_days = $1, scheduled_date = $2,
-               safety_margin_date = $3, priority = $4,
-               maintenance_type = $5, updated_at = NOW()
-           WHERE id = $6`,
+           SET rul_days         = $1,
+               rul_at_creation  = $2,
+               scheduled_date   = $3,
+               urgency_level    = $4,
+               ml_confidence    = $5,
+               priority         = $6,
+               maintenance_type = $7,
+               type             = $8,
+               updated_at       = NOW()
+           WHERE id = $9`,
           [
             dates.rul_days,
+            dates.rul_days,
             dates.scheduled_date,
-            dates.safety_margin_date,
+            urgencyLevel,
+            mlConfidence,
             priority,
             maintenanceType,
-            existing.rows[0].id,
+            maintenanceType,   // type mirrors maintenance_type
+            scheduleId,
           ]
         );
       } else {
-        // Insert new schedule
-        await pgPool.query(
+        // Insert new schedule with all new columns
+        const insertResult = await pgPool.query(
           `INSERT INTO maintenance_schedules
-           (machine_id, rul_days, scheduled_date, safety_margin_date,
-            priority, maintenance_type)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
+             (machine_id, rul_days, rul_at_creation, scheduled_date, safety_margin_date,
+              priority, maintenance_type, type, source, status,
+              urgency_level, ml_confidence)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+           RETURNING id`,
           [
             machineId,
-            dates.rul_days,
+            dates.rul_days,             // rul_days is now FLOAT in schema
+            dates.rul_days,             // rul_at_creation is float
             dates.scheduled_date,
             dates.safety_margin_date,
             priority,
             maintenanceType,
+            maintenanceType,   // type
+            'PREDICTIVE',      // source
+            'PENDING_CONFIRMATION', // status (new UPPER_CASE default)
+            urgencyLevel,
+            mlConfidence,
           ]
         );
+        scheduleId = insertResult.rows[0].id;
       }
 
       logger.info(
@@ -125,29 +146,34 @@ const safetyMarginService = {
         `(RUL: ${rulDays}d | priority: ${priority} | type: ${maintenanceType})`
       );
 
-      // Broadcast new/updated maintenance task to all connected Frontend clients
+      // ── Broadcast via new event name: maintenance:new_suggestion ───────────
       try {
         const io = socketManager.getIO();
-        io.to('global').emit('new_maintenance_task', {
-          machine_id: machineId,
-          rul_days: rulDays,
-          scheduled_date: dates.scheduled_date,
+        io.to('global').emit('maintenance:new_suggestion', {
+          schedule_id:      scheduleId,
+          machine_id:       machineId,
+          rul_at_creation:  rulDays,
+          scheduled_date:   dates.scheduled_date,
           safety_margin_date: dates.safety_margin_date,
+          urgency_level:    urgencyLevel,
+          ml_confidence:    mlConfidence,
+          type:             maintenanceType,
           priority,
-          maintenance_type: maintenanceType,
           classification,
+          is_update:        existed,
         });
-        logger.debug(`[Safety] Broadcast new_maintenance_task for ${machineId}`);
+        logger.debug(`[Safety] Broadcast maintenance:new_suggestion for ${machineId}`);
       } catch (socketErr) {
         logger.warn(`[Safety] Socket broadcast failed: ${socketErr.message}`);
       }
 
-      return { ...dates, priority, maintenance_type: maintenanceType, machine_id: machineId };
+      return { ...dates, priority, maintenance_type: maintenanceType, machine_id: machineId, id: scheduleId };
     } catch (err) {
       logger.error(`[Safety] Schedule error for ${machineId}: ${err.message}`);
       return null;
     }
   },
+
 };
 
 module.exports = safetyMarginService;

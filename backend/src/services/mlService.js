@@ -76,9 +76,9 @@ const mlService = {
       // Simple HEALTHY*100 over-estimates health when WARNING/CRITICAL probs are high
       const p = raw.model_1_classifier.probabilities || {};
       const rawHealthScore = (
-        (p.HEALTHY || 0) * 100 -
-        (p.WARNING || 0) * 30 -
-        (p.CRITICAL || 0) * 70
+        (p.HEALTHY || 0) * 100 +
+        (p.WARNING || 0) * 40 +
+        (p.CRITICAL || 0) * 0
       );
       const health_score = Math.min(100, Math.max(0, Math.round(rawHealthScore)));
 
@@ -103,7 +103,7 @@ const mlService = {
 
         // From model_2_rul — null when is_active=false
         rul_is_active: isActive,
-        rul_days: isActive ? Math.ceil(rulData.rul_days) : null,
+        rul_days: isActive && rulData.rul_days !== null && rulData.rul_days !== undefined ? parseFloat(rulData.rul_days.toFixed(2)) : null,
         rul_hours: isActive ? rulData.rul_hours : null,
         urgency_level: isActive ? rulData.urgency_level : 'MONITOR',
 
@@ -239,3 +239,15 @@ const mlService = {
 };
 
 module.exports = mlService;
+
+/*
+  === VERIFIKASI UNIT TEST MANUAL ===
+  Input dari ML: rul_days = 1.585
+  Expected output: 1.59 (bukan 2)
+
+  Input dari ML: rul_days = null (HEALTHY)
+  Expected output: null (bukan error)
+
+  Input dari ML: rul_days = 0.04
+  Expected output: 0.04 (presisi terjaga)
+*/

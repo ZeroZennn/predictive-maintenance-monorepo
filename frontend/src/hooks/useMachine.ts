@@ -10,15 +10,15 @@ import type { Machine, MachineStatus } from "@/types";
 
 export function useMachineList() {
   const machines = useMachineStore((state) => state.machines);
-  const statusFilter = useMachineStore((state) => state.statusFilter);
-  const setStatusFilter = useMachineStore((state) => state.setStatusFilter);
+  const machineFilter = useMachineStore((state) => state.machineFilter);
+  const setMachineFilter = useMachineStore((state) => state.setMachineFilter);
 
   const allMachines: Machine[] = Object.values(machines);
 
   const filteredMachines: Machine[] =
-    statusFilter === "ALL"
+    machineFilter.length === 0
       ? allMachines
-      : allMachines.filter((m) => m.status === statusFilter);
+      : allMachines.filter((m) => machineFilter.includes(m.id));
 
   const totalMachines = allMachines.length;
   const criticalCount = allMachines.filter(
@@ -28,8 +28,8 @@ export function useMachineList() {
 
   return {
     machines: filteredMachines,
-    statusFilter,
-    setStatusFilter,
+    machineFilter,
+    setMachineFilter,
     totalMachines,
     criticalCount,
     warningCount,

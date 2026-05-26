@@ -29,10 +29,10 @@ export default function AdminDashboardTab() {
           fetchDocuments(),
           fetchAdminMaintenanceLogs(),
         ])
-        if (u.status === 'fulfilled') setUsers(u.value)
-        if (d.status === 'fulfilled') setDocuments(d.value)
+        if (u.status === 'fulfilled') setUsers(u.value || [])
+        if (d.status === 'fulfilled') setDocuments(d.value || [])
         if (l.status === 'fulfilled') 
-          setRecentLogs(l.value.slice(0, 5))
+          setRecentLogs(l.value ? l.value.slice(0, 5) : [])
       } finally {
         setIsLoading(false)
       }

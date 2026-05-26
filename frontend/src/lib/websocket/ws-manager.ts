@@ -1,208 +1,83 @@
-import { WS_URL } from "@/config";
-import { useMachineStore, useToastStore, useMaintenanceStore } from "@/stores";
-import {
-  type WsConnectionState,
-  type WsIncomingMessage,
-  isMachineUpdate,
-  isCriticalAlert,
-  isWarningAlert,
-  isStatusResolved,
-  isMaintenanceTask,
-} from "./ws-events";
-
-// =============================================================================
-// WebSocketManager — Pure TypeScript Singleton
-// No React, no hooks, no components.
-// Stores are accessed via .getState() (Zustand's vanilla API).
-// =============================================================================
+import { io, Socket } from 'socket.io-client'
+import type { WsConnectionState } from './ws-events'
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
+  || 'http://localhost:3000'
 
 class WebSocketManager {
-  private static instance: WebSocketManager | null = null;
-
-  private socket: WebSocket | null = null;
-  private connectionState: WsConnectionState = "DISCONNECTED";
-  private reconnectAttempts: number = 0;
-  private readonly maxReconnectAttempts: number = 5;
-  private readonly reconnectDelay: number = 3000; // ms
-  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-
-  /** External listeners keyed by event type — for optional component subscriptions */
-  private listeners: Map<string, Set<(data: unknown) => void>> = new Map();
-
-  private constructor() {}
-
-  // ---------------------------------------------------------------------------
-  // Static: Singleton accessor
-  // ---------------------------------------------------------------------------
+  private socket: Socket | null = null
+  private static instance: WebSocketManager
 
   static getInstance(): WebSocketManager {
     if (!WebSocketManager.instance) {
-      WebSocketManager.instance = new WebSocketManager();
+      WebSocketManager.instance = new WebSocketManager()
     }
-    return WebSocketManager.instance;
+    return WebSocketManager.instance
   }
 
-  // ---------------------------------------------------------------------------
-  // Public methods
-  // ---------------------------------------------------------------------------
-
-  /** Open a WebSocket connection. No-op if already OPEN. */
   connect(): void {
-    if (this.socket?.readyState === WebSocket.OPEN) return;
+    if (this.socket?.connected) return
 
-    this.connectionState = "CONNECTING";
+    this.socket = io(BACKEND_URL, {
+      transports: ['websocket'],
+      autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000
+    })
 
-    this.socket = new WebSocket(WS_URL);
-    this.socket.onopen = () => this.handleOpen();
-    this.socket.onmessage = (event: MessageEvent) =>
-      this.handleMessage(event);
-    this.socket.onclose = () => this.handleClose();
-    this.socket.onerror = () => this.handleError();
+    this.socket.on('connect', () => {
+      console.log('[WS] Connected:', this.socket?.id)
+    })
+
+    this.socket.on('disconnect', (reason) => {
+      console.log('[WS] Disconnected:', reason)
+    })
+
+    this.socket.on('connect_error', (err) => {
+      console.error('[WS] Connection error:', err.message)
+    })
   }
 
-  /** Close the connection and cancel any pending reconnect. */
+  joinMachine(machineId: string): void {
+    this.socket?.emit('join:machine', machineId)
+  }
+
+  leaveMachine(machineId: string): void {
+    this.socket?.emit('leave:machine', machineId)
+  }
+
+  joinGlobal(): void {
+    this.socket?.emit('join:global')
+  }
+
+  joinSimulator(): void {
+    this.socket?.emit('join:simulator')
+  }
+
+  on(event: string, callback: (data: unknown) => void): void {
+    this.socket?.on(event, callback)
+  }
+
+  off(event: string, callback?: (data: unknown) => void): void {
+    this.socket?.off(event, callback)
+  }
+
   disconnect(): void {
-    if (this.reconnectTimer !== null) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
-
-    this.reconnectAttempts = 0;
-
-    if (this.socket) {
-      this.socket.close();
-    }
-
-    this.socket = null;
-    this.connectionState = "DISCONNECTED";
+    this.socket?.disconnect()
+    this.socket = null
   }
 
-  /** Return current connection state (read-only). */
+  isConnected(): boolean {
+    return this.socket?.connected ?? false
+  }
+
   getConnectionState(): WsConnectionState {
-    return this.connectionState;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Private: event handlers
-  // ---------------------------------------------------------------------------
-
-  private handleOpen(): void {
-    this.connectionState = "CONNECTED";
-    this.reconnectAttempts = 0;
-
-    if (this.reconnectTimer !== null) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
-
-    console.log("[WS] Connected to Lapis AI telemetry stream");
-  }
-
-  private handleMessage(event: MessageEvent): void {
-    let message: WsIncomingMessage;
-
-    try {
-      message = JSON.parse(event.data as string) as WsIncomingMessage;
-    } catch (err) {
-      console.error("[WS] Failed to parse message:", err);
-      return;
-    }
-
-    // --- Route by event type ---------------------------------------------------
-
-    if (isMachineUpdate(message)) {
-      useMachineStore.getState().updateMachineReading(message.data);
-      return;
-    }
-
-    if (isCriticalAlert(message)) {
-      // Reflect the critical status in the machine store as well
-      useMachineStore.getState().updateMachineReading({
-        machine_id: message.data.machine_id,
-        timestamp: message.timestamp,
-        sensors: message.data.sensors,
-        prediction: {
-          status: "CRITICAL",
-          rul_days: 0,
-          confidence: 1,
-        },
-      });
-
-      useToastStore.getState().addAlert({
-        machine_id: message.data.machine_id,
-        severity: "CRITICAL",
-        title: "⚠️ CRITICAL: " + message.data.machine_id,
-        message: message.data.message,
-        timestamp: message.timestamp,
-      });
-      return;
-    }
-
-    if (isWarningAlert(message)) {
-      useToastStore.getState().addAlert({
-        machine_id: message.data.machine_id,
-        severity: "WARNING",
-        title: "⚡ WARNING: " + message.data.machine_id,
-        message: message.data.message,
-        timestamp: message.timestamp,
-      });
-      return;
-    }
-
-    if (isStatusResolved(message)) {
-      // Find the active (non-dismissed) alert for this machine and resolve it
-      const { alerts, resolveAlert } = useToastStore.getState();
-      const activeAlert = alerts.find(
-        (a) => a.machine_id === message.data.machine_id && !a.isDismissed
-      );
-      if (activeAlert) {
-        resolveAlert(activeAlert.id);
-      }
-      return;
-    }
-
-    if (isMaintenanceTask(message)) {
-      useMaintenanceStore
-        .getState()
-        .addTask(message.data);
-      return;
-    }
-  }
-
-  private handleClose(): void {
-    this.socket = null;
-    this.connectionState = "RECONNECTING";
-    console.log("[WS] Connection closed. Attempting reconnect...");
-    this.scheduleReconnect();
-  }
-
-  private handleError(): void {
-    console.error("[WS] WebSocket error occurred");
-    // Browser will automatically fire onclose after onerror — no action needed here.
-  }
-
-  private scheduleReconnect(): void {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      this.connectionState = "DISCONNECTED";
-      console.error("[WS] Max reconnect attempts reached");
-      return;
-    }
-
-    this.reconnectAttempts += 1;
-
-    const delay = this.reconnectDelay * this.reconnectAttempts;
-
-    this.reconnectTimer = setTimeout(() => {
-      console.log(
-        `[WS] Reconnecting... attempt ${this.reconnectAttempts}`
-      );
-      this.connect();
-    }, delay);
+    if (!this.socket) return "DISCONNECTED"
+    if (this.socket.connected) return "CONNECTED"
+    if (this.socket.active) return "CONNECTING"
+    return "DISCONNECTED"
   }
 }
 
-// =============================================================================
-// Singleton export — module-level instantiation ensures one instance app-wide
-// =============================================================================
-
-export const wsManager = WebSocketManager.getInstance();
+export const wsManager = WebSocketManager.getInstance()
+export default wsManager

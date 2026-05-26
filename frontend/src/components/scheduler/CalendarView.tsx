@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     format,
     addMonths,
@@ -19,65 +19,48 @@ import { MaintenanceSchedule } from "@/types";
 import CalendarDay from "./CalendarDay";
 import TaskSlidePanel from "./TaskSlidePanel";
 import { AddPreventiveModal } from "./SchedulerModals";
+import { wsManager } from "@/lib/websocket/ws-manager";
+import { WS_EVENTS } from "@/lib/websocket/ws-events";
+import { useToastStore } from "@/stores";
 
-export const MOCK_SCHEDULES: MaintenanceSchedule[] = [
-    {
-        id: "sched-001",
-        machine_id: "M-01",
-        type: "EMERGENCY",
-        source: "PREDICTIVE",
-        status: "PENDING_CONFIRMATION",
-        scheduled_date: "2026-05-19T08:00:00Z",
-        urgency_level: "IMMEDIATE",
-        rul_at_creation: 1.5,
-        ml_confidence: 96.07,
-        created_at: "2026-05-18T00:00:00Z",
-    },
-    {
-        id: "sched-002",
-        machine_id: "M-05",
-        type: "CORRECTIVE",
-        source: "PREDICTIVE",
-        status: "PENDING_CONFIRMATION",
-        scheduled_date: "2026-05-23T14:00:00Z",
-        urgency_level: "WARNING",
-        rul_at_creation: 5.0,
-        ml_confidence: 88.5,
-        created_at: "2026-05-18T00:00:00Z",
-    },
-    {
-        id: "sched-003",
-        machine_id: "M-13",
-        type: "PREVENTIVE",
-        source: "MANUAL",
-        status: "SCHEDULED",
-        scheduled_date: "2026-05-28T09:00:00Z",
-        estimated_duration_hrs: 2,
-        notes: "Inspeksi rutin Q2",
-        created_at: "2026-05-01T00:00:00Z",
-    },
-    {
-        id: "sched-004",
-        machine_id: "M-07",
-        type: "CORRECTIVE",
-        source: "MANUAL",
-        status: "COMPLETED",
-        scheduled_date: "2026-05-10T10:00:00Z",
-        actual_date: "2026-05-10T10:30:00Z",
-        actual_duration_hrs: 3.5,
-        part_replaced: "Belt & Pulley",
-        cost_idr: 9427034,
-        completion_notes: "Penggantian belt yang aus berhasil dilakukan",
-        created_at: "2026-05-05T00:00:00Z",
-    },
-];
 
-export default function CalendarView() {
+interface CalendarViewProps {
+    schedules?: MaintenanceSchedule[];
+    onSchedulesChange?: (schedules: MaintenanceSchedule[]) => void;
+}
+
+export default function CalendarView({ schedules: propSchedules, onSchedulesChange }: CalendarViewProps = {}) {
     const [currentDate, setCurrentDate] = useState(new Date(2026, 4, 1)); // May 2026
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [schedules, setSchedules] = useState<MaintenanceSchedule[]>(MOCK_SCHEDULES);
+    const addAlert = useToastStore((state) => state.addAlert);
+
+    // If parent passes controlled schedules, use those; otherwise own local state
+    const [localSchedules, setLocalSchedules] = useState<MaintenanceSchedule[]>([]);
+    const schedules = propSchedules ?? localSchedules;
+    const setSchedules = onSchedulesChange ?? setLocalSchedules;
+
+    // Listen to simulator time and auto-snap calendar month
+    useEffect(() => {
+        function handleSimulatorTick(data: any) {
+            if (data && data.current_timestamp) {
+                const tickDate = new Date(data.current_timestamp);
+                setCurrentDate((prev) => {
+                    // Only update state if the month or year actually changed
+                    if (!isSameMonth(prev, tickDate)) {
+                        return startOfMonth(tickDate);
+                    }
+                    return prev;
+                });
+            }
+        }
+
+        wsManager.on(WS_EVENTS.SIMULATOR_TICK, handleSimulatorTick);
+        return () => {
+            wsManager.off(WS_EVENTS.SIMULATOR_TICK, handleSimulatorTick);
+        };
+    }, []);
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
     const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -124,19 +107,15 @@ export default function CalendarView() {
         };
 
         // Update state to trigger real-time re-render on the calendar
-        setSchedules((prev) => [...prev, newSchedule]);
+        setSchedules([...schedules, newSchedule]);
 
-        // Mirror back to mock array for safety
-        MOCK_SCHEDULES.push(newSchedule);
-
-        alert(
-            `Jadwal Preventive Baru Disimpan!\n\n` +
-            `Mesin: ${newSchedule.machine_id}\n` +
-            `Tipe: ${newSchedule.type}\n` +
-            `Tanggal: ${format(new Date(newSchedule.scheduled_date), "dd MMMM yyyy, HH:mm", { locale: idLocale })}\n` +
-            `Estimasi: ${newSchedule.estimated_duration_hrs} Jam\n` +
-            `Catatan: ${newSchedule.notes || "—"}`
-        );
+        addAlert({
+            machine_id: newSchedule.machine_id,
+            severity: "INFO",
+            title: "Jadwal Disimpan",
+            message: `Jadwal Preventive Baru untuk ${newSchedule.machine_id} pada ${format(new Date(newSchedule.scheduled_date), "dd MMM yyyy", { locale: idLocale })} berhasil ditambahkan.`,
+            timestamp: new Date().toISOString()
+        });
     };
 
     return (
@@ -164,15 +143,15 @@ export default function CalendarView() {
                 </div>
 
                 {/* Filters & Actions */}
-                <div className="flex items-center gap-3">
-                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-sm rounded-lg px-4 py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer">
+                <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 w-full md:w-auto mt-2 md:mt-0">
+                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-xs md:text-sm rounded-lg px-3 py-2 md:px-4 md:py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer flex-1 md:flex-none">
                         <option>Semua Mesin</option>
                         <option>M-01</option>
                         <option>M-05</option>
                         <option>M-07</option>
                         <option>M-13</option>
                     </select>
-                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-sm rounded-lg px-4 py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer">
+                    <select className="bg-[#0F2A2C] border border-white/10 text-[#C3CCD1] text-xs md:text-sm rounded-lg px-3 py-2 md:px-4 md:py-2 outline-none focus:border-[#5FDA0A]/50 transition-colors cursor-pointer flex-1 md:flex-none">
                         <option>Semua Tipe</option>
                         <option>Preventive</option>
                         <option>Corrective</option>
@@ -180,7 +159,7 @@ export default function CalendarView() {
                     </select>
                     <button
                         onClick={() => setIsAddModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#5FDA0A]/10 text-[#5FDA0A] border border-[#5FDA0A]/50 hover:bg-[#5FDA0A]/20 px-4 py-2 rounded-lg font-bold text-sm transition-colors cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 md:gap-2 bg-[#5FDA0A]/10 text-[#5FDA0A] border border-[#5FDA0A]/50 hover:bg-[#5FDA0A]/20 px-3 py-2 md:px-4 md:py-2 rounded-lg font-bold text-xs md:text-sm transition-colors cursor-pointer w-full sm:w-auto"
                     >
                         <Plus size={16} /> Tambah Jadwal
                     </button>
