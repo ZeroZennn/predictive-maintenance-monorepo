@@ -223,6 +223,7 @@ predictive-maintenance-monorepo/
 │   │   │   ├── migrate4.js           # Migration 4: indexes & constraints
 │   │   │   ├── migrate5.js           # Migration 5: enhancements
 │   │   │   ├── migrate6.js           # Migration 6: rul_days NUMERIC fix
+│   │   │   ├── migrate7.js           # Migration 7: enum uppercase & rul_days NULL fix
 │   │   │   └── seedUsers.js          # Seed admin & technician accounts
 │   │   ├── controllers/              # Request handlers (telemetry, maintenance, etc.)
 │   │   ├── middlewares/              # authMiddleware.js (JWT + RBAC + SKIP_AUTH)
@@ -254,7 +255,8 @@ predictive-maintenance-monorepo/
 │   │   │       ├── dashboard/        # Halaman monitoring utama
 │   │   │       ├── scheduler/        # Maintenance scheduler & calendar
 │   │   │       ├── debug/            # WebSocket stream debugger / Logs
-│   │   │       └── copilot-hub/      # AI Copilot interface
+│   │   │       ├── copilot-hub/      # AI Copilot interface
+│   │   │       └── admin/            # Admin Panel & Role-based routes
 │   │   ├── components/               # UI components per fitur
 │   │   │   ├── dashboard/            # SensorCard, TelemetryChart, AnomalyTimeline, etc.
 │   │   │   ├── scheduler/            # CalendarView, TaskDetailCard, SchedulerModals
@@ -263,13 +265,14 @@ predictive-maintenance-monorepo/
 │   │   ├── hooks/                    # useWebSocketInit, useMaintenanceSocket, etc.
 │   │   ├── stores/                   # Zustand stores (machine, maintenance, toast, etc.)
 │   │   ├── lib/
-│   │   │   ├── api/                  # Axios API clients (telemetry, maintenance, etc.)
+│   │   │   ├── api/                  # Axios API clients (telemetry, maintenance, admin, dll)
 │   │   │   └── websocket/            # ws-manager.ts, ws-events.ts
 │   │   ├── types/                    # TypeScript types (machine, maintenance, sensors)
 │   │   └── config/                   # MACHINE_IDS, SENSOR_CONFIG, ROUTES
 │   ├── .env.local                    # Frontend env (BACKEND_URL, SKIP_AUTH, MOCK_ROLE)
 │   └── package.json
 │
+├── history_docs/                     # Arsip laporan & dokumentasi progres proyek
 ├── docker-compose.yml                # Orkestrasi infrastructure services
 ├── .env.example                      # Template environment variables
 ├── INTEGRATION_DASHBOARD_CHECKLIST.md  # Checklist integrasi E2E
@@ -332,13 +335,14 @@ docker logs lapis-ml-service --tail 20
 cd backend
 npm install
 
-# Jalankan semua 6 migration files secara berurutan
+# Jalankan semua 7 migration files secara berurutan
 node src/config/migrate.js
 node src/config/migrate2.js
 node src/config/migrate3.js
 node src/config/migrate4.js
 node src/config/migrate5.js
 node src/config/migrate6.js
+node src/config/migrate7.js
 
 # Seed akun default
 node src/config/seedUsers.js
