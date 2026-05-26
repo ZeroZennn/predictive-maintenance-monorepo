@@ -49,7 +49,10 @@ function authenticate(req, res, next) {
  */
 function requireRole(...roles) {
   return function (req, res, next) {
-    if (!roles.includes(req.user.role)) {
+    const userRole = req.user.role ? req.user.role.toUpperCase() : '';
+    const allowedRoles = roles.map(r => r.toUpperCase());
+    
+    if (!allowedRoles.includes(userRole)) {
       return res.status(403).json({
         status: 'error',
         message: `Access denied. Required role: ${roles.join(' or ')}`,

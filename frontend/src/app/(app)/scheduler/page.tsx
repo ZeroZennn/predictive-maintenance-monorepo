@@ -1,16 +1,57 @@
 "use client";
 
-import { useMaintenanceSocket } from "@/hooks";
-import CalendarView, { MOCK_SCHEDULES } from "@/components/scheduler/CalendarView";
+import { useState, useCallback, useEffect } from "react";
+import { useMaintenanceSocket } from "@/hooks/useMaintenanceSocket";
+import CalendarView from "@/components/scheduler/CalendarView";
 import { TaskDetailCard } from "@/components/scheduler";
 import { AlertTriangle, CheckCircle } from "lucide-react";
+import type { MaintenanceSchedule } from "@/types";
+import { fetchPendingSchedules, fetchSchedules } from "@/lib/api/maintenance.api";
 
 export default function SchedulerPage() {
-  // Init hook — fetch data + listen WebSocket
-  useMaintenanceSocket();
+  // ─── Lifted state: owns all schedules, shared to CalendarView ───
+  const [schedules, setSchedules] = useState<MaintenanceSchedule[]>([]);
+
+  // ─── Initial Fetch: Get all schedules on mount ───
+  useEffect(() => {
+    async function loadSchedules() {
+      try {
+        const data = await fetchSchedules();
+        setSchedules(data);
+      } catch (err) {
+        console.error("[Scheduler] Failed to fetch schedules:", err);
+      }
+    }
+    loadSchedules();
+  }, []);
+
+  // ─── WS handler: deduplicate then add/update to state ───
+  const handleNewTask = useCallback((incoming: MaintenanceSchedule) => {
+    setSchedules((prev) => {
+      // Dedup/Update: if same machine_id has an active schedule, update it!
+      const existingIdx = prev.findIndex(
+        (t) =>
+          t.machine_id === incoming.machine_id &&
+          t.status !== "COMPLETED" &&
+          t.status !== "CANCELLED"
+      );
+
+      if (existingIdx !== -1) {
+        // Logika update (sliding window RUL): Timpa dengan prediksi RUL dan tanggal terbaru
+        const next = [...prev];
+        next[existingIdx] = incoming;
+        return next;
+      }
+      // Tambahkan baru jika belum ada jadwal aktif
+      return [...prev, incoming];
+    });
+  }, []);
+
+  // Init real-time listener
+  useMaintenanceSocket({ onNewTask: handleNewTask });
 
   // Filter pending confirmation schedules for the Triage Action Center
-  const pendingSchedules = MOCK_SCHEDULES.filter(
+  const pendingSchedules = schedules.filter(
     (s) => s.status === "PENDING_CONFIRMATION"
   );
 
@@ -53,7 +94,7 @@ export default function SchedulerPage() {
 
       {/* RIGHT PANEL: Main Calendar View */}
       <div className="flex-1 h-full overflow-hidden relative">
-        <CalendarView />
+        <CalendarView schedules={schedules} onSchedulesChange={setSchedules} />
       </div>
     </div>
   );

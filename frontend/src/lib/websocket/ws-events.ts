@@ -9,7 +9,8 @@ export const WS_EVENTS = {
   SENSOR_UPDATE:        'sensor:update',
   ALERT_NEW:            'alert:new',
   MACHINE_STATUS_UPDATE:'machine:status_update',
-  NEW_MAINTENANCE_TASK: 'new_maintenance_task',
+  MAINTENANCE_NEW_SUGGESTION: 'maintenance:new_suggestion',
+  MAINTENANCE_CONFIRMED: 'maintenance:confirmed',
   SIMULATOR_TICK:       'simulator:tick',
 
   // Events yang di-emit FE ke Backend (join rooms)

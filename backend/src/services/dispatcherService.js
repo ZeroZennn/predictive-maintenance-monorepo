@@ -210,7 +210,9 @@ class Dispatcher {
             payload.machine_id,
             prediction.rul_days,
             prediction.classification,
-            prediction.urgency_level
+            prediction.urgency_level,
+            prediction.confidence,
+            payload.timestamp
           ),
           alertService.checkAndTrigger(payload.machine_id, prediction),
         ]);

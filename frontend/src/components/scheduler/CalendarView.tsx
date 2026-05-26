@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     format,
     addMonths,
@@ -19,65 +19,48 @@ import { MaintenanceSchedule } from "@/types";
 import CalendarDay from "./CalendarDay";
 import TaskSlidePanel from "./TaskSlidePanel";
 import { AddPreventiveModal } from "./SchedulerModals";
+import { wsManager } from "@/lib/websocket/ws-manager";
+import { WS_EVENTS } from "@/lib/websocket/ws-events";
+import { useToastStore } from "@/stores";
 
-export const MOCK_SCHEDULES: MaintenanceSchedule[] = [
-    {
-        id: "sched-001",
-        machine_id: "M-01",
-        type: "EMERGENCY",
-        source: "PREDICTIVE",
-        status: "PENDING_CONFIRMATION",
-        scheduled_date: "2026-05-19T08:00:00Z",
-        urgency_level: "IMMEDIATE",
-        rul_at_creation: 1.5,
-        ml_confidence: 96.07,
-        created_at: "2026-05-18T00:00:00Z",
-    },
-    {
-        id: "sched-002",
-        machine_id: "M-05",
-        type: "CORRECTIVE",
-        source: "PREDICTIVE",
-        status: "PENDING_CONFIRMATION",
-        scheduled_date: "2026-05-23T14:00:00Z",
-        urgency_level: "WARNING",
-        rul_at_creation: 5.0,
-        ml_confidence: 88.5,
-        created_at: "2026-05-18T00:00:00Z",
-    },
-    {
-        id: "sched-003",
-        machine_id: "M-13",
-        type: "PREVENTIVE",
-        source: "MANUAL",
-        status: "SCHEDULED",
-        scheduled_date: "2026-05-28T09:00:00Z",
-        estimated_duration_hrs: 2,
-        notes: "Inspeksi rutin Q2",
-        created_at: "2026-05-01T00:00:00Z",
-    },
-    {
-        id: "sched-004",
-        machine_id: "M-07",
-        type: "CORRECTIVE",
-        source: "MANUAL",
-        status: "COMPLETED",
-        scheduled_date: "2026-05-10T10:00:00Z",
-        actual_date: "2026-05-10T10:30:00Z",
-        actual_duration_hrs: 3.5,
-        part_replaced: "Belt & Pulley",
-        cost_idr: 9427034,
-        completion_notes: "Penggantian belt yang aus berhasil dilakukan",
-        created_at: "2026-05-05T00:00:00Z",
-    },
-];
 
-export default function CalendarView() {
+interface CalendarViewProps {
+    schedules?: MaintenanceSchedule[];
+    onSchedulesChange?: (schedules: MaintenanceSchedule[]) => void;
+}
+
+export default function CalendarView({ schedules: propSchedules, onSchedulesChange }: CalendarViewProps = {}) {
     const [currentDate, setCurrentDate] = useState(new Date(2026, 4, 1)); // May 2026
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [schedules, setSchedules] = useState<MaintenanceSchedule[]>(MOCK_SCHEDULES);
+    const addAlert = useToastStore((state) => state.addAlert);
+
+    // If parent passes controlled schedules, use those; otherwise own local state
+    const [localSchedules, setLocalSchedules] = useState<MaintenanceSchedule[]>([]);
+    const schedules = propSchedules ?? localSchedules;
+    const setSchedules = onSchedulesChange ?? setLocalSchedules;
+
+    // Listen to simulator time and auto-snap calendar month
+    useEffect(() => {
+        function handleSimulatorTick(data: any) {
+            if (data && data.current_timestamp) {
+                const tickDate = new Date(data.current_timestamp);
+                setCurrentDate((prev) => {
+                    // Only update state if the month or year actually changed
+                    if (!isSameMonth(prev, tickDate)) {
+                        return startOfMonth(tickDate);
+                    }
+                    return prev;
+                });
+            }
+        }
+
+        wsManager.on(WS_EVENTS.SIMULATOR_TICK, handleSimulatorTick);
+        return () => {
+            wsManager.off(WS_EVENTS.SIMULATOR_TICK, handleSimulatorTick);
+        };
+    }, []);
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
     const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -124,19 +107,15 @@ export default function CalendarView() {
         };
 
         // Update state to trigger real-time re-render on the calendar
-        setSchedules((prev) => [...prev, newSchedule]);
+        setSchedules([...schedules, newSchedule]);
 
-        // Mirror back to mock array for safety
-        MOCK_SCHEDULES.push(newSchedule);
-
-        alert(
-            `Jadwal Preventive Baru Disimpan!\n\n` +
-            `Mesin: ${newSchedule.machine_id}\n` +
-            `Tipe: ${newSchedule.type}\n` +
-            `Tanggal: ${format(new Date(newSchedule.scheduled_date), "dd MMMM yyyy, HH:mm", { locale: idLocale })}\n` +
-            `Estimasi: ${newSchedule.estimated_duration_hrs} Jam\n` +
-            `Catatan: ${newSchedule.notes || "—"}`
-        );
+        addAlert({
+            machine_id: newSchedule.machine_id,
+            severity: "INFO",
+            title: "Jadwal Disimpan",
+            message: `Jadwal Preventive Baru untuk ${newSchedule.machine_id} pada ${format(new Date(newSchedule.scheduled_date), "dd MMM yyyy", { locale: idLocale })} berhasil ditambahkan.`,
+            timestamp: new Date().toISOString()
+        });
     };
 
     return (

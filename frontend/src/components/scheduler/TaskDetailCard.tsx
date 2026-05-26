@@ -6,6 +6,7 @@ import { Wrench, CheckCircle, Calendar, Bot, Cpu, BarChart2, Zap, Edit2 } from "
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import CompletionModal from "./SchedulerModals";
+import { useToastStore } from "@/stores";
 
 interface TaskDetailCardProps {
   task: MaintenanceSchedule;
@@ -43,6 +44,7 @@ const getCardColorTheme = (type: string) => {
 
 export default function TaskDetailCard({ task }: TaskDetailCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const addAlert = useToastStore((state) => state.addAlert);
 
   const isPredictive = task.status === "PENDING_CONFIRMATION";
   const isScheduled = task.status === "SCHEDULED";
@@ -74,16 +76,14 @@ export default function TaskDetailCard({ task }: TaskDetailCardProps) {
       status: "COMPLETED",
       ...completionData,
     });
-    alert(
-      `Penyelesaian Perawatan Disimpan!\n\n` +
-      `ID: ${task.id}\n` +
-      `Mesin: ${task.machine_id}\n` +
-      `Realisasi: ${format(new Date(completionData.actual_date), "dd MMMM yyyy HH:mm")}\n` +
-      `Durasi: ${completionData.actual_duration_hrs} Jam\n` +
-      `Komponen: ${completionData.part_replaced}\n` +
-      `Biaya: ${formatRupiah(completionData.cost_idr)}\n` +
-      `Catatan: ${completionData.completion_notes || "—"}`
-    );
+    
+    addAlert({
+      machine_id: task.machine_id,
+      severity: "INFO",
+      title: "Penyelesaian Disimpan",
+      message: `Penyelesaian perawatan untuk ${task.machine_id} berhasil dikonfirmasi. (Biaya: ${formatRupiah(completionData.cost_idr)})`,
+      timestamp: new Date().toISOString()
+    });
   };
 
   const theme = getCardColorTheme(task.type);

@@ -248,8 +248,10 @@ class SimulatorService {
       await timescalePool.query('TRUNCATE TABLE sensor_readings CASCADE;');
       await timescalePool.query('TRUNCATE TABLE ml_predictions CASCADE;');
       
-      // 2. Truncate PostgreSQL maintenance logs
+      // 2. Truncate PostgreSQL maintenance logs, schedules, and alerts
       await pgPool.query('TRUNCATE TABLE maintenance_logs CASCADE;');
+      await pgPool.query('TRUNCATE TABLE maintenance_schedules CASCADE;');
+      await pgPool.query('TRUNCATE TABLE alerts CASCADE;');
 
       // 3. Clear all machine-related Redis keys
       const keys = await redisClient.keys('machine:*');

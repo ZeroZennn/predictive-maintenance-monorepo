@@ -17,6 +17,7 @@ export function SimulatorControlPanel() {
   const [isStopping, setIsStopping] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
 
   // Check initial status
   useEffect(() => {
@@ -111,9 +112,11 @@ export function SimulatorControlPanel() {
     }
   };
 
-  const handleReset = async () => {
-    if (!window.confirm("Are you sure you want to completely erase all simulated data from the database?")) return;
-    
+  const handleResetClick = () => {
+    setIsConfirmResetOpen(true);
+  };
+
+  const executeReset = async () => {
     setIsResetting(true);
     try {
       await apiClient.post("/api/simulator/reset");
@@ -243,6 +246,10 @@ export function SimulatorControlPanel() {
                 { value: 5, label: "5s / tick" },
                 { value: 10, label: "10s / tick" },
                 { value: 15, label: "15s / tick" },
+                { value: 300, label: "5min / tick" },
+                { value: 600, label: "10min / tick" },
+                { value: 900, label: "15min / tick" },
+                { value: 3600, label: "60min / tick" },
               ].map((opt) => (
                 <button
                   key={opt.value}
@@ -311,16 +318,45 @@ export function SimulatorControlPanel() {
               </>
             )}
           </button>
-          
+
           <button
-            onClick={handleReset}
+            onClick={handleResetClick}
             disabled={isResetting || isRunning}
-            className="w-full mt-2 text-xs text-gray-500 hover:text-white underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-2 text-xs text-gray-500 hover:text-white underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isResetting ? "Erasing Database..." : "Reset/Clear All Simulated Data"}
           </button>
         </div>
       </div>
+
+      {/* Confirm Reset Modal */}
+      {isConfirmResetOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+          <div className="relative w-full max-w-sm bg-[#081819] border border-white/10 rounded-2xl shadow-2xl p-6 flex flex-col">
+            <h3 className="font-heading text-lg font-extrabold text-white mb-2">Reset Simulator Data</h3>
+            <p className="text-sm text-[#C3CCD1] mb-6">
+              Are you sure you want to completely erase all simulated data from the database? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsConfirmResetOpen(false)}
+                className="px-4 py-2 text-sm font-bold text-white/60 hover:text-white transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setIsConfirmResetOpen(false);
+                  executeReset();
+                }}
+                className="px-4 py-2 text-sm font-bold rounded-lg transition-colors cursor-pointer bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20 hover:bg-[#FF3B30]/20"
+              >
+                Confirm Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

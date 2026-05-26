@@ -21,11 +21,7 @@ export default function MachineCard({
   const machine = useMachineDetail(machineId);
   const isActive = useMachineStore((state) => state.selectedMachineId === machineId);
 
-  if (!machine) {
-    return (
-      <div className="animate-pulse bg-lapis-card rounded-xl h-[120px] w-full" />
-    );
-  }
+  if (!machine) return null;
 
   return (
     <motion.div

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { format } from "date-fns";
 import { useMachineStore } from "@/stores";
 import {
   LineChart,
@@ -33,19 +34,9 @@ export default function TelemetryChart({ className }: TelemetryChartProps) {
   const machine = useMachineStore((state) =>
     state.machines[selectedMachineId]
   );
-
   const [selectedMetric, setSelectedMetric] = useState(metrics[0]);
 
-  if (!machine || !machine.history || machine.history.length === 0) {
-    return (
-      <div
-        className={clsx(
-          "h-[300px] rounded-xl bg-[#2B3739] animate-pulse",
-          className
-        )}
-      />
-    );
-  }
+  if (!machine) return null;
 
   return (
     <div

@@ -24,6 +24,7 @@ export default function AnomalyTimeline({
   windowMinutes = 60,
 }: AnomalyTimelineProps) {
   const selectedMachineId = useMachineStore((state) => state.selectedMachineId) || "M-01";
+  const machine = useMachineStore((state) => state.machines[selectedMachineId]);
   const [fetchedEvents, setFetchedEvents] = useState<AnomalyEvent[]>([]);
 
   useEffect(() => {
