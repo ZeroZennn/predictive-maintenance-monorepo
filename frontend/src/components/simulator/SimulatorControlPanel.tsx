@@ -281,7 +281,7 @@ export function SimulatorControlPanel() {
               "w-full flex items-center justify-center gap-2 font-bold py-3.5 rounded-xl transition-all",
               (isStarting || isRunning)
                 ? "bg-lapis-neon/20 text-lapis-neon border border-lapis-neon opacity-70 cursor-not-allowed"
-                : "bg-gradient-to-r from-lapis-neon to-[#3A8A06] hover:brightness-110 text-black shadow-[0_0_20px_rgba(95,218,10,0.3)] hover:shadow-[0_0_30px_rgba(95,218,10,0.5)] cursor-pointer"
+                : "bg-gradient-to-r from-lapis-neon to-[#3A8A06] hover:brightness-110 text-black hover:text-white shadow-[0_0_20px_rgba(95,218,10,0.3)]] cursor-pointer"
             )}
           >
             {isStarting ? (
@@ -293,7 +293,7 @@ export function SimulatorControlPanel() {
               </>
             ) : (
               <>
-                <Play size={20} className="fill-black" />
+                <Play size={20} className="fill-black hover:fill-white" />
                 START ENGINE
               </>
             )}
