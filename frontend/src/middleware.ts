@@ -8,9 +8,9 @@ import type { NextRequest } from "next/server";
  */
 type UserRole = "TECHNICIAN" | "ADMIN";
 
-const PUBLIC_ROUTES = ["/login"] as const;
+const PUBLIC_ROUTES = ["/", "/login"] as const;
 const ADMIN_ONLY_ROUTES = ["/admin"] as const;
-const DASHBOARD = "/";
+const DASHBOARD = "/dashboard";
 const LOGIN = "/login";
 
 // =============================================================================
@@ -72,52 +72,39 @@ export default function middleware(request: NextRequest): NextResponse {
   if (isPublicRoute) {
     if (token) {
       const payload = decodeJwtPayload(token);
-      if (payload) {
-        // Valid token — bounce to dashboard
-        return NextResponse.redirect(new URL(DASHBOARD, request.url));
+      if (payload && typeof payload.role === "string") {
+        const userRole = payload.role.toUpperCase();
+        const targetUrl = userRole === "ADMIN" ? "/admin" : DASHBOARD;
+        return NextResponse.redirect(new URL(targetUrl, request.url));
       }
-      // Token present but malformed → allow /login (prevents redirect loop)
     }
     return NextResponse.next();
   }
 
-  /**
-   * STEP 2 — Token presence check.
-   * Every non-public route requires the lapis_token session cookie.
-   * Missing token → redirect to login.
-   */
   if (!token) {
     return NextResponse.redirect(new URL(LOGIN, request.url));
   }
 
-  /**
-   * STEP 3 — Decode JWT payload (manual, no external library).
-   * JWT structure: header.payload.signature
-   * The payload is base64url-encoded JSON — decode with atob() after
-   * replacing URL-safe characters back to standard base64.
-   * Malformed or missing token → redirect to login.
-   */
   const payload = decodeJwtPayload(token);
 
   if (!payload || typeof payload.role !== "string") {
-    // Token malformed — hapus cookie dan redirect login
     const response = NextResponse.redirect(new URL(LOGIN, request.url));
     response.cookies.delete("lapis_token");
     return response;
   }
 
-  const role = payload.role as UserRole;
+  const role = payload.role.toUpperCase() as UserRole;
 
-  /**
-   * STEP 4 — Admin-only route enforcement.
-   * Routes under /admin are restricted to users with role "ADMIN".
-   * Any other authenticated role is redirected to the dashboard.
-   */
   const isAdminRoute = ADMIN_ONLY_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
   if (isAdminRoute && role !== "ADMIN") {
     return NextResponse.redirect(new URL(DASHBOARD, request.url));
+  }
+
+  const isDashboardRoute = pathname.startsWith(DASHBOARD);
+  if (isDashboardRoute && role === "ADMIN") {
+    return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   /**

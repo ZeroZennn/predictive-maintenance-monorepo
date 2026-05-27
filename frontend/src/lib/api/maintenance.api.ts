@@ -1,82 +1,76 @@
 import apiClient from "./axios-instance";
-import type { MaintenanceTask, MaintenanceLog } from "@/types";
+import type { MaintenanceSchedule } from "@/types";
 
-export async function fetchMaintenanceTasks(): Promise<MaintenanceTask[]> {
-  const response = await apiClient.get<MaintenanceTask[]>(
-    "/api/maintenance/tasks"
-  );
-  return response.data;
+export interface GetSchedulesParams {
+  month?: string;
+  week?: string;
+  machine_id?: string;
+  source?: "MANUAL" | "PREDICTIVE";
+  status?: string;
 }
 
-export async function updateTaskStatus(
-  taskId: string,
-  status: MaintenanceTask["status"]
-): Promise<MaintenanceTask> {
-  const response = await apiClient.patch<MaintenanceTask>(
-    "/api/maintenance/tasks/" + taskId,
-    { status }
-  );
-  return response.data;
+export async function fetchSchedules(
+  params?: GetSchedulesParams
+): Promise<MaintenanceSchedule[]> {
+  const response = await apiClient.get("/api/maintenance/schedules", { params });
+  return response.data.data.schedules || [];
 }
 
-// ── Scheduler Endpoints (baru) ──
-
-export async function fetchSchedulesByMonth(
-  month: string  // format: "2026-05"
-): Promise<MaintenanceTask[]> {
-  const { data } = await apiClient.get(
-    `/api/maintenance/schedules?month=${month}`
-  )
-  return data
+export async function fetchPendingSchedules(): Promise<MaintenanceSchedule[]> {
+  const response = await apiClient.get("/api/maintenance/schedules/pending");
+  return response.data.data.schedules || [];
 }
 
-export async function fetchPendingSchedules(): 
-  Promise<MaintenanceTask[]> {
-  const { data } = await apiClient.get(
-    '/api/maintenance/schedules/pending'
-  )
-  return data
-}
-
-export async function createPreventiveSchedule(
-  payload: {
-    machine_id: string
-    scheduled_date: string
-    estimated_duration_hrs: number
-  }
-): Promise<MaintenanceTask> {
-  const { data } = await apiClient.post(
-    '/api/maintenance/schedules', payload
-  )
-  return data
+export async function createPreventiveSchedule(payload: {
+  machine_id: string;
+  scheduled_date: string;
+  estimated_duration_hrs?: number;
+  notes?: string;
+}): Promise<MaintenanceSchedule> {
+  const response = await apiClient.post("/api/maintenance/schedules", payload);
+  return response.data.data;
 }
 
 export async function confirmSchedule(
-  id: string
-): Promise<MaintenanceTask> {
-  const { data } = await apiClient.patch(
-    `/api/maintenance/schedules/${id}/confirm`
-  )
-  return data
+  id: string,
+  payload?: { scheduled_date?: string }
+): Promise<MaintenanceSchedule> {
+  const response = await apiClient.patch(
+    `/api/maintenance/schedules/${id}/confirm`,
+    payload || {}
+  );
+  return response.data.data;
 }
 
 export async function completeSchedule(
   id: string,
   payload: {
-    actual_duration_hrs: number
-    part_replaced?: string
-    cost_idr?: number
+    actual_date: string;
+    actual_duration_hrs?: number;
+    part_replaced?: string;
+    cost_idr?: number;
+    completion_notes?: string;
   }
-): Promise<MaintenanceTask> {
-  const { data } = await apiClient.patch(
+): Promise<MaintenanceSchedule> {
+  const response = await apiClient.patch(
     `/api/maintenance/schedules/${id}/complete`,
     payload
-  )
-  return data
+  );
+  return response.data.data;
 }
 
-export async function deleteSchedule(
-  id: string
-): Promise<void> {
-  await apiClient.delete(`/api/maintenance/schedules/${id}`)
+export async function updateManualSchedule(
+  id: string,
+  payload: {
+    scheduled_date?: string;
+    estimated_duration_hrs?: number;
+    notes?: string;
+  }
+): Promise<MaintenanceSchedule> {
+  const response = await apiClient.patch(`/api/maintenance/schedules/${id}`, payload);
+  return response.data.data;
+}
+
+export async function deleteSchedule(id: string): Promise<void> {
+  await apiClient.delete(`/api/maintenance/schedules/${id}`);
 }

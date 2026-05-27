@@ -24,16 +24,7 @@ export default function MaintenanceKPIBar({
     selectedMachineId ? state.machines[selectedMachineId] : undefined
   );
 
-  if (!machine) {
-    return (
-      <div
-        className={clsx(
-          "h-[200px] rounded-xl bg-[#2B3739] animate-pulse",
-          className
-        )}
-      />
-    );
-  }
+  if (!machine) return null;
 
   const getUrgencyColor = (level?: string | null) => {
     if (level === "IMMEDIATE" || level === "CRITICAL") return "text-[#EF4444]";

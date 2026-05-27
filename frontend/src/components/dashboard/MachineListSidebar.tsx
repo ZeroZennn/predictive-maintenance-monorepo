@@ -1,40 +1,102 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useMachineStore } from "@/stores";
 import { MachineCard } from "@/components/dashboard";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CheckSquare, Square } from "lucide-react";
+import { clsx } from "clsx";
 
 export default function MachineListSidebar() {
   const machines = useMachineStore((state) => state.machines);
-  const filter = useMachineStore((state) => state.statusFilter);
-  const setFilter = useMachineStore((state) => state.setStatusFilter);
+  const filter = useMachineStore((state) => state.machineFilter);
+  const setFilter = useMachineStore((state) => state.setMachineFilter);
   const selectMachine = useMachineStore((state) => state.setSelectedMachine);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const list = useMemo(() => Object.values(machines), [machines]);
+
   const filteredMachines = useMemo(() => {
-    const list = Object.values(machines);
-    if (filter === "ALL") return list;
-    return list.filter((m) => m.status === filter);
-  }, [machines, filter]);
+    if (filter.length === 0) return list;
+    return list.filter((m) => filter.includes(m.id));
+  }, [list, filter]);
+
+  const toggleMachine = (id: string) => {
+    if (filter.includes(id)) {
+      setFilter(filter.filter((f) => f !== id));
+    } else {
+      setFilter([...filter, id]);
+    }
+  };
+
+  const selectAll = () => setFilter([]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="flex flex-col md:h-screen max-h-screen sticky top-0 w-full md:w-[200px] lg:w-[200px] 2xl:w-[260px] flex-shrink-0 bg-transparent border-b md:border-b-0 md:border-r border-lapis-border group relative">
       {/* Header / Dropdown Filter */}
-      <div className="p-3 flex-shrink-0 flex items-center justify-between md:block">
-        <label className="text-[10px] text-gray-400 mb-0 md:mb-1 block mr-2 md:mr-0">Select Zone</label>
+      <div className="p-3 flex-shrink-0 flex items-center justify-between md:block relative z-30" ref={dropdownRef}>
+        <label className="text-[10px] text-gray-400 mb-0 md:mb-1 block mr-2 md:mr-0">Select Machines</label>
         <div className="relative w-[150px] md:w-full">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-            className="w-full bg-[#2B3739] border border-gray-700 text-xs text-white p-2 rounded cursor-pointer outline-none focus:border-lapis-neon appearance-none pr-8"
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full flex items-center justify-between bg-[#2B3739] border border-gray-700 hover:border-lapis-neon transition-colors text-xs text-white p-2 rounded cursor-pointer outline-none"
           >
-            <option value="ALL">All Machine</option>
-            <option value="HEALTHY">Healthy</option>
-            <option value="WARNING">Warning</option>
-            <option value="CRITICAL">Critical</option>
-          </select>
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-            <ChevronDown size={14} className="text-gray-400" />
+            <span className="truncate">
+              {filter.length === 0 ? "All Machines" : `${filter.length} Selected`}
+            </span>
+            <ChevronDown size={14} className={clsx("text-gray-400 transition-transform duration-300", isOpen && "rotate-180")} />
+          </button>
+
+          {/* Dropdown Menu */}
+          <div
+            className={clsx(
+              "absolute top-full left-0 right-0 mt-1 bg-[#1A2224] border border-[#1E3D40] rounded-lg shadow-xl shadow-black overflow-hidden transition-all duration-300 transform origin-top z-50",
+              isOpen ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 pointer-events-none"
+            )}
+          >
+            <div className="max-h-[250px] overflow-y-auto custom-scrollbar p-1">
+              <button
+                onClick={selectAll}
+                className="w-full flex items-center gap-2 p-2 hover:bg-[#2B3739] rounded transition-colors text-left"
+              >
+                {filter.length === 0 ? (
+                  <CheckSquare size={14} className="text-lapis-neon flex-shrink-0" />
+                ) : (
+                  <Square size={14} className="text-gray-500 flex-shrink-0" />
+                )}
+                <span className="text-xs text-white">Select All</span>
+              </button>
+              <div className="h-[1px] bg-[#1E3D40] my-1" />
+              {list.map((m) => {
+                const isSelected = filter.length === 0 || filter.includes(m.id);
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => toggleMachine(m.id)}
+                    className="w-full flex items-center gap-2 p-2 hover:bg-[#2B3739] rounded transition-colors text-left"
+                  >
+                    {isSelected ? (
+                      <CheckSquare size={14} className="text-lapis-neon flex-shrink-0" />
+                    ) : (
+                      <Square size={14} className="text-gray-500 flex-shrink-0" />
+                    )}
+                    <span className="text-xs text-gray-200">{m.id} - {m.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

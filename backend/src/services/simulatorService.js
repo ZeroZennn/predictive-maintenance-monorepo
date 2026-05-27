@@ -233,6 +233,54 @@ class SimulatorService {
     logger.info('[Simulator] Stopped.');
   }
 
+  /**
+   * Clears all simulated data from databases to provide a clean slate.
+   */
+  async resetData() {
+    try {
+      const pgPool = require('../config/postgresClient');
+      const timescalePool = require('../config/timescaleClient');
+      const redisClient = require('../config/redisClient');
+
+      logger.info('[Simulator] Initiating data reset...');
+
+      // 1. Truncate TimescaleDB tables
+      await timescalePool.query('TRUNCATE TABLE sensor_readings CASCADE;');
+      await timescalePool.query('TRUNCATE TABLE ml_predictions CASCADE;');
+      
+      // 2. Truncate PostgreSQL maintenance logs, schedules, and alerts
+      await pgPool.query('TRUNCATE TABLE maintenance_logs CASCADE;');
+      await pgPool.query('TRUNCATE TABLE maintenance_schedules CASCADE;');
+      await pgPool.query('TRUNCATE TABLE alerts CASCADE;');
+
+      // 3. Clear all machine-related Redis keys
+      const keys = await redisClient.keys('machine:*');
+      if (keys.length > 0) {
+        await redisClient.del(keys);
+      }
+
+      // 4. Reset internal state
+      this.currentIndex = 0;
+      this.stats.total_ticks = 0;
+      this.stats.ticks_sent = 0;
+
+      // 5. Notify all connected clients so UI can clear stale live rows
+      try {
+        const socketManager = require('../websockets/socketManager');
+        const io = socketManager.getIO();
+        io.emit('simulator:reset', { reset_at: new Date().toISOString() });
+        logger.info('[Simulator] Broadcast simulator:reset to all clients.');
+      } catch (broadcastErr) {
+        logger.warn(`[Simulator] Could not broadcast reset: ${broadcastErr.message}`);
+      }
+      
+      logger.info('[Simulator] ✅ Data reset complete.');
+    } catch (err) {
+      logger.error(`[Simulator] Reset failed: ${err.message}`);
+      throw err;
+    }
+  }
+
   // getStatus
   /**
    * Returns a snapshot of the current simulator state.

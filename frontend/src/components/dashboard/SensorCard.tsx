@@ -20,15 +20,14 @@ export default function SensorCard({
   // Hanya subscribe ke satu nilai sensor ini
   const sensorValue = useMachineStore(
     (state) =>
-      state.machines[machineId]?.sensors[sensorConfig.key] ?? sensorConfig.min
+      state.machines[machineId]?.sensors?.[sensorConfig.key] ?? sensorConfig.min
   );
 
-  // Hanya subscribe ke status mesin ini
-  const machineStatus = useMachineStore(
-    (state) => state.machines[machineId]?.status ?? "HEALTHY"
-  );
+  const machine = useMachineStore((state) => state.machines[machineId]);
 
+  if (!machine) return null;
 
+  const machineStatus = machine.status ?? "HEALTHY";
 
   return (
     <div

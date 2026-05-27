@@ -6,7 +6,7 @@ import type { WsConnectionState } from "@/lib/websocket/ws-events";
 
 export function useWebSocketInit() {
   const [connectionState, setConnectionState] =
-    useState<WsConnectionState>("DISCONNECTED");
+    useState<WsConnectionState>(wsManager.getConnectionState());
 
   useEffect(() => {
     wsManager.connect();

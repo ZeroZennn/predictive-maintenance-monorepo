@@ -1,0 +1,60 @@
+{
+  "timestamp": "20260524_061759",
+  "cases_evaluated": 3,
+  "scores_mean": {
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.2993,
+    "context_precision": 0.0,
+    "context_recall": 0.0,
+    "context_entity_recall": 0.0,
+    "answer_correctness": 0.349,
+    "answer_similarity": 0.888
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+      "retrieved_contexts": [
+        ""
+      ],
+      "response": "## [JAWABAN TEKNIS]\n\n- **ANALISIS**: Informasi tentang kondisi mesin M-01 saat emergency di Agustus 2025 tidak tersedia karena tidak ada data historis yang relevan ditemukan.\n\n- **REKOMENDASI**: Informasi tidak ditemukan dalam dokumen yang tersedia.\n\n- **REFERENSI**: Dokumen yang tersedia hanya berisi data kondisi real-time mesin M-01 pada tanggal 24 Mei 2026.",
+      "reference": "M-01 mengalami kegagalan sistem pendingin kritis pada 02/08/2025 yang menyebabkan motor berhenti beroperasi selama lebih dari 48 jam.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.22829901016166876,
+      "answer_similarity": 0.913196040646675
+    },
+    {
+      "user_input": "Berapa batas kritis suhu operasional mesin M-01?",
+      "retrieved_contexts": [
+        ""
+      ],
+      "response": "## [JAWABAN TEKNISI]\n\n### ANALISIS:\nBerdasarkan data real-time, mesin M-01 sedang beroperasi dengan kondisi yang sehat (HEALTHY) dan tidak ada alert aktif. Suhu operasional saat ini adalah 69.0°C, yang masih dalam batas normal. Namun, perlu diingat bahwa tidak ada data historis yang relevan tersedia untuk membandingkan kondisi ini.\n\n### REKOMENDASI:\n[PREVENTIF] Lakukan pemantauan rutin terhadap suhu operasional mesin M-01 untuk memastikan bahwa kondisi ini tetap stabil dan tidak menunjukkan tanda-tanda perubahan yang tidak diinginkan.\n\n### REFERENSI:\nSumber data yang digunakan adalah [KONDISI REAL-TIME MESIN M-01 — 2026-05-24T06:16:28.494841+00:00].",
+      "reference": "Batas kritis suhu adalah lebih dari 95°C yang menyebabkan risiko overheat motor. Batas warning dimulai dari 85°C.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.8978183660738402,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.42780097528806055,
+      "answer_similarity": 0.8540610440093851
+    },
+    {
+      "user_input": "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
+      "retrieved_contexts": [
+        ""
+      ],
+      "response": "## [JAWABAN]\n- ANALISIS: Informasi tidak ditemukan dalam dokumen yang tersedia untuk menjelaskan prosedur keselamatan dan LOTO (Lockout/Tagout) sebelum membuka panel motor. Namun, secara umum, prosedur keselamatan dan LOTO adalah langkah-langkah kritis yang harus diikuti sebelum memulai kerja perawatan atau perbaikan pada mesin atau peralatan yang dioperasikan.\n- REKOMENDASI: [SEGERA] Lakukan penelitian lebih lanjut untuk mencari informasi tentang prosedur keselamatan dan LOTO yang relevan untuk motor di PT Tirta Segar. Pastikan teknisi memiliki akses ke dokumen yang terkini dan akurat untuk menghindari risiko keamanan.\n- REFERENSI: Informasi tidak ditemukan dalam dokumen yang tersedia.",
+      "reference": "Teknisi wajib menggunakan APD lengkap dan menerapkan prosedur LOTO (Lockout/Tagout) sebelum membuka panel manapun untuk mencegah kecelakaan kerja.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.3908681765353923,
+      "answer_similarity": 0.8968060394749027
+    }
+  ]
+}

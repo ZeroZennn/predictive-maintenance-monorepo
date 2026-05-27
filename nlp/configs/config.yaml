@@ -1,0 +1,76 @@
+api:
+  backend_url: http://localhost:8000
+  host: 0.0.0.0
+  port: 8001
+  timeout_seconds: 30
+chunking:
+  anomali_keywords:
+  - ditemukan
+  - terdeteksi
+  - anomali
+  - kerusakan
+  - warning
+  - vibrasi
+  - suhu melebihi
+  - pressure drop
+  chunk_size_max: 400
+  chunk_size_min: 50
+  chunk_size_target: 200
+  chunk_types:
+  - prose
+  - tabel
+  - anomali
+  - rekomendasi
+  overlap_percentage: 0.2
+  similarity_threshold: 0.75
+  strategy: hybrid_semantic
+embedding:
+  batch_size: 32
+  dimension: 1024
+  fallback_model: sentence-transformers/paraphrase-multilingual-mpnet-base-v2
+  passage_prefix: 'passage: '
+  primary_model: intfloat/multilingual-e5-large
+  query_prefix: 'query: '
+ingestion:
+  encoding: utf-8
+  ocr_fallback: true
+  supported_formats:
+  - pdf
+  - txt
+  table_extraction: true
+live_context:
+  cache_ttl_seconds: 60
+  enabled: true
+  endpoints:
+    active_alerts: /api/alerts/active
+    machine_status: /api/machines/{machine_id}/status
+    ml_prediction: /api/predictions/{machine_id}/latest
+llm:
+  fallback_model: mock-v1
+  fallback_provider: mock
+  max_tokens: 4096
+  nvidia_base_url: https://integrate.api.nvidia.com/v1
+  primary_model: deepseek-ai/deepseek-v4-flash
+  primary_provider: nvidia
+  temperature: 0.7
+paths:
+  data_processed: nlp/data/processed
+  data_raw: nlp/data/raw
+  knowledge_base: nlp/data/knowledge_base
+  vector_db: nlp/data/vector_db
+project:
+  environment: development
+  name: lapis-ai-nlp
+  version: 1.0.0
+retrieval:
+  reranker_model: cross-encoder/ms-marco-MiniLM-L-6-v2
+  rrf_k: 60
+  top_k_after_rrf: 30
+  top_k_dense: 20
+  top_k_final: 4
+  top_k_sparse: 20
+vector_db:
+  collection_name: lapis_ai_chunks
+  local_path: nlp/data/vector_db/qdrant
+  mode: local
+  provider: qdrant

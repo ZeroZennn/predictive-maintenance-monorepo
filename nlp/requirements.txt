@@ -1,0 +1,54 @@
+﻿# ============================================================
+# LAPIS AI NLP Pipeline — Dependencies
+# Python 3.12 | Windows dev / Linux prod
+# Last updated: Fase 3
+# ============================================================
+
+# --- PDF Parsing ---
+pdfplumber==0.11.0
+PyMuPDF==1.24.5
+pytesseract==0.3.10
+Pillow==10.3.0
+
+# --- Text Processing ---
+nltk==3.8.1
+langdetect==1.0.9
+
+# --- Embedding & ML ---
+sentence-transformers==3.0.1
+torch==2.3.0
+transformers==4.41.2
+
+# --- Numpy (pinned <2 for torch compatibility) ---
+numpy>=1.24,<2.0
+
+# --- Vector Database ---
+qdrant-client==1.9.1
+
+# --- BM25 / Sparse Retrieval ---
+rank-bm25==0.2.2
+
+# --- LLM Providers ---
+anthropic==0.28.0
+google-generativeai==0.7.0
+
+# --- API & Web ---
+fastapi==0.111.0
+uvicorn==0.30.1
+httpx==0.27.0
+pydantic==2.7.2
+
+# --- Data & Config ---
+pyyaml==6.0.1
+python-dotenv==1.0.1
+pandas==2.2.2
+
+# --- Evaluation ---
+ragas==0.1.14
+datasets==2.20.0
+langchain-groq==1.1.2
+
+# --- Utilities ---
+tqdm==4.66.4
+loguru==0.7.2
+tenacity==8.3.0
