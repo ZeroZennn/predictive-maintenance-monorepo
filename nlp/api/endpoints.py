@@ -295,15 +295,12 @@ async def health_endpoint() -> HealthResponse:
 
         # Cek LLM
         _, _, _, llm, _ = get_components()
-        llm_provider    = llm.primary_provider
-        if llm.primary_provider == "nvidia" and not llm.nvidia_key:
-            llm_status = "mock"
-        elif llm.primary_provider == "google" and not llm.google_key:
-            llm_status = "mock"
-        elif llm.primary_provider == "anthropic" and not llm.anthropic_key:
-            llm_status = "mock"
+        llm_provider    = getattr(llm, 'primary_provider', 'groq') 
+        groq_key        = os.environ.get('GROQ_API_KEY', '')
+        if groq_key:
+            llm_status = 'ok'
         else:
-            llm_status = "ok"
+            llm_status = 'mock'
 
         uptime = time.time() - _start_time
 

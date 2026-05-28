@@ -105,7 +105,7 @@ class PromptBuilder:
             self.config: Dict = yaml.safe_load(f)
 
         self.logger            = logging.getLogger(self.__class__.__name__)
-        self.max_context_chars = 5000
+        self.max_context_chars = 8000  # raised from 5000 for broad queries
 
     # ── Formatters ─────────────────────────────────────────────────────────────
 
@@ -113,6 +113,16 @@ class PromptBuilder:
         """Format retrieved chunks menjadi blok konteks historis bernomor."""
         if not results:
             return "Tidak ada data historis yang relevan ditemukan."
+
+        # Deteksi apakah ini hasil broad retrieval (machine_index)
+        is_machine_index = any(
+            getattr(r, 'retrieval_method', '') == 'machine_index'
+            for r in results
+        )
+
+        if is_machine_index:
+            # Group by doc_id untuk broad query — lebih compact
+            return self._format_grouped_context(results)
 
         lines       = ["[KONTEKS HISTORIS & DOKUMEN RELEVAN]"]
         total_chars = 0
@@ -141,6 +151,40 @@ class PromptBuilder:
             total_chars += len(entry)
 
         return "\n".join(lines)
+
+    def _format_grouped_context(self, results: List[RetrievalResult]) -> str:  
+        """Format broad retrieval results grouped by doc_id — compact layout."""
+        from collections import OrderedDict                              
+
+        # Group chunks by doc_id                                         
+        groups: OrderedDict = OrderedDict()                              
+        for r in results:                                                
+            doc_id = r.chunk_id.split("__")[0] if "__" in r.chunk_id else r.chunk_id  
+            groups.setdefault(doc_id, []).append(r)                       
+
+        # Header eksplisit: sebutkan SETIAP dokumen agar LLM tidak skip  
+        doc_names = list(groups.keys())                                  
+        doc_list  = ", ".join(                                           
+            f"{i}. {name}" for i, name in enumerate(doc_names, 1)        
+        )                                                                
+        lines = [                                                        
+            f"[DATA DARI {len(groups)} DOKUMEN — WAJIB sebutkan "        
+            f"SEMUA {len(groups)} dokumen dalam jawaban]\n"              
+            f"DAFTAR LENGKAP: {doc_list}\n"                              
+            f"INSTRUKSI: Jawab berdasarkan SETIAP dokumen di atas. "     
+            f"Jangan skip satupun."                                      
+        ]                                                                
+        total_chars = 0                                                  
+
+        for i, (doc_id, chunks) in enumerate(groups.items(), 1):          
+            if total_chars > self.max_context_chars:                       
+                break                                                    
+            combined_text = "\n".join(c.text_content for c in chunks)     
+            entry = f"\n=== [{i}/{len(groups)}] {doc_id} ===\n{combined_text}"  
+            lines.append(entry)                                          
+            total_chars += len(entry)                                    
+
+        return "\n".join(lines)                                          
 
     def _format_history(self, history: Optional[List[Dict]]) -> str:
         """Format chat history menjadi blok riwayat percakapan (max 6 pesan terakhir)."""
