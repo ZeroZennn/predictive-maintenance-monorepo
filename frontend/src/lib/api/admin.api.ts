@@ -10,7 +10,7 @@ import type {
 export async function fetchUsers(): 
   Promise<AdminUser[]> {
   const { data } = await apiClient.get('/api/admin/users')
-  return data
+  return data.data.users
 }
 
 export async function createUser(payload: {
@@ -23,7 +23,7 @@ export async function createUser(payload: {
   const { data } = await apiClient.post(
     '/api/admin/users', payload
   )
-  return data
+  return data.data.user
 }
 
 export async function updateUser(
@@ -39,7 +39,7 @@ export async function updateUser(
   const { data } = await apiClient.patch(
     `/api/admin/users/${id}`, payload
   )
-  return data
+  return data.data.user
 }
 
 export async function deleteUser(
@@ -53,7 +53,7 @@ export async function deleteUser(
 export async function fetchDocuments(): 
   Promise<AdminDocument[]> {
   const { data } = await apiClient.get('/api/admin/documents')
-  return data
+  return data.data.documents
 }
 
 export async function uploadDocument(
@@ -74,7 +74,7 @@ export async function uploadDocument(
       },
     }
   )
-  return data
+  return data.data
 }
 
 export async function deleteDocument(
@@ -90,7 +90,7 @@ export async function fetchAdminMaintenanceLogs():
   const { data } = await apiClient.get(
     '/api/admin/maintenance-logs'
   )
-  return data
+  return data.data.logs
 }
 
 export async function createMaintenanceLog(
@@ -100,7 +100,7 @@ export async function createMaintenanceLog(
   const { data } = await apiClient.post(
     '/api/admin/maintenance-logs', payload
   )
-  return data
+  return data.data
 }
 
 export async function updateMaintenanceLog(
@@ -112,7 +112,7 @@ export async function updateMaintenanceLog(
     `/api/admin/maintenance-logs/${log_id}`,
     payload
   )
-  return data
+  return data.data
 }
 
 export async function deleteMaintenanceLog(

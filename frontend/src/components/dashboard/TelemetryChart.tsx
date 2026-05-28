@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { format } from "date-fns";
 import { useMachineStore } from "@/stores";
 import {
   LineChart,
@@ -25,7 +26,7 @@ const metrics = [
   { key: "rpm", label: "RPM", color: "#8B5CF6" }, // Purple
   { key: "power_consumption", label: "Power", color: "#EC4899" }, // Pink
   { key: "noise_level", label: "Noise", color: "#F43F5E" }, // Rose
-  { key: "humidity", label: "Humidity", color: "#F43F5E" }, // Rose
+  { key: "humidity", label: "Humidity", color: "#06B6D4" }, // Cyan
 ];
 
 export default function TelemetryChart({ className }: TelemetryChartProps) {
@@ -33,19 +34,9 @@ export default function TelemetryChart({ className }: TelemetryChartProps) {
   const machine = useMachineStore((state) =>
     state.machines[selectedMachineId]
   );
-
   const [selectedMetric, setSelectedMetric] = useState(metrics[0]);
 
-  if (!machine || !machine.history || machine.history.length === 0) {
-    return (
-      <div
-        className={clsx(
-          "h-[300px] rounded-xl bg-[#2B3739] animate-pulse",
-          className
-        )}
-      />
-    );
-  }
+  if (!machine) return null;
 
   return (
     <div
@@ -90,7 +81,7 @@ export default function TelemetryChart({ className }: TelemetryChartProps) {
           <LineChart data={machine.history} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1E3D40" vertical={false} />
             <XAxis
-              dataKey="time"
+              dataKey="timestamp"
               stroke="#4B5563"
               fontSize={10}
               tickMargin={10}
@@ -98,13 +89,14 @@ export default function TelemetryChart({ className }: TelemetryChartProps) {
               tickLine={false}
               minTickGap={30}
               tickFormatter={(val) => {
-                if (typeof val === 'string' && val.includes(':')) {
-                  const parts = val.split(':');
-                  return `${parts[0].padStart(2, '0')}:00`;
-                }
+                if (!val) return "";
                 const date = new Date(val);
                 if (!isNaN(date.getTime())) {
-                  return `${date.getHours().toString().padStart(2, '0')}:00`;
+                  const day = date.getDate().toString().padStart(2, '0');
+                  const month = date.toLocaleString('default', { month: 'short' });
+                  const hours = date.getHours().toString().padStart(2, '0');
+                  const minutes = date.getMinutes().toString().padStart(2, '0');
+                  return `${day} ${month} ${hours}:${minutes}`;
                 }
                 return val;
               }}
@@ -116,7 +108,12 @@ export default function TelemetryChart({ className }: TelemetryChartProps) {
               tickLine={false}
               domain={['auto', 'auto']}
               tickCount={6}
-              tickFormatter={(val) => typeof val === 'number' ? val.toFixed(1) : val}
+              tickFormatter={(val) => {
+                if (typeof val !== 'number') return val;
+                if (selectedMetric.key === 'rpm') return val.toFixed(0);
+                if (selectedMetric.key === 'vibration') return val.toFixed(3);
+                return val.toFixed(1);
+              }}
             />
             <Tooltip
               contentStyle={{
@@ -127,6 +124,16 @@ export default function TelemetryChart({ className }: TelemetryChartProps) {
                 color: "#fff",
               }}
               itemStyle={{ color: selectedMetric.color }}
+              labelFormatter={(label) => {
+                const date = new Date(label);
+                if (!isNaN(date.getTime())) {
+                  return date.toLocaleString('id-ID', { 
+                    day: '2-digit', month: 'short', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit', second: '2-digit' 
+                  });
+                }
+                return label;
+              }}
             />
             <Line
               type="monotone"

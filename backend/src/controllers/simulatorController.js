@@ -9,11 +9,11 @@ const simulatorController = {
       const { start_date, tick_interval_seconds } = req.body;
       if (
         tick_interval_seconds !== undefined &&
-        (tick_interval_seconds < 0.1 || tick_interval_seconds > 60)
+        (tick_interval_seconds < 0.1 || tick_interval_seconds > 3600)
       ) {
         return res.status(400).json({
           status: 'error',
-          message: 'tick_interval_seconds must be between 0.1 and 60',
+          message: 'tick_interval_seconds must be between 0.1 and 3600',
         });
       }
       await simulatorService.start({ start_date, tick_interval_seconds });
@@ -36,6 +36,18 @@ const simulatorController = {
       message: 'Simulator stopped',
       data: simulatorService.getStatus(),
     });
+  },
+
+  async reset(req, res) {
+    try {
+      await simulatorService.resetData();
+      return res.status(200).json({
+        status: 'success',
+        message: 'Simulator data reset successfully',
+      });
+    } catch (err) {
+      return res.status(500).json({ status: 'error', message: err.message });
+    }
   },
 
   getStatus(req, res) {

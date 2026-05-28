@@ -5,21 +5,32 @@ import type { MachineReading, MachineStatus, SensorData, MaintenanceTask } from 
 // =============================================================================
 
 export const WS_EVENTS = {
-  /** Dikirim backend setiap ada data sensor baru */
-  MACHINE_UPDATE: "MACHINE_UPDATE",
-  /** Dikirim backend ketika mesin masuk status CRITICAL */
-  CRITICAL_ALERT: "CRITICAL_ALERT",
-  /** Dikirim backend ketika mesin masuk status WARNING */
-  WARNING_ALERT: "WARNING_ALERT",
-  /** Dikirim backend ketika mesin kembali ke HEALTHY */
-  STATUS_RESOLVED: "STATUS_RESOLVED",
-  /** Konfirmasi koneksi berhasil dari backend */
-  CONNECTION_ACK: "CONNECTION_ACK",
-  PING: "PING",
-  PONG: "PONG",
-  /** Dikirim backend saat ML mendeteksi mesin butuh maintenance (is_active=true) */
-  NEW_MAINTENANCE_TASK: "new_maintenance_task",
+  // Events dari Backend (harus match persis)
+  SENSOR_UPDATE:        'sensor:update',
+  ALERT_NEW:            'alert:new',
+  MACHINE_STATUS_UPDATE:'machine:status_update',
+  MAINTENANCE_NEW_SUGGESTION: 'maintenance:new_suggestion',
+  MAINTENANCE_CONFIRMED: 'maintenance:confirmed',
+  SIMULATOR_TICK:       'simulator:tick',
+
+  // Events yang di-emit FE ke Backend (join rooms)
+  JOIN_MACHINE:         'join:machine',
+  JOIN_GLOBAL:          'join:global',
+  JOIN_SIMULATOR:       'join:simulator',
 } as const;
+
+export type WsEventKey = keyof typeof WS_EVENTS;
+export type WsEventValue = typeof WS_EVENTS[WsEventKey];
+
+// Backward compatibility aliases
+export const MACHINE_UPDATE    = WS_EVENTS.SENSOR_UPDATE;
+export const CRITICAL_ALERT    = WS_EVENTS.ALERT_NEW;
+export const WARNING_ALERT     = WS_EVENTS.ALERT_NEW;
+export const STATUS_RESOLVED   = WS_EVENTS.MACHINE_STATUS_UPDATE;
+export const CONNECTION_ACK    = 'CONNECTION_ACK';
+export const PING              = 'PING';
+export const PONG              = 'PONG';
+
 
 // =============================================================================
 // BAGIAN 2 — WebSocket connection state type
@@ -90,25 +101,25 @@ export type WsIncomingMessage =
 export function isMachineUpdate(
   msg: WsIncomingMessage
 ): msg is WsMachineUpdateMessage {
-  return msg.event_type === WS_EVENTS.MACHINE_UPDATE;
+  return msg.event_type === MACHINE_UPDATE;
 }
 
 export function isCriticalAlert(
   msg: WsIncomingMessage
 ): msg is WsCriticalAlertMessage {
-  return msg.event_type === WS_EVENTS.CRITICAL_ALERT;
+  return msg.event_type === CRITICAL_ALERT;
 }
 
 export function isWarningAlert(
   msg: WsIncomingMessage
 ): msg is WsWarningAlertMessage {
-  return msg.event_type === WS_EVENTS.WARNING_ALERT;
+  return msg.event_type === WARNING_ALERT;
 }
 
 export function isStatusResolved(
   msg: WsIncomingMessage
 ): msg is WsStatusResolvedMessage {
-  return msg.event_type === WS_EVENTS.STATUS_RESOLVED;
+  return msg.event_type === STATUS_RESOLVED;
 }
 
 // =============================================================================

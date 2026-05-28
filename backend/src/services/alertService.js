@@ -28,29 +28,32 @@ const alertService = {
 
       let alertData = null;
 
-      // Primary trigger: urgency_level from ML model_2_rul (most authoritative)
-      if (prediction.urgency_level === 'IMMEDIATE') {
+      // Prioritas: classification dari Model 1 (health status)
+      // Bukan urgency_level dari Model 2 (RUL)
+      if (prediction.classification === 'CRITICAL') {
         alertData = {
-          type: 'rul_critical',
-          message: `IMMEDIATE: Machine ${machineId} requires service within 24 hours. RUL: ${prediction.rul_days} days.`,
+          type: 'health_critical',
+          message: `Machine ${machineId} dalam kondisi CRITICAL. RUL: ${prediction.rul_days} hari.`,
           severity: 'critical',
         };
-      } else if (prediction.urgency_level === 'CRITICAL') {
-        alertData = {
-          type: 'rul_critical',
-          message: `CRITICAL: Machine ${machineId} requires service within 48 hours. RUL: ${prediction.rul_days} days.`,
-          severity: 'critical',
-        };
-      } else if (
-        prediction.classification === 'WARNING' ||
-        prediction.health_score <= THRESHOLDS.WARNING_HEALTH
-      ) {
-        // Fallback: health-score based when urgency is not IMMEDIATE/CRITICAL
-        alertData = {
-          type: 'health_warning',
-          message: `WARNING: Machine ${machineId} health at ${prediction.health_score}%. RUL: ${prediction.rul_days} days.`,
-          severity: 'warning',
-        };
+      } else if (prediction.classification === 'WARNING') {
+        // Cek apakah RUL juga mendesak (IMMEDIATE / CRITICAL urgency)
+        if (
+          prediction.urgency_level === 'IMMEDIATE' ||
+          prediction.urgency_level === 'CRITICAL'
+        ) {
+          alertData = {
+            type: 'rul_critical',
+            severity: 'warning',   // WARNING, bukan critical — sesuai klasifikasi health
+            message: `WARNING: Machine ${machineId} membutuhkan servis segera. RUL: ${prediction.rul_days} hari.`,
+          };
+        } else {
+          alertData = {
+            type: 'health_warning',
+            severity: 'warning',
+            message: `Machine ${machineId} masuk zona WARNING. RUL: ${prediction.rul_days} hari.`,
+          };
+        }
       }
 
       // Only act if there's something to alert on

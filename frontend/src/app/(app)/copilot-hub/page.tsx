@@ -83,7 +83,7 @@ export default function CopilotHubPage() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-none p-4 gap-4">
+    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-none p-4 gap-4 pb-24 md:pb-8">
       {/* Panel Kiri — Dokumen SOP */}
       <SopDocumentPanel />
 

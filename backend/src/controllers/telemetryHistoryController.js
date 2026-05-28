@@ -25,15 +25,38 @@ const telemetryHistoryController = {
   async getHistory(req, res, next) {
     try {
       const { machine_id } = req.params;
-      const limit = Math.min(parseInt(req.query.limit) || 24, 100);
+      const limit = Math.min(parseInt(req.query.limit) || 100, 500);
 
       const result = await timescalePool.query(
-        `SELECT timestamp, machine_id, temperature, vibration,
-                pressure, rpm, power_consumption, noise_level,
-                humidity, operating_hours
-         FROM sensor_readings
-         WHERE machine_id = $1
-         ORDER BY timestamp DESC
+        `SELECT 
+            s.timestamp,
+            s.machine_id,
+            s.temperature,
+            s.vibration,
+            s.pressure,
+            s.rpm,
+            s.power_consumption,
+            s.noise_level,
+            s.humidity,
+            s.operating_hours,
+            -- ML Prediction columns (null when no matching prediction yet)
+            m.classification  AS health_status,
+            m.health_score,
+            m.rul_days,
+            m.confidence_score,
+            m.urgency_level
+         FROM sensor_readings s
+         LEFT JOIN LATERAL (
+           SELECT classification, health_score, rul_days, confidence_score, urgency_level
+           FROM ml_predictions mp
+           WHERE mp.machine_id = s.machine_id
+             AND mp.timestamp BETWEEN s.timestamp - INTERVAL '5 minutes'
+                                  AND s.timestamp + INTERVAL '5 minutes'
+           ORDER BY ABS(EXTRACT(EPOCH FROM (mp.timestamp - s.timestamp)))
+           LIMIT 1
+         ) m ON true
+         WHERE s.machine_id = $1
+         ORDER BY s.timestamp DESC
          LIMIT $2`,
         [machine_id, limit]
       );
