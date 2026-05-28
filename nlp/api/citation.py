@@ -32,10 +32,10 @@ class CitationExtractor:
         citations: List[CitationItem] = []
         for r in seen.values():
             citations.append(CitationItem(
-                source_doc = r.source_doc,
-                page       = r.source_page,
-                chunk_id   = r.chunk_id,
-                doc_type   = r.doc_type,
+                source_doc = r.source_doc or "", 
+                page       = r.source_page or 0, 
+                chunk_id   = r.chunk_id or "", 
+                doc_type   = r.doc_type or "",
                 relevance  = round(float(r.score), 4),
             ))
 
