@@ -317,6 +317,6 @@ main                          ← Production ready
 | 7 | ✅ | Admin Panel APIs |
 | 8 | ✅ | Historical Logs, Replay Script & Maintenance Scheduler |
 | HF | ✅ | ML Integration Hotfixes (timestamp, nullable, precision) |
-| 9 | ⏳ | Hardening & End-to-End Integration Test |
+| 9 | ✅ | Hardening & End-to-End Integration Test |
 
 Lihat `backend/HISTORY_LOG.md` untuk detail setiap fase.

@@ -509,4 +509,49 @@ migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
 
 ---
 
+## FASE 9 — Hardening & Security ✅
+**Tanggal:** 2026-05-28
+
+### Langkah 9.A — Rate Limiting & Input Sanitization ✅
+- **Packages Added:** express-rate-limit, xss
+- **Files Created:**
+  - `src/middlewares/rateLimitMiddleware.js`
+  - `src/middlewares/sanitizeMiddleware.js`
+- **Rate Limits:**
+  | Endpoint | Max | Window | Alasan |
+  |----------|-----|--------|--------|
+  | /api/telemetry | 300/min | 1 menit | 20 mesin × 12 tick/min + buffer |
+  | /api/auth | 10/min | 1 menit | Brute force protection |
+  | /api/nlp | 30/min | 1 menit | LLM cost protection |
+  | /* (global) | 300/min | 1 menit | Safety net |
+- **Sanitization:** XSS recursive sanitization pada semua req.body
+- **Verified:**
+  - Auth rate limit → 429 setelah 10 request ✅
+  - XSS payload → disanitize, return 401 bukan 500 ✅
+  - Telemetry rate limit → tidak ganggu simulator 5s tick ✅
+- **FE Integration Confirmed:**
+  - Frontend (port 3001) → Backend (port 3000) CORS OK ✅
+  - GET /api/telemetry/anomaly/M-03 → 200 OK dari browser ✅
+
+---
+
+## STATUS FINAL BACKEND LAPIS AI
+Seluruh fase backend telah selesai:
+
+| Fase | Status |
+|------|--------|
+| 0 — Environment & Monorepo | ✅ |
+| 1 — Core Ingestion & Dispatcher | ✅ |
+| 2 — Database Schema | ✅ |
+| 3 — Authentication (JWT + RBAC) | ✅ |
+| 4 — WebSocket Broadcast Engine | ✅ |
+| 5 — ML Orchestration | ✅ |
+| 5B — ML Contract Fix & SEQ_LEN=24 | ✅ |
+| 6 — Smart NLP Router & Context Injection | ✅ |
+| 7 — Admin Panel APIs | ✅ |
+| 8 — Historical Logs, Simulator & Scheduler | ✅ |
+| HF — ML Integration Hotfixes | ✅ |
+| 9 — Hardening & Security | ✅ |
+
+
 _Log ini diupdate setiap akhir fase oleh Backend Engineer._
