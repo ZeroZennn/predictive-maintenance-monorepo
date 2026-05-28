@@ -26,20 +26,20 @@ def run_full_pipeline():
     print("\n[2/4] Loading all chunks...")
     all_chunks = load_all_chunks()
     
-    # Map 'text' to 'text_content' for embedder compatibility and equivalent fields # CHANGED
-    for c in all_chunks: # CHANGED
-        c["text_content"] = c.get("text", "") # CHANGED
-        meta = c.get("metadata", {}) # CHANGED
-        c["machine_ids"] = meta.get("detected_machine_ids", []) # CHANGED
-        c["chunk_type"] = c.get("strategy_used", "unknown") # CHANGED
-        c["doc_type"] = meta.get("detected_language", "unknown") # CHANGED
-        c["priority"] = 1 # CHANGED
+    # Map 'text' to 'text_content' for embedder compatibility and equivalent fields 
+    for c in all_chunks: 
+        c["text_content"] = c.get("text", "") 
+        meta = c.get("metadata", {}) 
+        c["machine_ids"] = meta.get("detected_machine_ids", []) 
+        c["chunk_type"] = c.get("strategy_used", "unknown") 
+        c["doc_type"] = meta.get("detected_language", "unknown") 
+        c["priority"] = 1 
 
     print(f"      Total chunks: {len(all_chunks)}")
 
     by_type = {}
     for c in all_chunks:
-        t = c.get('strategy_used', 'unknown') # CHANGED
+        t = c.get('strategy_used', 'unknown') 
         by_type[t] = by_type.get(t, 0) + 1
     for t, n in sorted(by_type.items()):
         print(f"      {t:25s}: {n}")
@@ -74,27 +74,27 @@ def run_retrieval_tests(vs, embedder):
     test_cases = [
         {
             "query"   : "Apa saja emergency event pada mesin M-01?",
-            "filter"  : {"machine_ids": ["M-01"]}, # CHANGED
+            "filter"  : {"machine_ids": ["M-01"]}, 
             "expect"  : "M-01"
         },
         {
             "query"   : "Berapa batas kritis suhu mesin M-01?",
-            "filter"  : {"machine_ids": ["M-01"]}, # CHANGED
+            "filter"  : {"machine_ids": ["M-01"]}, 
             "expect"  : "M-01"
         },
         {
             "query"   : "Mesin mana yang paling sering mengalami emergency?",
-            "filter"  : {}, # CHANGED
+            "filter"  : {}, 
             "expect"  : "emergency"
         },
         {
             "query"   : "Prosedur keselamatan dan LOTO saat perbaikan",
-            "filter"  : {}, # CHANGED
+            "filter"  : {}, 
             "expect"  : "LOTO"
         },
         {
             "query"   : "Bearing aus perlu penggantian corrective maintenance",
-            "filter"  : {}, # CHANGED
+            "filter"  : {}, 
             "expect"  : "corrective"
         },
     ]

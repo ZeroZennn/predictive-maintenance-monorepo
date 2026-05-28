@@ -67,7 +67,7 @@ retrieval:
   rrf_k: 60
   top_k_after_rrf: 30
   top_k_dense: 20
-  top_k_final: 4
+  top_k_final: 8
   top_k_sparse: 20
 vector_db:
   collection_name: lapis_ai_chunks

@@ -1,0 +1,69 @@
+{
+  "timestamp": "20260526_084412",
+  "cases_evaluated": 3,
+  "scores_mean": {
+    "faithfulness": 0.3889,
+    "answer_relevancy": 0.5886,
+    "context_precision": 0.8704,
+    "context_recall": 0.2222,
+    "context_entity_recall": 0.3389,
+    "answer_correctness": 0.3055,
+    "answer_similarity": 0.9145
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang harus dilakukan jika sistem pendingin M-01 mengalami kegagalan kritis?",
+      "retrieved_contexts": [
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).",
+        "Buku Manual Operasional Mesin M-01 (Filling & Capping)\nIndustri: FMCG - Produksi Air Minum Kemasan (PT Tirta Segar)\nModel Mesin: M-01 MasterFiller Series\nVersi Dokumen: 2025.1-PRO\n1. Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis.",
+        "o Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\n- Inspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. - Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus.",
+        "Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor). - Getaran (Vibration):\no Normal: 0.35 - 0.55 mm/s o Batas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi). - Tekanan Udara (Pressure):\no Normal: 98 - 105 PSI\no Batas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve). - Kecepatan Putaran (RPM):\no Standar Produksi: 2300 - 2500 RPM. o Mode High-Speed: Maksimal 3500$RPM."
+      ],
+      "response": "## ANALISIS\nSistem pendingin M-01 mengalami kegagalan kritis. Berdasarkan spesifikasi teknis dan batas operasional, suhu operasional normal mesin M-01 adalah 65°C - 75°C. Jika suhu mesin melebihi 95°C, maka akan terjadi risiko overheat pada motor. Dalam kondisi ini, sistem pendingin berfungsi sebagai peredam panas untuk menjaga suhu mesin tetap dalam batas yang aman.\n\n## REKOMENDASI\n- SEGERA: Lakukan perbaikan sistem pendingin M-01 untuk menghindari kerusakan lebih lanjut pada motor.\n- [INFO] Data tidak cukup untuk mengetahui penyebab kegagalan sistem pendingin, sehingga perlu dilakukan investigasi lebih lanjut untuk mengetahui penyebab dan mengambil tindakan yang tepat.\n\n## REFERENSI\n- [Referensi 4]: Spesifikasi Teknis & Batas Operasional (Threshold) untuk mesin M-01.\n- [Referensi 1]: Deskripsi Umum Mesin untuk sistem terintegrasi mesin M-01.\n- [Referensi 3]: Prosedur Pemeliharaan untuk Inspeksi Rutin dan Pengecekan Komponen Transmisi, namun tidak relevan dengan kegagalan sistem pendingin.",
+      "reference": "Segera matikan mesin dan ganti komponen Motor. Berdasarkan riwayat kejadian serupa pada 02/08/2025 (Log ID: ML-0119), kegagalan sistem pendingin kritis menyebabkan downtime 21.6 jam dengan biaya Rp 49.643.133. Setelah perbaikan, lakukan lubrikasi komponen dan cek belt sebagai tindakan preventif.",
+      "faithfulness": 0.5,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.8055555555287036,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0999999999,
+      "answer_correctness": 0.21724505907197472,
+      "answer_similarity": 0.8689802362878989
+    },
+    {
+      "user_input": "Langkah apa yang perlu diambil saat terjadi short circuit pada panel kontrol mesin M-02?",
+      "retrieved_contexts": [
+        "[TIMELINE PEMELIHARAAN]\n07/11/2025 (Log ID: ML-0058): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Tidak ada. Aktivitas ini memakan waktu downtime 59.6 jam dengan biaya Rp 17.616.249. 10/11/2025 (Log ID: ML-0419): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli.",
+        "Buku Manual Operasional Mesin M-01 (Filling & Capping)\nIndustri: FMCG - Produksi Air Minum Kemasan (PT Tirta Segar)\nModel Mesin: M-01 MasterFiller Series\nVersi Dokumen: 2025.1-PRO\n1. Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis.",
+        "Teknisi mencatat bahwa motor overheat, ganti komponen pendingin. Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini menyebabkan downtime selama 14.2 jam dengan biaya Rp 5.763.765. 30/11/2025 (Log ID: ML-0479): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Valve. Aktivitas ini memakan waktu downtime 6.3 jam dengan biaya Rp 1.641.143.",
+        "Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 8.0 jam dengan biaya Rp 2.561.045. 21/11/2025 (Log ID: ML-0022): Dilakukan tindakan Corrective. Teknisi mencatat bahwa sensor rusak, ganti sensor baru. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 9.6 jam dengan biaya Rp 7.392.873."
+      ],
+      "response": "## ANALISIS\nDalam konteks ini, terdapat dua kejadian yang relevan dengan short circuit pada panel kontrol mesin: Log ID ML-0058 pada tanggal 07/11/2025 yang menyebutkan short circuit pada panel kontrol. Aktivitas ini memakan waktu downtime 59.6 jam dengan biaya Rp 17.616.249. Namun, part yang diganti pada sistem tidak tercatat.\n\n## REKOMENDASI\n- [SEGERA] Lakukan inspeksi dan identifikasi komponen yang rusak atau gagal pada panel kontrol. Pastikan untuk mengidentifikasi penyebab sebenarnya dari short circuit.\n\n## REFERENSI\n- [Referensi 1]: Laporan_M-02_November_2025 (Log ID ML-0058)",
+      "reference": "Tekan tombol Emergency Stop, terapkan prosedur LOTO, dan periksa panel kontrol secara menyeluruh. Pada kejadian 07/11/2025 (Log ID: ML-0058), short circuit pada panel kontrol M-02 menyebabkan downtime 59.6 jam dengan biaya Rp 17.616.249. Pastikan aliran listrik diputus total sebelum membuka panel.",
+      "faithfulness": 0.5,
+      "answer_relevancy": 0.876882296606743,
+      "context_precision": 0.8055555555287036,
+      "context_recall": 0.3333333333333333,
+      "context_entity_recall": 0.49999999937499995,
+      "answer_correctness": 0.46654102175359163,
+      "answer_similarity": 0.9430871639374436
+    },
+    {
+      "user_input": "Bagaimana cara menangani kebocoran besar pada hydraulic system M-01?",
+      "retrieved_contexts": [
+        "Teknisi mencatat bahwa kebocoran besar pada hydraulic system. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 21.7 jam dengan biaya Rp 13.696.714. 12/11/2025 (Log ID: ML-0154): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327.",
+        "[TIMELINE PEMELIHARAAN]\n04/11/2025 (Log ID: ML-0339): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 5.0 jam dengan biaya Rp 2.323.582. 10/11/2025 (Log ID: ML-0230): Dilakukan tindakan Emergency. Teknisi mencatat bahwa kebocoran besar pada hydraulic system.",
+        "Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327. 23/11/2025 (Log ID: ML-0181): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Valve. Aktivitas ini memakan waktu downtime 3.2 jam dengan biaya Rp 728.959. 26/11/2025 (Log ID: ML-0222): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Filter.",
+        "o Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\n- Inspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. - Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus."
+      ],
+      "response": "## ANALISIS\nKebocoran besar pada hydraulic system M-01 telah terjadi pada tanggal 10/11/2025 (Log ID: ML-0230), menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327. Aktivitas ini merupakan tindakan Emergency untuk menangani kebocoran tersebut.\n\n## REKOMENDASI\n- [SEGERA] Lakukan inspeksi rutin pada hydraulic system M-01 untuk mengidentifikasi sumber kebocoran dan mencegah kejadian serupa di masa depan.\n- [7 HARI] Pastikan bahwa semua komponen yang diganti, seperti Seal, telah dipasang dan dinyalakan dengan benar.\n- [PREVENTIF] Periksa manual pemeliharaan untuk memastikan bahwa prosedur pemeliharaan yang benar telah diikuti, termasuk inspeksi rutin dan penggantian oli pelumas.\n\n## REFERENSI\n- [Referensi 2]: Laporan_M-01_November_2025 untuk detail tindakan Emergency pada tanggal 10/11/2025.\n- [Referensi 4]: Buku_Manual_M01 untuk prosedur pemeliharaan hydraulic system M-01.",
+      "reference": "Hentikan mesin segera dan periksa seal jalur pengisian (Part Code: SEAL-M01). Pada 10/11/2025 (Log ID: ML-0230), kebocoran besar pada hydraulic system M-01 memerlukan penggantian Belt dengan downtime 21.7 jam dan biaya Rp 13.696.714. Periksa juga tekanan udara — jika drop di bawah 90 PSI, kemungkinan ada seal atau valve yang robek.",
+      "faithfulness": 0.16666666666666666,
+      "answer_relevancy": 0.8887721790617099,
+      "context_precision": 0.9999999999666667,
+      "context_recall": 0.3333333333333333,
+      "context_entity_recall": 0.41666666631944443,
+      "answer_correctness": 0.23285632615529608,
+      "answer_similarity": 0.9314253046211843
+    }
+  ]
+}

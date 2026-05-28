@@ -173,9 +173,9 @@ class QueryRouter:
         """
         Tentukan chunk_type filter. Karena sistem chunking baru (AdaptiveChunker)
         menggunakan strategy_used untuk chunk_type, filter kategori lama tidak
-        lagi valid. Kita return [] agar pencarian tidak terhambat oleh filter ini. # CHANGED
+        lagi valid. Kita return [] agar pencarian tidak terhambat oleh filter ini. 
         """
-        return [] # CHANGED
+        return [] 
 
     def build_doc_type_filter(
         self, text: str, mode: QueryMode
