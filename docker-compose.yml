@@ -66,16 +66,55 @@ services:
   nlp:
     profiles: ["app"]
     build:
-      context: ./nlp
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: nlp/Dockerfile.nlp
     container_name: lapis_nlp_engine
     restart: unless-stopped
     ports:
       - "${NLP_ENGINE_PORT:-8001}:8001"
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/.cache/huggingface
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - nlp_qdrant_data:/app/nlp/data/vector_db/qdrant
+      - ./nlp/data/raw:/app/nlp/data/raw
+      - ./nlp/data/processed:/app/nlp/data/processed
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8001/nlp/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    depends_on:
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
     networks:
       - lapis_network
 
   # Infrastructure Services (Selalu aktif)
+  qdrant:
+    image: qdrant/qdrant:v1.10.1
+    container_name: lapis_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - lapis_network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333' 2>/dev/null && echo OK || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   ml-service:
     build:
       context: ./machine_learning
@@ -189,6 +228,10 @@ volumes:
   timescaledb_data:
     driver: local
   redis_data:
+    driver: local
+  qdrant_data:
+    driver: local
+  nlp_qdrant_data:
     driver: local
 
 # Networks

@@ -49,19 +49,26 @@ class VectorStore:
         self.mode: str            = config["vector_db"].get("mode", "memory")
 
         # ── Client init berdasarkan mode ───────────────────────────────────────
-        if self.mode == "memory":
+        import os
+        qdrant_url = os.environ.get("QDRANT_URL", "")
+
+        if qdrant_url:
+            # Docker / production: koneksi ke Qdrant server via URL
+            self.client = QdrantClient(url=qdrant_url)
+            self.logger.info("Qdrant: server mode (env) → %s", qdrant_url)
+        elif self.mode == "memory":
             self.client = QdrantClient(":memory:")
             self.logger.info("Qdrant: in-memory mode")
         elif self.mode == "local":
             local_path = config["vector_db"].get("local_path", "nlp/data/vector_db/qdrant")
-            import os; os.makedirs(local_path, exist_ok=True)
+            os.makedirs(local_path, exist_ok=True)
             self.client = QdrantClient(path=local_path)
             self.logger.info("Qdrant: local persistent mode → %s", local_path)
         else:
             host: str = config["vector_db"].get("host", "localhost")
             port: int = config["vector_db"].get("port", 6333)
             self.client = QdrantClient(host=host, port=port)
-            self.logger.info("Qdrant: server mode %s:%d", host, port)
+            self.logger.info("Qdrant: server mode (config) → %s:%d", host, port)
 
         self._collection_ready: bool = False
 
