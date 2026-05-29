@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────
+# LAPIS AI — NLP SERVICE DOCKERFILE
+# Service: FastAPI RAG Pipeline (port 8001)
+# Base: Python 3.12-slim
+# Pattern ref: machine_learning/Dockerfile.ml
+# ─────────────────────────────────────────────────────────────
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# ── System Dependencies ───────────────────────────────────────
+RUN apt-get update && apt-get install -y \
+    gcc g++ curl git \
+    tesseract-ocr \
+    libglib2.0-0 libgl1 libsm6 libxext6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Environment Variables ─────────────────────────────────────
+ENV PYTHONUNBUFFERED=1
+ENV HF_HOME=/app/.cache/huggingface
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# ── Layer 1: Upgrade pip ──────────────────────────────────────
+RUN pip install --no-cache-dir --upgrade pip
+
+# ── Layer 2: Install PyTorch (besar, cache terpisah) ──────────
+RUN pip install --no-cache-dir \
+    torch==2.3.0
+
+# ── Layer 3: Install Sentence-Transformers & Transformers ─────
+RUN pip install --no-cache-dir \
+    sentence-transformers==3.0.1 \
+    transformers==4.41.2
+
+# ── Layer 4: Install sisa dependencies dari requirements.txt ──
+COPY nlp/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ── Pre-download HuggingFace Models saat Build Time ───────────
+# Agar container tidak perlu download ~1.2GB model saat runtime.
+COPY nlp/scripts/download_models.py /tmp/download_models.py
+RUN python /tmp/download_models.py && rm /tmp/download_models.py
+
+# ── Copy Source Code ──────────────────────────────────────────
+COPY nlp/api/        ./nlp/api/
+COPY nlp/embeddings/ ./nlp/embeddings/
+COPY nlp/retrieval/  ./nlp/retrieval/
+COPY nlp/prompting/  ./nlp/prompting/
+COPY nlp/configs/    ./nlp/configs/
+COPY nlp/tests/      ./nlp/tests/
+
+# ── Create Data Directories ──────────────────────────────────
+RUN mkdir -p /app/nlp/data/raw \
+             /app/nlp/data/processed \
+             /app/nlp/data/vector_db/qdrant
+
+# ── Expose Port ───────────────────────────────────────────────
+EXPOSE 8001
+
+# ── Health Check ──────────────────────────────────────────────
+HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=5 \
+    CMD curl -f http://localhost:8001/nlp/health || exit 1
+
+# ── Start Command ─────────────────────────────────────────────
+CMD ["uvicorn", "nlp.api.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8001", \
+     "--workers", "1"]

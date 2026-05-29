@@ -293,14 +293,11 @@ async def health_endpoint() -> HealthResponse:
         embedder     = EmbeddingModel.get_instance()
         model_status = "loaded" if embedder._loaded else "not_loaded"
 
-        # Cek LLM
+        # Cek LLM — OpenAI sebagai provider aktif
         _, _, _, llm, _ = get_components()
-        llm_provider    = getattr(llm, 'primary_provider', 'groq') 
-        groq_key        = os.environ.get('GROQ_API_KEY', '')
-        if groq_key:
-            llm_status = 'ok'
-        else:
-            llm_status = 'mock'
+        llm_provider = getattr(llm, 'primary_provider', 'openai')
+        openai_key   = os.environ.get('OPENAI_API_KEY', '')
+        llm_status   = 'ok' if openai_key else 'mock'
 
         uptime = time.time() - _start_time
 

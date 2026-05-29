@@ -31,9 +31,20 @@ def run_full_pipeline():
         c["text_content"] = c.get("text", "") 
         meta = c.get("metadata", {}) 
         c["machine_ids"] = meta.get("detected_machine_ids", []) 
-        c["chunk_type"] = c.get("strategy_used", "unknown") 
-        c["doc_type"] = meta.get("detected_language", "unknown") 
-        c["priority"] = 1 
+        c["chunk_type"]  = c.get("strategy_used", "unknown") 
+        c["source_doc"]  = meta.get("source_file", c.get("doc_id", ""))
+        c["source_page"] = meta.get("page", 0)
+        # doc_type: heuristic dari doc_id (laporan/manual/sop)
+        doc_id = c.get("doc_id", "").lower()
+        if "laporan" in doc_id:
+            c["doc_type"] = "maintenance_report"
+        elif "manual" in doc_id:
+            c["doc_type"] = "manual"
+        elif "sop" in doc_id:
+            c["doc_type"] = "sop"
+        else:
+            c["doc_type"] = "document"
+        c["priority"] = 1
 
     print(f"      Total chunks: {len(all_chunks)}")
 
