@@ -66,34 +66,12 @@ services:
   nlp:
     profiles: ["app"]
     build:
-      context: .
-      dockerfile: nlp/Dockerfile.nlp
+      context: ./nlp
+      dockerfile: Dockerfile
     container_name: lapis_nlp_engine
     restart: unless-stopped
     ports:
       - "${NLP_ENGINE_PORT:-8001}:8001"
-    env_file:
-      - .env
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HF_HOME=/app/.cache/huggingface
-      - QDRANT_URL=http://qdrant:6333
-    volumes:
-      - nlp_qdrant_data:/app/nlp/data/vector_db/qdrant
-      - ./nlp/data/raw:/app/nlp/data/raw
-      - ./nlp/data/processed:/app/nlp/data/processed
-    healthcheck:
-      test: ["CMD", "python", "-c",
-             "import urllib.request; urllib.request.urlopen('http://localhost:8001/nlp/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
-    depends_on:
-      redis:
-        condition: service_healthy
-      qdrant:
-        condition: service_healthy
     networks:
       - lapis_network
 
@@ -136,6 +114,36 @@ services:
       timeout: 30s
       retries: 5
       start_period: 90s
+    restart: unless-stopped
+    networks:
+      - lapis_network
+
+  nlp-service:
+    build:
+      context: .
+      dockerfile: nlp/Dockerfile.nlp
+    container_name: lapis-nlp-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/.cache/huggingface
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-lapis_redis_secret}@redis:6379
+    volumes:
+      - nlp_qdrant_data:/app/nlp/data/vector_db/qdrant
+      - ./nlp/data/raw:/app/nlp/data/raw
+      - ./nlp/data/processed:/app/nlp/data/processed
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/nlp/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    depends_on:
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - lapis_network
@@ -202,7 +210,7 @@ services:
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
     ports:
-      - "${REDIS_PORT:-6380}:6380"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:
