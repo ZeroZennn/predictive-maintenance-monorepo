@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 
-const logger = require('../config/logger');
-const redisClient = require('../config/redisClient');
-const timescalePool = require('../config/timescaleClient');
-const pgPool = require('../config/postgresClient');
-const broadcastService = require('../websockets/broadcastService');
-const mlService = require('./mlService');
-const safetyMarginService = require('./safetyMarginService');
-const alertService = require('./alertService');
+const logger = require("../config/logger");
+const redisClient = require("../config/redisClient");
+const timescalePool = require("../config/timescaleClient");
+const pgPool = require("../config/postgresClient");
+const broadcastService = require("../websockets/broadcastService");
+const mlService = require("./mlService");
+const safetyMarginService = require("./safetyMarginService");
+const alertService = require("./alertService");
 
 class Dispatcher {
   /**
@@ -25,11 +25,46 @@ class Dispatcher {
         cached_at: new Date().toISOString(),
       });
 
-      await redisClient.set(key, value, 'EX', 900);
+      await redisClient.set(key, value, "EX", 900);
 
       logger.debug(`[Dispatcher] Redis updated for ${payload.machine_id}`);
     } catch (err) {
-      logger.error(`[Dispatcher] Redis write failed for ${payload.machine_id}: ${err.message}`);
+      logger.error(
+        `[Dispatcher] Redis write failed for ${payload.machine_id}: ${err.message}`,
+      );
+    }
+  }
+
+  /**
+   * Writes the live context to Redis for NLP service.
+   * Key: machine:{machine_id}:status
+   * TTL: 120 seconds
+   * @param {Object} payload 
+   * @param {Object|null} prediction 
+   */
+  async writeNLPContextToRedis(payload, prediction) {
+    try {
+      const key = `machine:${payload.machine_id}:status`;
+      const status = prediction ? prediction.classification.toLowerCase() : "unknown";
+      
+      const value = JSON.stringify({
+        status: status,
+        temperature: payload.sensors.temperature,
+        vibration: payload.sensors.vibration,
+        pressure: payload.sensors.pressure,
+        rpm: payload.sensors.rpm,
+        ml_prediction: status,
+        rul_days: prediction ? prediction.rul_days : null,
+        active_alerts: [], // To be populated if needed
+        timestamp: payload.timestamp,
+      });
+
+      await redisClient.set(key, value, "EX", 120);
+      logger.debug(`[Dispatcher] NLP Context Redis updated for ${payload.machine_id}`);
+    } catch (err) {
+      logger.error(
+        `[Dispatcher] NLP Context Redis write failed for ${payload.machine_id}: ${err.message}`,
+      );
     }
   }
 
@@ -62,9 +97,13 @@ class Dispatcher {
 
       await timescalePool.query(query, params);
 
-      logger.debug(`[Dispatcher] TimescaleDB written for ${payload.machine_id}`);
+      logger.debug(
+        `[Dispatcher] TimescaleDB written for ${payload.machine_id}`,
+      );
     } catch (err) {
-      logger.error(`[Dispatcher] TimescaleDB write failed for ${payload.machine_id}: ${err.message}`);
+      logger.error(
+        `[Dispatcher] TimescaleDB write failed for ${payload.machine_id}: ${err.message}`,
+      );
     }
   }
 
@@ -85,12 +124,14 @@ class Dispatcher {
          WHERE machine_id = $1 AND timestamp < $2
          ORDER BY timestamp DESC
          LIMIT 23`,
-        [machineId, currentTimestamp]
+        [machineId, currentTimestamp],
       );
       // Reverse so array is oldest-first
       return result.rows.reverse();
     } catch (err) {
-      logger.warn(`[Dispatcher] fetchSensorHistory failed for ${machineId}: ${err.message}`);
+      logger.warn(
+        `[Dispatcher] fetchSensorHistory failed for ${machineId}: ${err.message}`,
+      );
       return [];
     }
   }
@@ -118,7 +159,7 @@ class Dispatcher {
            WHERE machine_id = $1
              AND classification != 'HEALTHY'
              AND timestamp > NOW() - INTERVAL '7 days'`,
-          [machineId]
+          [machineId],
         ),
 
         // Date of most recent maintenance log entry (PostgreSQL)
@@ -126,7 +167,7 @@ class Dispatcher {
           `SELECT MAX(date) as last_date
            FROM maintenance_logs
            WHERE machine_id = $1`,
-          [machineId]
+          [machineId],
         ),
 
         // Total downtime hours in current calendar month (PostgreSQL)
@@ -135,7 +176,7 @@ class Dispatcher {
            FROM maintenance_logs
            WHERE machine_id = $1
              AND date >= DATE_TRUNC('month', CURRENT_DATE)`,
-          [machineId]
+          [machineId],
         ),
 
         // MTBF - average gap in days between corrective failures (PostgreSQL)
@@ -148,7 +189,7 @@ class Dispatcher {
              FROM maintenance_logs
              WHERE machine_id = $1 AND type = 'Corrective'
            ) gaps WHERE gap_days IS NOT NULL`,
-          [machineId]
+          [machineId],
         ),
       ]);
 
@@ -157,7 +198,7 @@ class Dispatcher {
         days_since_last_maintenance: results[1].rows[0].last_date
           ? Math.floor(
               (Date.now() - new Date(results[1].rows[0].last_date)) /
-              (1000 * 60 * 60 * 24)
+                (1000 * 60 * 60 * 24),
             )
           : null,
         total_downtime_hours: parseFloat(results[2].rows[0].total) || 0,
@@ -167,11 +208,13 @@ class Dispatcher {
       };
 
       // Cache result for 5 minutes
-      await redisClient.set(cacheKey, JSON.stringify(kpis), 'EX', 300);
+      await redisClient.set(cacheKey, JSON.stringify(kpis), "EX", 300);
 
       return kpis;
     } catch (err) {
-      logger.warn(`[Dispatcher] fetchMaintenanceKPIs failed for ${machineId}: ${err.message}`);
+      logger.warn(
+        `[Dispatcher] fetchMaintenanceKPIs failed for ${machineId}: ${err.message}`,
+      );
       return null;
     }
   }
@@ -182,7 +225,9 @@ class Dispatcher {
    */
   async dispatch(payload) {
     try {
-      logger.debug(`[Dispatcher] Processing ${payload.machine_id} @ ${payload.timestamp}`);
+      logger.debug(
+        `[Dispatcher] Processing ${payload.machine_id} @ ${payload.timestamp}`,
+      );
 
       // Dual-write in parallel (Redis cache + TimescaleDB persistence)
       await Promise.all([
@@ -191,17 +236,31 @@ class Dispatcher {
       ]);
 
       // Fetch sensor history for LSTM SEQ_LEN=24
-      const sensorHistory = await this.fetchSensorHistory(payload.machine_id, payload.timestamp);
+      const sensorHistory = await this.fetchSensorHistory(
+        payload.machine_id,
+        payload.timestamp,
+      );
       logger.debug(
-        `[Dispatcher] History fetched for ${payload.machine_id}: ${sensorHistory.length} rows`
+        `[Dispatcher] History fetched for ${payload.machine_id}: ${sensorHistory.length} rows`,
       );
 
       // Request ML prediction with history
-      const prediction = await mlService.requestPrediction(payload, sensorHistory);
+      const prediction = await mlService.requestPrediction(
+        payload,
+        sensorHistory,
+      );
 
       // Fetch KPIs then broadcast to Frontend
       const kpis = await this.fetchMaintenanceKPIs(payload.machine_id);
-      broadcastService.broadcastSensorUpdate(payload.machine_id, payload, prediction, kpis);
+      broadcastService.broadcastSensorUpdate(
+        payload.machine_id,
+        payload,
+        prediction,
+        kpis,
+      );
+
+      // Write combined NLP context to Redis (TTL 120s)
+      await this.writeNLPContextToRedis(payload, prediction);
 
       // Downstream ML logic (only if prediction is available)
       if (prediction) {
@@ -212,15 +271,19 @@ class Dispatcher {
             prediction.classification,
             prediction.urgency_level,
             prediction.confidence,
-            payload.timestamp
+            payload.timestamp,
           ),
           alertService.checkAndTrigger(payload.machine_id, prediction),
         ]);
       }
 
-      logger.info(`[Dispatcher] ✅ ${payload.machine_id} dispatched successfully.`);
+      logger.info(
+        `[Dispatcher] ✅ ${payload.machine_id} dispatched successfully.`,
+      );
     } catch (err) {
-      logger.error(`[Dispatcher] ❌ Critical dispatch error for ${payload.machine_id}: ${err.message}`);
+      logger.error(
+        `[Dispatcher] ❌ Critical dispatch error for ${payload.machine_id}: ${err.message}`,
+      );
     }
   }
 }
