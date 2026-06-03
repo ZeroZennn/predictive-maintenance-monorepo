@@ -298,7 +298,28 @@ Endpoint yang perlu ditambahkan:
 [x] Step 4: Chat endpoints (POST /api/chat/query, GET sessions, dll)
 [x] Step 5: Test dokumen upload ke NLP (belum ditest)
 [ ] Step 6: Fix rul_days float→int (tunggu NLP Engineer)
+[x] Step 7: NLP-Backend Request/Response Alignment & Payload Fixes
 ```
+
+---
+
+### DETAIL PERBAIKAN INTEGRASI BE-NLP-FE TERBARU
+
+Berikut adalah daftar penyesuaian yang telah diselesaikan untuk menyelaraskan komunikasi antara Frontend, Backend, dan NLP Engine:
+
+1. **Penyesuaian Alias API Route:**
+   Mengubah endpoint dari `/api/chat/query` menjadi `/api/nlp/query` dengan menambahkan Alias Route di `nlpRoutes.js`.
+2. **Perubahan Format Respons (Wrapper):**
+   Mengubah struktur format respons dari `{ "status": "success", "data": { "answer": "...", "citations": [...] } }` menjadi `{ "message": "...", "citations": [...], "machine_status": {...} }`.
+3. **Injeksi Data `machine_status`:**
+   Menambahkan objek `machine_status` yang diambil dari Redis (atau `ml_predictions`) dan menginjeksikannya ke dalam payload respons sebelum dikirim ke Frontend pada file `chatController.js`.
+4. **Penyesuaian Kontrak Respons Frontend:**
+   Menyelaraskan *key* respons pada `chatController.js` sesuai ekspektasi Frontend (menambahkan 3 baris *return* ekstra):
+   - `message` disalin menjadi `reply`
+   - `citations` disalin menjadi `sources`
+   - `action_suggestions` disalin menjadi `suggested_actions`
+5. **Ekstraksi Otomatis `machine_id` (Regex):**
+   Menyuntikkan fungsi ekstraksi `detectMachineId` (menggunakan Regex) langsung ke dalam `chatController.js`. Dengan ini, NLP Engine tetap bisa mendeteksi konteks mesin (dan membaca *live context* dari Redis) meskipun Frontend hanya mengirimkan nama mesin di dalam teks *query* (organik) tanpa melampirkan *key* `machine_id` secara spesifik di payload.
 
 ---
 

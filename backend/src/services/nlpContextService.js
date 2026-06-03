@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-const redisClient = require('../config/redisClient');
-const mlService = require('./mlService');
-const logger = require('../config/logger');
+const redisClient = require("../config/redisClient");
+const mlService = require("./mlService");
+const logger = require("../config/logger");
 
 const nlpContextService = {
   /**
@@ -17,7 +17,9 @@ const nlpContextService = {
   async buildContext(machineId) {
     try {
       // Fetch latest sensor snapshot from Redis
-      const sensorRaw = await redisClient.get(`machine:${machineId}:last_reading`);
+      const sensorRaw = await redisClient.get(
+        `machine:${machineId}:last_reading`,
+      );
       const sensorData = sensorRaw ? JSON.parse(sensorRaw) : null;
 
       // Fetch latest ML prediction (Redis → TimescaleDB fallback)
@@ -46,7 +48,9 @@ const nlpContextService = {
           : null,
       };
     } catch (err) {
-      logger.error(`[NLPContext] buildContext failed for ${machineId}: ${err.message}`);
+      logger.error(
+        `[NLPContext] buildContext failed for ${machineId}: ${err.message}`,
+      );
       return null;
     }
   },
@@ -60,20 +64,28 @@ const nlpContextService = {
    *
    * @example
    * detectMachineId('Kenapa M-01 dan M-07 sering panas?')
-   * // → ['M-01', 'M-07']
    */
   detectMachineId(query) {
-    const pattern = /\bM-(\d{2})\b/gi;
-    const matches = [];
-    let match;
+    const patterns = [
+      /\bM-(\d{2})\b/gi, // M-01, M-07
+      /\bM(\d{2})\b/gi, // M01, M07
+      /\bmesin\s*(\d{1,2})\b/gi, // mesin 7, mesin 07
+      /\bmachine\s*(\d{1,2})\b/gi, // machine 7, machine 07
+    ];
 
-    while ((match = pattern.exec(query)) !== null) {
-      // Reconstruct canonical form (uppercase) from full match
-      matches.push(match[0].toUpperCase());
+    const found = new Set();
+
+    for (const pattern of patterns) {
+      const matches = [...query.matchAll(pattern)];
+      for (const match of matches) {
+        const num = match[1].padStart(2, "0");
+        if (parseInt(num) >= 1 && parseInt(num) <= 20) {
+          found.add(`M-${num}`);
+        }
+      }
     }
 
-    // Return unique values only
-    return [...new Set(matches)];
+    return [...found];
   },
 };
 
