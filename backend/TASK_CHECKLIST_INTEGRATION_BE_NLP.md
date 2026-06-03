@@ -289,12 +289,15 @@ Endpoint yang perlu ditambahkan:
 ### CHECKLIST PROGRESS
 
 ```
-[ ] STEP 1: NLP Docker container healthy
-[ ] STEP 2A: Redis key machine:{id}:status tertulis dengan benar
-[ ] STEP 2B: GET /api/nlp/chat query umum → response dari NLP Engine
-[ ] STEP 2C: GET /api/nlp/chat query spesifik → live_context_used: true
-[ ] STEP 3: migrate6.js berhasil dijalankan
-[ ] STEP 4: Tunggu konfirmasi Lead Architect
+[x] STEP 1: NLP Docker container healthy
+[x] STEP 2A: Redis key machine:{id}:status tertulis dengan benar
+[x] STEP 2B: GET /api/nlp/chat query umum → response dari NLP Engine
+[x] STEP 2C: GET /api/nlp/chat query spesifik → live_context_used: true
+[x] STEP 2D: GET /api/nlp/chat query keyword tanpa explicit machine id
+[x] STEP 3: migrate8.js berhasil dijalankan
+[x] Step 4: Chat endpoints (POST /api/chat/query, GET sessions, dll)
+[ ] Step 5: Test dokumen upload ke NLP (belum ditest)
+[ ] Step 6: Fix rul_days float→int (tunggu NLP Engineer)
 ```
 
 ---
@@ -305,7 +308,32 @@ Catat error di sini sebelum melaporkan ke Lead Architect:
 
 ```
 Error yang ditemukan:
-- Step X: [deskripsi error]
-- Log output: [paste log error]
-- Langkah yang sudah dicoba: [...]
+- Error 1: Test upload document muncul error "Only PDF, DOCX, TXT allowed"
+Tapi file yang diupload adalah .txt
+- Log output: {
+  "status": "error",
+  "message": "Only PDF, DOCX, TXT allowed"
+}
+- root cause: 
+  - PowerShell -Form mengirim file TXT dengan mimetype:
+    application/octet-stream (generic binary)
+
+  - Tapi fileFilter di adminRoutes.js hanya allow:
+    'text/plain' ← tidak cocok dengan octet-stream
+- Langkah yang sudah dicoba:
+  1. Tambah Extension Check sebagai Fallback di fileFilter pada adminRoutes.js
+
+- Status: Solved
+```
+- Error 2: Endpoint POST /nlp/ingest pada NLP Engine (Port 8001) mengembalikan respons 404 Not   Found saat di-hit dari Backend Node.js (Axios), cURL lokal, maupun saat di-Execute langsung melalui Swagger UI. Berdasarkan skema Swagger, endpoint ini menggunakan application/json (bukan multipart), namun request gagal dicocokkan di layer routing terdepan framework Python
+- Log output: - docker logs nlp-service: "POST /nlp/ingest HTTP/1.1" 404
+              - "GET /docs HTTP/1.1" 404 Not Found"
+
+- Langkah yang sudah dicoba: 
+    1. Memeriksa Swagger UI di port 8001 (http://localhost:8001/docs/nlp) dan mengonfirmasi bahwa endpoint POST /nlp/ingest terdaftar resmi dengan skema Request Body berupa application/json (meminta parameter document_id, file_path, filename, dan doc_type).
+    2. Melakukan pengujian langsung menggunakan fitur "Try it out" dan "Execute" di dalam halaman Swagger UI tersebut, namun hasilnya tetap memuntahkan respons 404 Not Found (Request URL: http://localhost:8001/nlp/ingest).
+    3. Menjalankan perintah cURL lokal ke http://localhost:8001/nlp/ingest untuk mengeliminasi isu library Axios, tetapi hasil yang didapat tetap konsisten 404
+    4. Log menunjukkan request masuk ke web server (Uvicorn/Gunicorn) tetapi terhenti di gerbang routing terdepan sebelum mengeksekusi fungsi internal Python.
+
+- Status: Pending Fix    
 ```
