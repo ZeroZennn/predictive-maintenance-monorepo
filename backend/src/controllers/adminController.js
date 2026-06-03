@@ -173,7 +173,7 @@ const adminController = {
       const document_id = `DOC-${timestamp}-${randomSuffix}`;
 
       // Move file from multer temp location to final storage path
-      const storagePath = process.env.STORAGE_PATH || "/app/uploads";
+      const storagePath = process.env.STORAGE_PATH || "./uploads";
       const finalFilename = `${document_id}-${originalname.replace(/\s+/g, "_")}`;
       const finalPath = path.join(storagePath, finalFilename);
 
