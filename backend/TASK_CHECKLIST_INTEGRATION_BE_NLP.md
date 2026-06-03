@@ -296,7 +296,7 @@ Endpoint yang perlu ditambahkan:
 [x] STEP 2D: GET /api/nlp/chat query keyword tanpa explicit machine id
 [x] STEP 3: migrate8.js berhasil dijalankan
 [x] Step 4: Chat endpoints (POST /api/chat/query, GET sessions, dll)
-[ ] Step 5: Test dokumen upload ke NLP (belum ditest)
+[x] Step 5: Test dokumen upload ke NLP (belum ditest)
 [ ] Step 6: Fix rul_days float→int (tunggu NLP Engineer)
 ```
 
@@ -308,6 +308,7 @@ Catat error di sini sebelum melaporkan ke Lead Architect:
 
 ```
 Error yang ditemukan:
+- Step 5: Test dokumen upload ke NLP
 - Error 1: Test upload document muncul error "Only PDF, DOCX, TXT allowed"
 Tapi file yang diupload adalah .txt
 - Log output: {
@@ -325,15 +326,23 @@ Tapi file yang diupload adalah .txt
 
 - Status: Solved
 ```
-- Error 2: Endpoint POST /nlp/ingest pada NLP Engine (Port 8001) mengembalikan respons 404 Not   Found saat di-hit dari Backend Node.js (Axios), cURL lokal, maupun saat di-Execute langsung melalui Swagger UI. Berdasarkan skema Swagger, endpoint ini menggunakan application/json (bukan multipart), namun request gagal dicocokkan di layer routing terdepan framework Python
+
+- Error 2: Endpoint POST /nlp/ingest pada NLP Engine (Port 8001) mengembalikan respons 404 Not Found. Setelah diinvestigasi lebih lanjut, terkonfirmasi bahwa 404 terjadi bukan karena kesalahan rute (missing endpoint), melainkan karena bad practice pada penanganan eror di kode Python NLP yang sengaja melemparkan status 404 jika file_path dokumen tidak ditemukan di dalam filesystem kontainer Docker NLP.
+
 - Log output: - docker logs nlp-service: "POST /nlp/ingest HTTP/1.1" 404
-              - "GET /docs HTTP/1.1" 404 Not Found"
+              - Sebelumnya (error): "GET /docs HTTP/1.1" 404 Not Found"
+              - Saat ini (Sukses): 200 OK $\rightarrow$ {"status": "accepted", "message": "Dokumen 'DOC...' diterima dan sedang diproses"}
 
 - Langkah yang sudah dicoba: 
     1. Memeriksa Swagger UI di port 8001 (http://localhost:8001/docs/nlp) dan mengonfirmasi bahwa endpoint POST /nlp/ingest terdaftar resmi dengan skema Request Body berupa application/json (meminta parameter document_id, file_path, filename, dan doc_type).
     2. Melakukan pengujian langsung menggunakan fitur "Try it out" dan "Execute" di dalam halaman Swagger UI tersebut, namun hasilnya tetap memuntahkan respons 404 Not Found (Request URL: http://localhost:8001/nlp/ingest).
     3. Menjalankan perintah cURL lokal ke http://localhost:8001/nlp/ingest untuk mengeliminasi isu library Axios, tetapi hasil yang didapat tetap konsisten 404
     4. Log menunjukkan request masuk ke web server (Uvicorn/Gunicorn) tetapi terhenti di gerbang routing terdepan sebelum mengeksekusi fungsi internal Python.
+  
+  - Solusi perbaikan: 
+    1. Memodifikasi fungsi uploadDocument pada backend/src/controllers/adminController.js untuk menduplikasi file secara sinkron menggunakan fs.copyFileSync ke direktori lokal yang terikat dengan bind-mount kontainer NLP (nlp/data/raw).
+    2. Memperbarui payload pengiriman Axios di dalam blok setImmediate pada Backend, mengubah properti file_path dari path lokal Windows menjadi path absolut internal kontainer Linux milik NLP (/app/nlp/data/raw/${finalFilename}).
+    3. Melakukan pengujian ulang via Swagger UI dan nlp/ingest endpoint, menghasilkan respons sukses 200 OK dengan status "accepted" (background task pengolahan data di sisi NLP berhasil dipicu).
 
-- Status: Pending Fix    
+- Status: Solved
 ```

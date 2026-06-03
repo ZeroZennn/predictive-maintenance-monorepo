@@ -178,6 +178,18 @@ const adminController = {
       const finalPath = path.join(storagePath, finalFilename);
 
       fs.renameSync(tempFilePath, finalPath);
+      const nlpRawDir = path.join(__dirname, "../../../nlp/data/raw");
+      const nlpFilePath = path.join(nlpRawDir, finalFilename);
+
+      try {
+        if (!fs.existsSync(nlpRawDir)) {
+          fs.mkdirSync(nlpRawDir, { recursive: true });
+        }
+        fs.copyFileSync(finalPath, nlpFilePath);
+        logger.debug(`[Admin] File copied to NLP raw dir: ${nlpFilePath}`);
+      } catch (copyErr) {
+        logger.warn(`[Admin] Failed to copy to NLP dir: ${copyErr.message}`);
+      }
 
       // Persist record to PostgreSQL with status "processing"
       await pgPool.query(
@@ -207,7 +219,7 @@ const adminController = {
             process.env.NLP_ENGINE_URL + "/nlp/ingest",
             {
               document_id,
-              file_path: finalPath,
+              file_path: `/app/nlp/data/raw/${finalFilename}`,
               filename: finalFilename,
               doc_type: doc_type || "manual",
             },
