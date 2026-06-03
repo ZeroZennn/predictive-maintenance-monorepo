@@ -12,6 +12,7 @@ const logger = require("./config/logger");
 const telemetryRoutes = require("./routes/telemetryRoutes");
 const authRoutes = require("./routes/authRoutes");
 const nlpRoutes = require('./routes/nlpRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const adminRoutes  = require('./routes/adminRoutes');
 const apiRoutes    = require('./routes/apiRoutes');
 const { telemetryLimiter, authLimiter, nlpLimiter, generalLimiter } =
@@ -74,6 +75,7 @@ app.get("/health", (req, res) => {
 app.use("/api/telemetry", telemetryLimiter, telemetryRoutes);
 app.use("/api/auth",     authLimiter,      authRoutes);
 app.use('/api/nlp',      nlpLimiter,       nlpRoutes);
+app.use('/api/chat',     chatRoutes);
 app.use('/api/admin',    adminRoutes);
 app.use('/api',          apiRoutes);
 

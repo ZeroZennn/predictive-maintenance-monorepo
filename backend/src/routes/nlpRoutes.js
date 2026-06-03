@@ -26,6 +26,9 @@ const validateChat = [
     .isString(),
 ];
 
+// DEPRECATED: Use POST /api/chat/query instead
+// Kept for backward compatibility during transition
+// Will be removed in next major version
 // POST /api/nlp/chat
 // authenticate, validate, classify intent, inject context, forward to NLP Engine
 router.post('/chat', authenticate, validateChat, nlpRouter, nlpController.chat);
