@@ -273,11 +273,16 @@ const adminController = {
         "SELECT * FROM documents ORDER BY uploaded_at DESC",
       );
 
+      const documents = result.rows.map(doc => ({
+        ...doc,
+        status: doc.status === 'indexed' ? 'ready' : doc.status
+      }));
+
       return res.status(200).json({
         status: "success",
         data: {
-          documents: result.rows,
-          total: result.rows.length,
+          documents,
+          total: documents.length,
         },
       });
     } catch (err) {
@@ -333,8 +338,11 @@ const adminController = {
 
       // Extract fields from callback body
       const { document_id } = req.params;
-      const { status, chunks_count, doc_type, processed_at, error_message } =
+      const { status, chunks_count, doc_type, processed_at, error_message, error } =
         req.body;
+
+      // Map 'ready' from NLP to 'indexed' for database constraint compatibility
+      const mappedStatus = status === 'ready' ? 'indexed' : status;
 
       // Update document record
       const result = await pgPool.query(
@@ -348,11 +356,11 @@ const adminController = {
          WHERE document_id = $6
          RETURNING document_id, status, chunks_count`,
         [
-          status,
-          chunks_count,
-          doc_type,
-          processed_at,
-          error_message,
+          mappedStatus,
+          chunks_count || 0,
+          doc_type || null,
+          processed_at || null,
+          error_message || error || null,
           document_id,
         ],
       );

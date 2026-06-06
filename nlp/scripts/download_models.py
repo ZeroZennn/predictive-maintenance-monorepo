@@ -5,13 +5,13 @@ print("=" * 60)
 print("PRE-DOWNLOADING HUGGINGFACE MODELS")
 print("=" * 60)
 
-print("[1/2] Downloading intfloat/multilingual-e5-large ...")
+print("[1/2] Downloading intfloat/multilingual-e5-base ...")
 try:
     from sentence_transformers import SentenceTransformer
-    SentenceTransformer("intfloat/multilingual-e5-large")
-    print("  [OK] multilingual-e5-large downloaded successfully")
+    SentenceTransformer("intfloat/multilingual-e5-base")
+    print("  [OK] multilingual-e5-base downloaded successfully")
 except Exception as e:
-    print(f"  [FATAL] Failed to download e5-large: {e}", file=sys.stderr)
+    print(f"  [FATAL] Failed to download e5-base: {e}", file=sys.stderr)
     sys.exit(1)
 
 print("[2/2] Downloading cross-encoder/ms-marco-MiniLM-L-6-v2 ...")

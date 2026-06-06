@@ -1,7 +1,9 @@
 """FastAPI route handlers untuk Lapis AI NLP API."""
 
+import asyncio
 import logging
 import os
+import threading
 import time
 import uuid
 from datetime import datetime, timezone
@@ -162,64 +164,164 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
 # BACKGROUND INGEST TASK
 # ══════════════════════════════════════════════════════════════════════════════
 
+# ── Callback Helper ────────────────────────────────────────────────────────────
 
-async def _run_ingest_background(
-    document_id: str,
-    file_path  : str,
-    filename   : str,
-    doc_type   : Optional[str],
-) -> None:
-    """Proses ingest dokumen di background thread — copy, chunk, embed, upsert."""
-    _log = logging.getLogger("endpoints.ingest.background")
-    _log.info("Background ingest dimulai: %s (id=%s)", filename, document_id)
 
+def _do_callback(document_id: str, status: str, chunks_count: int = 0, error: str = "") -> None:
+    """Sync HTTP PATCH ke backend — dipanggil dalam thread executor."""
+    import json as _json
+    import urllib.request as _urllib
+
+    backend_url  = os.getenv("BACKEND_URL", "http://host.docker.internal:3000")
+    internal_key = os.getenv("INTERNAL_API_KEY", "")
+    url          = f"{backend_url}/api/admin/documents/{document_id}/status"
+    payload      = {"status": status, "chunks_count": chunks_count}
+    if error:
+        payload["error"] = error
+
+    data = _json.dumps(payload).encode("utf-8")
+    req  = _urllib.Request(
+        url,
+        data   = data,
+        method = "PATCH",
+        headers = {
+            "Content-Type"  : "application/json",
+            "X-Internal-Key": internal_key,
+        },
+    )
     try:
-        import shutil
-        import yaml
-        from pathlib import Path
-
-        with open("nlp/configs/config.yaml", "r", encoding="utf-8") as f:
-            config = yaml.safe_load(f)
-        raw_dir = Path(config["paths"]["data_raw"])
-
-        # Copy file ke raw_dir
-        dest = raw_dir / filename
-        shutil.copy2(file_path, dest)
-        _log.info("File di-copy ke: %s", dest)
-
-        # Ingestion
-        from nlp.ingestion import DocumentIngestionPipeline
-        ingestion      = DocumentIngestionPipeline()
-        doc_metadata   = ingestion.process_single_file(dest)
-
-        if doc_metadata is None:
-            _log.error("Ingestion gagal untuk %s", filename)
-            return
-
-        # Chunking
-        from nlp.chunking.router import ChunkerRouter
-        chunk_router = ChunkerRouter()
-        chunks       = chunk_router.route(doc_metadata.doc_id)
-
-        if not chunks:
-            _log.warning("Tidak ada chunk yang dihasilkan dari %s", filename)
-            return
-
-        # Embedding + Upsert
-        embedder = EmbeddingModel.get_instance()
-        embedder.load_model()
-        embedded = embedder.embed_chunks([c.to_dict() for c in chunks])
-
-        vs = VectorStore()
-        upserted = vs.upsert_chunks(embedded)
-
-        _log.info(
-            "Ingest selesai: %s | %d chunks | %d upserted",
-            filename, len(chunks), upserted,
+        with _urllib.urlopen(req, timeout=10) as resp:
+            logging.getLogger("endpoints.callback").info(
+                "Callback OK: %s → %s (%d)", document_id, status, resp.status
+            )
+    except Exception as cb_err:
+        logging.getLogger("endpoints.callback").error(
+            "Callback GAGAL: %s → %s | %s", document_id, status, cb_err
         )
 
-    except Exception as e:
-        _log.error("Background ingest error untuk %s: %s", filename, e, exc_info=True)
+
+async def _callback_backend(
+    document_id: str,
+    status     : str,
+    chunks_count: int = 0,
+    error      : str  = "",
+) -> None:
+    """Async wrapper — jalankan HTTP callback di thread agar tidak block event loop."""
+    await asyncio.to_thread(_do_callback, document_id, status, chunks_count, error)
+
+
+def _adaptive_chunk_to_embed_dict(chunk) -> dict:
+    """Convert adaptive_chunker.BaseChunk → format dict yang diharapkan embed_chunks."""
+    meta = chunk.metadata or {}
+    return {
+        "chunk_id"    : chunk.chunk_id,
+        "doc_type"    : meta.get("doc_type", "unknown"),
+        "source_doc"  : meta.get("source_file", chunk.doc_id),
+        "source_page" : meta.get("source_page", 1),
+        "chunk_type"  : chunk.strategy_used,
+        "text_content": chunk.text,
+        "machine_ids" : meta.get("detected_machine_ids", ["ALL"]),
+        "priority"    : 2,
+        "section"     : chunk.section_name,
+        "chunk_index" : chunk.chunk_index,
+        "char_count"  : chunk.char_count,
+        "language"    : meta.get("detected_language", "id"),
+    }
+
+
+import queue
+
+_ingest_queue = queue.Queue()
+_worker_thread: Optional[threading.Thread] = None
+_worker_lock = threading.Lock()
+
+def _ingest_worker() -> None:
+    """Worker thread tunggal untuk memproses antrean ingestion secara sekuensial."""
+    _log = logging.getLogger("endpoints.ingest.worker")
+    _log.info("Background ingest worker thread started.")
+    
+    while True:
+        try:
+            task = _ingest_queue.get()
+            if task is None:
+                break
+                
+            document_id, file_path, filename, doc_type = task
+            _log.info("Worker processing task: %s (id=%s)", filename, document_id)
+            
+            try:
+                import shutil
+                import yaml
+                import gc
+                from pathlib import Path
+
+                with open("nlp/configs/config.yaml", "r", encoding="utf-8") as f:
+                    config = yaml.safe_load(f)
+                raw_dir = Path(config["paths"]["data_raw"])
+
+                # Copy file ke raw_dir
+                dest = raw_dir / filename
+                src  = Path(file_path).resolve()
+                if src.resolve() != dest.resolve():
+                    shutil.copy2(file_path, dest)
+                    _log.info("File di-copy ke: %s", dest)
+                else:
+                    _log.info("File sudah ada di raw_dir, skip copy: %s", dest)
+
+                # Ingestion
+                from nlp.ingestion import DocumentIngestionPipeline
+                ingestion      = DocumentIngestionPipeline()
+                doc_metadata   = ingestion.process_single_file(dest)
+
+                if doc_metadata is None:
+                    _log.error("Ingestion gagal untuk %s", filename)
+                    _do_callback(document_id, "failed", error="Failed to parse document")
+                    continue
+
+                # Chunking
+                from nlp.chunking.router import ChunkerRouter
+                chunk_router = ChunkerRouter()
+                chunks       = chunk_router.route(doc_metadata.doc_id)
+
+                if not chunks:
+                    _log.warning("Tidak ada chunk yang dihasilkan dari %s", filename)
+                    _do_callback(document_id, "failed", error="No chunks generated")
+                    continue
+
+                # Embedding + Upsert
+                embedder = EmbeddingModel.get_instance()
+                embedder.load_model()
+                embedded = embedder.embed_chunks(
+                    [_adaptive_chunk_to_embed_dict(c) for c in chunks]
+                )
+
+                vs = VectorStore()
+                upserted = vs.upsert_chunks(embedded)
+
+                _log.info(
+                    "Ingest selesai: %s | %d chunks | %d upserted",
+                    filename, len(chunks), upserted,
+                )
+                _do_callback(document_id, "ready", chunks_count=upserted)
+
+            except Exception as e:
+                _log.error("Ingest worker task error untuk %s: %s", filename, e, exc_info=True)
+                _do_callback(document_id, "failed", error=str(e))
+                
+            finally:
+                gc.collect()
+                _ingest_queue.task_done()
+                
+        except Exception as queue_err:
+            _log.error("Fatal queue worker error: %s", queue_err)
+
+
+def start_ingest_worker_if_needed() -> None:
+    global _worker_thread
+    with _worker_lock:
+        if _worker_thread is None or not _worker_thread.is_alive():
+            _worker_thread = threading.Thread(target=_ingest_worker, name="IngestWorkerThread", daemon=True)
+            _worker_thread.start()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -246,22 +348,22 @@ async def ingest_endpoint(
             detail      = f"File tidak ditemukan: {request.file_path}",
         )
 
-    background_tasks.add_task(
-        _run_ingest_background,
+    start_ingest_worker_if_needed()
+    _ingest_queue.put((
         request.document_id,
         request.file_path,
         request.filename,
         request.doc_type,
-    )
+    ))
 
     _log.info(
-        "Ingest accepted: %s (id=%s)", request.filename, request.document_id
+        "Ingest accepted into queue: %s (id=%s)", request.filename, request.document_id
     )
 
     return IngestResponse(
         document_id = request.document_id,
         status      = "accepted",
-        message     = f"Dokumen '{request.filename}' diterima dan sedang diproses",
+        message     = f"Dokumen '{request.filename}' diterima dan sedang diproses dalam antrean",
     )
 
 

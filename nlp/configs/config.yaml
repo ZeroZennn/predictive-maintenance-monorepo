@@ -26,10 +26,10 @@ chunking:
   strategy: hybrid_semantic
 embedding:
   batch_size: 32
-  dimension: 1024
+  dimension: 768
   fallback_model: sentence-transformers/paraphrase-multilingual-mpnet-base-v2
   passage_prefix: 'passage: '
-  primary_model: intfloat/multilingual-e5-large
+  primary_model: intfloat/multilingual-e5-base
   query_prefix: 'query: '
 ingestion:
   encoding: utf-8
@@ -37,7 +37,7 @@ ingestion:
   supported_formats:
   - pdf
   - txt
-  table_extraction: true
+  table_extraction: false
 live_context:
   cache_ttl_seconds: 60
   enabled: true

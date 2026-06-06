@@ -69,6 +69,11 @@ class EmbeddingModel:
         t_start = time.time()
 
         try:
+            import torch
+            # Limit PyTorch CPU threads to prevent OOM and CPU thrashing
+            torch.set_num_threads(4)
+            self.logger.info("PyTorch CPU threads restricted to 4")
+            
             self.__class__._model = SentenceTransformer(self.primary_model)
             self.model_name = self.primary_model
             self._loaded = True

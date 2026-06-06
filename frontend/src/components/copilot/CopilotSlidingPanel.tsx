@@ -181,7 +181,7 @@ export default function CopilotSlidingPanel() {
                         {msg.sources.map((src, i) => (
                           <CitationChip
                             key={i}
-                            filename={src.filename}
+                            filename={src.filename || src.source_doc || "Unknown Document"}
                             page={src.page}
                           />
                         ))}

@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from nlp.api.endpoints import router
+from nlp.api.endpoints import get_components, router
 
 # ── Environment & Logging ──────────────────────────────────────────────────────
 
@@ -27,8 +27,8 @@ app = FastAPI(
     title       = "Lapis AI — NLP Service",
     description = "RAG Pipeline API untuk Predictive Maintenance",
     version     = "1.0.0",
-    docs_url    = "/nlp/docs",
-    redoc_url   = "/nlp/redoc",
+    docs_url    = "/docs/nlp",
+    redoc_url   = "/docs/nlp/redoc",
 )
 
 # ── CORS Middleware ────────────────────────────────────────────────────────────
@@ -44,6 +44,25 @@ app.add_middleware(
 # ── Router ─────────────────────────────────────────────────────────────────────
 
 app.include_router(router, prefix="/nlp", tags=["NLP Pipeline"])
+
+
+# ── Startup: Pre-warm Model ────────────────────────────────────────────────────
+
+
+@app.on_event("startup")
+async def startup_preload() -> None:
+    """Pre-warm embedding model & pipeline saat startup agar query pertama tidak lambat."""
+    logger.info("[Startup] Pre-warming NLP components...")
+    try:
+        from nlp.embeddings.embedder import EmbeddingModel
+        embedder = EmbeddingModel.get_instance()
+        embedder.load_model()
+        logger.info("[Startup] Embedding model loaded ✅")
+
+        get_components()  # init RetrievalPipeline, LLM, dsb.
+        logger.info("[Startup] All NLP components ready ✅")
+    except Exception as exc:
+        logger.warning("[Startup] Pre-warm gagal (non-fatal): %s", exc)
 
 # ── Root Endpoint ──────────────────────────────────────────────────────────────
 
