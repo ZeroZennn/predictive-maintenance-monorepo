@@ -1,7 +1,8 @@
 export type MessageRole = "USER" | "ASSISTANT";
 
 export interface CitationSource {
-  filename: string;
+  filename?: string;
+  source_doc?: string;
   page?: number;
   excerpt?: string;
 }

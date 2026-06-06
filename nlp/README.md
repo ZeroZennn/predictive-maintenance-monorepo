@@ -51,7 +51,7 @@ flowchart LR
 **Alur query end-to-end:**
 
 1. **Query Router** — klasifikasi query ke mode (`general`, `machine_specific`, `historical`, `multi_machine`), ekstrak machine ID, keyword teknis, dan referensi waktu.
-2. **Hybrid Retriever** — Dense search (multilingual-e5-large, 1024d) + BM25 sparse search, digabung via Reciprocal Rank Fusion (RRF, k=60), menghasilkan top-30 kandidat.
+2. **Hybrid Retriever** — Dense search (multilingual-e5-base, 768d) + BM25 sparse search, digabung via Reciprocal Rank Fusion (RRF, k=60), menghasilkan top-30 kandidat.
 3. **Cross-Encoder Reranker** — `ms-marco-MiniLM-L-6-v2` mererank top-30 → top-8 final chunks.
 4. **Live Context** — Fetch data sensor real-time dari Redis (suhu, vibrasi, tekanan, RPM, prediksi ML, RUL).
 5. **Prompt Builder** — Rakit system prompt + retrieved chunks + live context + chat history → `PromptPackage`.
@@ -321,8 +321,8 @@ Semua konfigurasi ada di `nlp/configs/config.yaml`.
 
 | Parameter | Nilai |
 |:---|:---|
-| Model | `intfloat/multilingual-e5-large` |
-| Dimensi | 1024 |
+| Model | `intfloat/multilingual-e5-base` |
+| Dimensi | 768 |
 | Fallback | `sentence-transformers/paraphrase-multilingual-mpnet-base-v2` |
 | Batch size | 32 |
 | Query prefix | `query: ` |

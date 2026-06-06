@@ -43,17 +43,21 @@ COPY nlp/scripts/download_models.py /tmp/download_models.py
 RUN python /tmp/download_models.py && rm /tmp/download_models.py
 
 # ── Copy Source Code ──────────────────────────────────────────
-COPY nlp/api/        ./nlp/api/
-COPY nlp/embeddings/ ./nlp/embeddings/
-COPY nlp/retrieval/  ./nlp/retrieval/
-COPY nlp/prompting/  ./nlp/prompting/
-COPY nlp/configs/    ./nlp/configs/
-COPY nlp/tests/      ./nlp/tests/
+COPY nlp/__init__.py   ./nlp/__init__.py
+COPY nlp/api/          ./nlp/api/
+COPY nlp/embeddings/   ./nlp/embeddings/
+COPY nlp/retrieval/    ./nlp/retrieval/
+COPY nlp/prompting/    ./nlp/prompting/
+COPY nlp/chunking/     ./nlp/chunking/
+COPY nlp/pipeline/     ./nlp/pipeline/
+COPY nlp/ingestion.py  ./nlp/ingestion.py
+COPY nlp/configs/      ./nlp/configs/
 
-# ── Create Data Directories ──────────────────────────────────
+# ── Create required directories ───────────────────────────────
 RUN mkdir -p /app/nlp/data/raw \
              /app/nlp/data/processed \
-             /app/nlp/data/vector_db/qdrant
+             /app/nlp/data/vector_db/qdrant \
+             /app/uploads
 
 # ── Expose Port ───────────────────────────────────────────────
 EXPOSE 8001

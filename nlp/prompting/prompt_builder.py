@@ -75,18 +75,18 @@ class PromptBuilder:
         'untuk pertanyaan di luar cakupan ini."\n\n'
         # ── D) FORMAT JAWABAN WAJIB ───────────────────────────────────────
         "FORMAT JAWABAN WAJIB (struktur ketat, tidak boleh disingkat):\n\n"
-        "## ANALISIS\n"
+        "ANALISIS\n"
         "[Ringkasan kondisi berdasarkan HANYA data di konteks. "
         "Jika ada Log ID → sebut. Jika ada tanggal → sebut. "
         "Jika ada angka downtime/biaya → gunakan angka persis.]\n\n"
-        "## REKOMENDASI\n"
+        "REKOMENDASI\n"
         "[Minimal satu rekomendasi dengan prefix wajib:]\n"
         "- [SEGERA] untuk tindakan dalam 24 jam\n"
         "- [7 HARI] untuk tindakan dalam 1 minggu\n"
         "- [PREVENTIF] untuk tindakan pencegahan rutin\n"
         'Jika tidak cukup informasi: "[INFO] Data tidak cukup untuk '
         'rekomendasi spesifik."\n\n'
-        "## REFERENSI\n"
+        "REFERENSI\n"
         "[Daftar sumber yang digunakan dengan format:\n"
         '"- [Referensi N]: [deskripsi singkat sumber]"\n'
         'Jika tidak ada referensi: "- Tidak ada referensi dokumen yang '
