@@ -115,6 +115,12 @@ class HybridRetriever:
             try:
                 with open(path, "r", encoding="utf-8") as f:
                     data: List[Dict] = json.load(f)
+                
+                # Derive source_doc dari doc_id jika tidak ada di JSON
+                for chunk in data:
+                    if not chunk.get("source_doc"):
+                        chunk["source_doc"] = chunk.get("doc_id", "") + ".pdf"
+
                 all_chunks.extend(data)
             except (json.JSONDecodeError, OSError) as err:
                 self.logger.error("Failed to load '%s': %s", path.name, err)
