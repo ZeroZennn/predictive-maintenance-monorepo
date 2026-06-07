@@ -335,7 +335,7 @@ export default function DocumentManagementTab() {
           <table className="w-full text-xs">
             <thead className="sticky top-0 z-10 bg-[#505C5E]">
               <tr className="border-b border-lapis-border/20">
-                {['Nama File', 'Tipe', 'Status', 
+                {['No', 'Nama File', 'Tipe', 'Status', 
                   'Ukuran', 'Upload Date', 'Aksi']
                   .map(h => (
                     <th key={h}
@@ -352,7 +352,7 @@ export default function DocumentManagementTab() {
               {isLoading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <tr key={i} className="bg-[#101617] border-b border-lapis-border/20">
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 7 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className="h-3 bg-lapis-surface/50 rounded animate-pulse"/>
                       </td>
@@ -361,7 +361,7 @@ export default function DocumentManagementTab() {
                 ))
               ) : documents.length === 0 ? (
                 <tr className="bg-[#101617]">
-                  <td colSpan={6}
+                  <td colSpan={7}
                     className="px-4 py-12 text-center text-lapis-muted">
                     Belum ada dokumen terunggah
                   </td>
@@ -380,6 +380,11 @@ export default function DocumentManagementTab() {
                       className="bg-[#101617] border-b border-[#2B3739]
                                  hover:bg-lapis-surface/30
                                  transition-colors duration-100">
+
+                      {/* No */}
+                      <td className="px-4 py-3 text-lapis-muted font-medium w-10">
+                        {index + 1}
+                      </td>
 
                       {/* Nama File */}
                       <td className="px-4 py-3">
