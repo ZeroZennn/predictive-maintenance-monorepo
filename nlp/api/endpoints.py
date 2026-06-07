@@ -163,6 +163,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
             results           = results,
             live_context_data = live_data if live_context_used else None,
             history           = history_dicts if history_dicts else None,
+            historical_context= getattr(request, "historical_context", None),
         )
 
         # 4. Generate LLM response
