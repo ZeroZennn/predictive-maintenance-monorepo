@@ -4,24 +4,27 @@ import React, { useState, useRef, useEffect } from "react";
 import { queryCopilot } from "@/lib/api";
 import {
   ChatBubble,
-  CitationCard,
+  CitationChip,
   ChatInput,
   SopDocumentPanel,
 } from "@/components/copilot";
 import { Bot } from "lucide-react";
-import type { Message } from "@/types";
 import { useCopilotStore } from "@/stores";
 
 export default function CopilotHubPage() {
-  // Local State (Session terpisah dari Sliding Panel)
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // Surgical Subscriptions exactly like CopilotSlidingPanel
+  const messages = useCopilotStore((s) => s.messages);
+  const isLoading = useCopilotStore((s) => s.isLoading);
+  const activeMachineContext = useCopilotStore((s) => s.activeMachineContext);
+  const addMessage = useCopilotStore((s) => s.addMessage);
+  const setLoading = useCopilotStore((s) => s.setIsLoading);
+  const generateId = useCopilotStore((s) => s.generateMessageId);
+
+  // Local Session for this component if needed, or we just rely on store session if available.
+  // The user requirement says "Pastikan session_id dan history conversation ter-handle dengan cara yang sama"
+  // CopilotSlidingPanel uses local state for session: const [sessionId] = useState(() => crypto.randomUUID());
   const [sessionId] = useState(() => crypto.randomUUID());
   const bottomRef = useRef<HTMLDivElement>(null);
-  
-  // Helper from store if needed (e.g., generateId)
-  const generateId = useCopilotStore((s) => s.generateMessageId);
-  const activeMachineContext = useCopilotStore((s) => s.activeMachineContext);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,19 +33,20 @@ export default function CopilotHubPage() {
   async function handleSend(text: string) {
     if (isLoading) return;
 
-    const userMsg: Message = {
+    const timeStr = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // 1. Tambah user message ke store
+    addMessage({
       id: generateId(),
       role: "USER",
       content: text,
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      sources: [],
-    };
+      timestamp: timeStr,
+    });
 
-    setMessages((prev) => [...prev, userMsg]);
-    setIsLoading(true);
+    setLoading(true);
 
     const machinePattern = /\bM-(\d{2})\b|\bmesin\s*(\d{1,2})\b/gi;
     const hasMachineInQuery = machinePattern.test(text);
@@ -52,28 +56,26 @@ export default function CopilotHubPage() {
     const hasKeyword = keywords.some((kw) => queryLower.includes(kw));
 
     if (!hasMachineContext && hasKeyword && !hasMachineInQuery) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: generateId(),
-          role: "ASSISTANT",
-          content: "Untuk pertanyaan terkait kondisi mesin, silakan pilih mesin terlebih dahulu dari sidebar, atau sebutkan ID mesin (contoh: M-01) dalam pertanyaan Anda.",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          sources: [],
-        },
-      ]);
-      setIsLoading(false);
+      addMessage({
+        id: generateId(),
+        role: "ASSISTANT",
+        content: "Untuk pertanyaan terkait kondisi mesin, silakan pilih mesin terlebih dahulu dari sidebar, atau sebutkan ID mesin (contoh: M-01) dalam pertanyaan Anda.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      });
+      setLoading(false);
       return;
     }
 
     try {
+      // 2. Panggil API
       const response = await queryCopilot({
         session_id: sessionId,
         query: text,
         machine_id: activeMachineContext || undefined,
       });
 
-      const aiMsg: Message = {
+      // 3. Tambah assistant message dengan sources
+      addMessage({
         id: generateId(),
         role: "ASSISTANT",
         content: response.reply,
@@ -82,26 +84,21 @@ export default function CopilotHubPage() {
           hour: "2-digit",
           minute: "2-digit",
         }),
-      };
-
-      setMessages((prev) => [...prev, aiMsg]);
+      });
     } catch (err) {
       console.error("[Copilot Hub] Error:", err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: generateId(),
-          role: "ASSISTANT",
-          content: "Maaf, terjadi kesalahan saat menghubungi asisten AI. Silakan coba lagi.",
-          sources: [],
-          timestamp: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-      ]);
+      addMessage({
+        id: generateId(),
+        role: "ASSISTANT",
+        content: "Maaf, terjadi kesalahan saat menghubungi asisten AI. Silakan coba lagi.",
+        sources: [],
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
@@ -121,9 +118,6 @@ export default function CopilotHubPage() {
             <span className="text-sm font-bold uppercase tracking-[0.25em] text-white">
               AI HUB — ASISTEN SOP
             </span>
-            {/* <span className="text-[11px] text-lapis-muted font-medium opacity-80 uppercase tracking-wider">
-              Mode Pencarian Prosedur & Standar Operasional
-            </span> */}
           </div>
         </div>
 
@@ -147,15 +141,15 @@ export default function CopilotHubPage() {
                 content={msg.content}
                 timestamp={msg.timestamp}
               />
-              {/* CitationCards — expanded, hanya assistant */}
+              {/* CitationChips — hanya untuk assistant */}
               {msg.role === "ASSISTANT" &&
                 msg.sources &&
                 msg.sources.length > 0 && (
-                  <div className="flex flex-col gap-2.5 pl-12 max-w-[520px]">
+                  <div className="flex flex-wrap gap-2 pl-12 max-w-[520px]">
                     {msg.sources.map((src, i) => (
-                      <CitationCard 
-                        key={i} 
-                        filename={src.filename} 
+                      <CitationChip
+                        key={i}
+                        filename={src.filename || src.source_doc || "Unknown Document"}
                         page={src.page}
                       />
                     ))}
