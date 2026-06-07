@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useRef, useEffect } from "react";
-import { useMachineStore } from "@/stores";
+import { useMachineStore, useCopilotStore } from "@/stores";
 import { MachineCard } from "@/components/dashboard";
 import { ChevronDown, CheckSquare, Square } from "lucide-react";
 import { clsx } from "clsx";
@@ -11,6 +11,15 @@ export default function MachineListSidebar() {
   const filter = useMachineStore((state) => state.machineFilter);
   const setFilter = useMachineStore((state) => state.setMachineFilter);
   const selectMachine = useMachineStore((state) => state.setSelectedMachine);
+  const selectedMachineId = useMachineStore((state) => state.selectedMachineId);
+  const setCopilotContext = useCopilotStore((state) => state.setActiveMachineContext);
+
+  // Sync selected machine to Copilot
+  useEffect(() => {
+    if (selectedMachineId) {
+      setCopilotContext(selectedMachineId);
+    }
+  }, [selectedMachineId, setCopilotContext]);
 
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

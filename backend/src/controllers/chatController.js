@@ -8,17 +8,28 @@ const chatController = {
   async query(req, res, next) {
     try {
       const { query, session_id } = req.body;
-      let { machine_id } = req.body;
+      const { machine_id: payloadMachineId } = req.body;
       const userId = req.user.id;
 
-      // Extract machine_id from query if not provided by Frontend
-      if (!machine_id) {
-        const nlpContextService = require("../services/nlpContextService");
-        const detectedMachines = nlpContextService.detectMachineId(query);
-        if (detectedMachines && detectedMachines.length > 0) {
-          machine_id = detectedMachines[0];
-          logger.info(`[Chat] Extracted machine_id ${machine_id} from query string`);
-        }
+      const nlpContextService = require("../services/nlpContextService");
+
+      // Detect machine ID from query text (regex)
+      // This OVERRIDES payload machine_id if user explicitly
+      // mentions a different machine in their message
+      const detectedMachineIds = nlpContextService.detectMachineId(query);
+      const detectedMachineId = detectedMachineIds.length > 0
+        ? detectedMachineIds[0]
+        : null;
+
+      // Priority: regex detection > payload machine_id > null
+      const resolvedMachineId = detectedMachineId || payloadMachineId || null;
+
+      // Log override for debugging
+      if (detectedMachineId && payloadMachineId && detectedMachineId !== payloadMachineId) {
+        logger.info(
+          `[Chat] Machine ID override: payload=${payloadMachineId} → ` +
+          `detected=${detectedMachineId} from query`
+        );
       }
 
       const activeSessionId = session_id || `SES-${userId}-${Date.now()}`;
@@ -26,7 +37,7 @@ const chatController = {
       const session = await chatService.getOrCreateSession(
         activeSessionId,
         userId,
-        machine_id,
+        resolvedMachineId,
       );
 
       await chatService.saveMessage(
@@ -34,16 +45,29 @@ const chatController = {
         "user",
         query,
         null,
-        machine_id,
+        resolvedMachineId,
       );
 
       const history = await chatService.getRecentHistory(activeSessionId, 10);
 
+      // Extract historical context from TimescaleDB if a machine is selected
+      let formattedTimescaledData = null;
+      if (resolvedMachineId) {
+        formattedTimescaledData = await nlpContextService.getHistoricalContext(resolvedMachineId);
+        if (formattedTimescaledData) {
+          logger.info(`[Chat] Injected historical context for ${resolvedMachineId}`);
+        }
+      }
+
       const nlpPayload = {
         query,
-        machine_ids: machine_id ? [machine_id] : [],
+        machine_ids: resolvedMachineId ? [resolvedMachineId] : [],
         session_id: activeSessionId,
         history: history.slice(0, -1),
+        mode: 'auto',
+        use_reranker: true,
+        use_hybrid: true,
+        historical_context: formattedTimescaledData
       };
 
       const nlpResponse = await axios.post(
@@ -58,7 +82,7 @@ const chatController = {
         "assistant",
         nlpData.answer,
         nlpData.citations || null,
-        machine_id,
+        resolvedMachineId,
       );
 
       await chatService.updateSessionTimestamp(activeSessionId);
@@ -71,16 +95,16 @@ const chatController = {
       );
 
       let machineStatus = null;
-      if (machine_id) {
+      if (resolvedMachineId) {
         try {
           const redisClient = require("../config/redisClient");
           const cached = await redisClient.get(
-            `machine:${machine_id}:prediction`,
+            `machine:${resolvedMachineId}:prediction`,
           );
           if (cached) {
             const pred = JSON.parse(cached);
             machineStatus = {
-              machine_id,
+              machine_id: resolvedMachineId,
               classification: pred.classification,
               health_score: pred.health_score,
               rul_days: pred.rul_days,
@@ -108,7 +132,7 @@ const chatController = {
           nlpData.live_context_used || nlpData.has_live_context || false,
         query_mode: nlpData.mode || nlpData.query_mode,
         confidence: nlpData.confidence,
-        machine_id: machine_id || null,
+        machine_id: resolvedMachineId,
         processing_time_ms: nlpData.latency_ms || nlpData.processing_time_ms,
         provider_used: nlpData.provider_used,
         model_used: nlpData.model_used,

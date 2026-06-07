@@ -21,6 +21,7 @@ export default function CopilotHubPage() {
   
   // Helper from store if needed (e.g., generateId)
   const generateId = useCopilotStore((s) => s.generateMessageId);
+  const activeMachineContext = useCopilotStore((s) => s.activeMachineContext);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -43,11 +44,33 @@ export default function CopilotHubPage() {
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
+    const machinePattern = /\bM-(\d{2})\b|\bmesin\s*(\d{1,2})\b/gi;
+    const hasMachineInQuery = machinePattern.test(text);
+    const hasMachineContext = !!activeMachineContext;
+    const keywords = ['kondisi', 'status', 'rul', 'suhu', 'temperature', 'getaran', 'vibration', 'rusak', 'overheat', 'maintenance', 'servis', 'perbaikan', 'health', 'kritis', 'warning'];
+    const queryLower = text.toLowerCase();
+    const hasKeyword = keywords.some((kw) => queryLower.includes(kw));
+
+    if (!hasMachineContext && hasKeyword && !hasMachineInQuery) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: generateId(),
+          role: "ASSISTANT",
+          content: "Untuk pertanyaan terkait kondisi mesin, silakan pilih mesin terlebih dahulu dari sidebar, atau sebutkan ID mesin (contoh: M-01) dalam pertanyaan Anda.",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          sources: [],
+        },
+      ]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await queryCopilot({
         session_id: sessionId,
         query: text,
-        machine_id: undefined,
+        machine_id: activeMachineContext || undefined,
       });
 
       const aiMsg: Message = {

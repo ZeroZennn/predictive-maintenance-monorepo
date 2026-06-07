@@ -52,12 +52,30 @@ export default function CopilotSlidingPanel() {
 
     setLoading(true);
 
+    const machinePattern = /\bM-(\d{2})\b|\bmesin\s*(\d{1,2})\b/gi;
+    const hasMachineInQuery = machinePattern.test(text);
+    const hasMachineContext = !!activeMachineContext;
+    const keywords = ['kondisi', 'status', 'rul', 'suhu', 'temperature', 'getaran', 'vibration', 'rusak', 'overheat', 'maintenance', 'servis', 'perbaikan', 'health', 'kritis', 'warning'];
+    const queryLower = text.toLowerCase();
+    const hasKeyword = keywords.some((kw) => queryLower.includes(kw));
+
+    if (!hasMachineContext && hasKeyword && !hasMachineInQuery) {
+      addMessage({
+        id: generateId(),
+        role: "ASSISTANT",
+        content: "Untuk pertanyaan terkait kondisi mesin, silakan pilih mesin terlebih dahulu dari sidebar, atau sebutkan ID mesin (contoh: M-01) dalam pertanyaan Anda.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       // 2. Panggil API
       const response = await queryCopilot({
         session_id: sessionId,
         query: text,
-        machine_id: activeMachineContext ?? undefined,
+        machine_id: activeMachineContext || undefined,
       });
 
       // 3. Tambah assistant message dengan sources

@@ -226,6 +226,7 @@ class PromptBuilder:
         results          : List[RetrievalResult],
         live_context_data: Optional[List[LiveContextData]] = None,
         history          : Optional[List[Dict]] = None,
+        historical_context: Optional[str] = None,
     ) -> PromptPackage:
         """Rakit semua komponen menjadi PromptPackage siap kirim ke LLM."""
         # Format setiap bagian
@@ -244,6 +245,9 @@ class PromptBuilder:
 
         if has_live_ctx and live_text:
             parts.append(f"## [KONDISI REAL-TIME]\n{live_text}\n")
+
+        if historical_context:
+            parts.append(f"## [RIWAYAT DATA MESIN]\n{historical_context}\n")
 
         parts.append(f"{retrieved_context}\n")
 
