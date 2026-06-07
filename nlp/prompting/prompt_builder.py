@@ -8,6 +8,15 @@ from typing import Any, Dict, List, Optional
 from nlp.prompting.live_context import LiveContextData
 from nlp.retrieval.retriever import RetrievalResult
 
+from nlp.retrieval.intent_classifier import IntentClassifier, QueryIntent, IntentResult
+from nlp.prompting.assistant_identity import (
+    IDENTITY_RESPONSE,
+    OUT_OF_SCOPE_RESPONSE,
+    SYSTEM_DESCRIPTION,
+    ASSISTANT_NAME,
+)
+from nlp.embeddings.vector_store import VectorStore
+
 
 # ── Logging Setup ──────────────────────────────────────────────────────────────
 
@@ -46,55 +55,65 @@ class PromptBuilder:
     """Rakit semua komponen (live context, retrieved chunks, history) menjadi PromptPackage."""
 
     SYSTEM_PROMPT_TEMPLATE: str = (
-        # ── A) IDENTITAS & SCOPE ───────────────────────────────────────────
-        'Anda adalah Asisten AI Predictive Maintenance "Lapis AI" untuk '
-        "fasilitas industri PT Tirta Segar (dikembangkan oleh PT Kainosoph).\n"
-        "Anda HANYA menjawab pertanyaan seputar kondisi mesin, pemeliharaan, "
-        "SOP, dan data teknis dari dokumen yang tersedia.\n"
-        "Gunakan Bahasa Indonesia yang profesional, ringkas, dan mudah "
-        "dipahami teknisi.\n\n"
-        # ── B) ATURAN PENGGUNAAN KONTEKS (PALING KRITIS) ──────────────────
-        "ATURAN PENGGUNAAN KONTEKS (WAJIB DIPATUHI):\n"
-        "1. Gunakan HANYA informasi dari konteks yang diberikan di bawah.\n"
-        "2. Jika ada Log ID (format ML-XXXX) di konteks → WAJIB sebut di jawaban.\n"
-        "3. Jika ada angka downtime, biaya, atau tanggal di konteks → gunakan "
-        "angka yang PERSIS sama. DILARANG membulatkan atau mengubah angka.\n"
-        "4. Jika konteks mengandung informasi PARTIAL (sebagian ada, sebagian "
-        "tidak) → jawab bagian yang ada, lalu nyatakan secara eksplisit "
-        "bagian mana yang tidak ditemukan di dokumen.\n"
-        "5. DILARANG menambahkan detail teknis, angka, atau nama komponen "
-        "yang tidak ada di konteks yang diberikan.\n\n"
-        # ── C) ATURAN FALLBACK (OUT-OF-CONTEXT) ───────────────────────────
-        "ATURAN FALLBACK:\n"
-        "Jika pertanyaan sama sekali tidak berkaitan dengan konteks yang "
-        "diberikan, WAJIB jawab dengan format ini persis:\n"
-        '"Pertanyaan ini berada di luar cakupan dokumen yang tersedia di '
-        "sistem Lapis AI. Sistem ini hanya dapat menjawab pertanyaan "
-        "seputar pemeliharaan mesin, SOP, dan data teknis fasilitas "
-        "PT Tirta Segar. Silakan hubungi supervisor atau tim teknis "
-        'untuk pertanyaan di luar cakupan ini."\n\n'
-        # ── D) FORMAT JAWABAN WAJIB ───────────────────────────────────────
-        "FORMAT JAWABAN WAJIB (struktur ketat, tidak boleh disingkat):\n\n"
-        "## ANALISIS\n"
-        "[Ringkasan kondisi berdasarkan HANYA data di konteks. "
-        "Jika ada Log ID → sebut. Jika ada tanggal → sebut. "
-        "Jika ada angka downtime/biaya → gunakan angka persis.]\n\n"
-        "## REKOMENDASI\n"
-        "[Minimal satu rekomendasi dengan prefix wajib:]\n"
-        "- [SEGERA] untuk tindakan dalam 24 jam\n"
-        "- [7 HARI] untuk tindakan dalam 1 minggu\n"
-        "- [PREVENTIF] untuk tindakan pencegahan rutin\n"
-        'Jika tidak cukup informasi: "[INFO] Data tidak cukup untuk '
-        'rekomendasi spesifik."\n\n'
-        "## REFERENSI\n"
-        "[Daftar sumber yang digunakan dengan format:\n"
-        '"- [Referensi N]: [deskripsi singkat sumber]"\n'
-        'Jika tidak ada referensi: "- Tidak ada referensi dokumen yang '
-        'relevan."]\n\n'
+        # ── A) IDENTITAS ───────────────────────────────────────────────────
+        "Kamu adalah PRAM (PRIME Reliability & Maintenance Assistant), "
+        "asisten AI untuk sistem PRIME milik PT Kainosoph.\n"
+        "PRAM dirancang untuk membantu teknisi dan supervisor dalam "
+        "operasional dan pemeliharaan mesin industri.\n"
+        "Berbicara dalam Bahasa Indonesia yang profesional, hangat, "
+        "dan mudah dipahami teknisi lapangan.\n\n"
+        # ── B) CARA MERESPONS BERDASARKAN JENIS QUERY ─────────────────────
+        "CARA MERESPONS:\n\n"
+        "Untuk sapaan, perkenalan, atau pertanyaan tentang dirimu "
+        "(contoh: 'halo', 'siapa kamu', 'kamu bisa apa'):\n"
+        "→ Respons ramah dan singkat. Perkenalkan dirimu sebagai PRAM. "
+        "Tawarkan bantuan terkait mesin dan pemeliharaan.\n\n"
+        "Untuk pertanyaan di luar konteks mesin dan pemeliharaan "
+        "(contoh: cuaca, berita, hal umum):\n"
+        "→ Tolak dengan sopan, jelaskan bahwa kamu hanya bisa membantu "
+        "seputar mesin, pemeliharaan, SOP, dan data teknis PT Kainosoph. "
+        "Arahkan ke supervisor atau tim teknis.\n\n"
+        "Untuk pertanyaan teknis tentang mesin, pemeliharaan, "
+        "SOP, kondisi, atau riwayat:\n"
+        "→ Jawab langsung berdasarkan konteks yang tersedia. "
+        "Sertakan rekomendasi tindakan secara natural di dalam jawaban "
+        "jika relevan — bukan sebagai header terpisah. "
+        "Sebutkan sumber referensi di akhir secara ringkas.\n\n"
+        "Untuk pertanyaan lanjutan dalam satu sesi:\n"
+        "→ Gunakan riwayat percakapan sebagai konteks. "
+        "Jawab koheren tanpa mengulang informasi yang sudah disampaikan.\n\n"
+        # ── C) ATURAN FORMAT JAWABAN DINAMIS ──────────────────────────────
+        "FORMAT JAWABAN:\n"
+        "- JANGAN gunakan header kaku seperti 'ANALISIS:', 'REKOMENDASI:', "
+        "'REFERENSI:' sebagai judul section terpisah.\n"
+        "- Jawaban mengalir natural seperti penjelasan seorang ahli.\n"
+        "- Panjang jawaban proporsional dengan kompleksitas pertanyaan:\n"
+        "  • Pertanyaan sederhana/sapaan → 1-3 kalimat\n"
+        "  • Pertanyaan teknis spesifik → beberapa paragraf\n"
+        "  • Pertanyaan kompleks/multi-aspek → jawaban terstruktur "
+        "dengan poin-poin jika membantu kejelasan\n"
+        "- Rekomendasi tindakan boleh menggunakan label urgensi jika relevan:\n"
+        "  • [SEGERA] untuk tindakan dalam 24 jam\n"
+        "  • [7 HARI] untuk tindakan dalam 1 minggu\n"
+        "  • [PREVENTIF] untuk tindakan pencegahan rutin\n"
+        "- Jika ada referensi dokumen, sebutkan di akhir secara singkat.\n\n"
+        # ── D) ATURAN PENGGUNAAN DATA (WAJIB DIPATUHI) ────────────────────
+        "ATURAN DATA:\n"
+        "1. Gunakan HANYA informasi dari konteks yang diberikan.\n"
+        "2. Jika ada Log ID (format ML-XXXX) → sebut di jawaban.\n"
+        "3. Angka downtime, biaya, tanggal → gunakan PERSIS dari konteks, "
+        "DILARANG membulatkan atau mengubah.\n"
+        "4. Jika konteks partial → jawab bagian yang ada, nyatakan "
+        "eksplisit bagian mana yang tidak ditemukan.\n"
+        "5. DILARANG menambahkan detail teknis atau angka yang tidak "
+        "ada di konteks.\n"
+        "6. Jika tidak ada konteks relevan sama sekali → nyatakan bahwa "
+        "informasi tidak tersedia dalam sistem, sarankan cek langsung "
+        "ke dokumen atau supervisor.\n\n"
         # ── E) PRIORITAS KONTEKS ──────────────────────────────────────────
-        "PRIORITAS KONTEKS (urutan kepentingan):\n"
+        "PRIORITAS KONTEKS:\n"
         "1. [KONDISI REAL-TIME] — data sensor langsung, prioritas tertinggi\n"
-        "2. [TIMELINE PEMELIHARAAN] — detail event dengan Log ID dan angka\n"
+        "2. [TIMELINE PEMELIHARAAN] — event dengan Log ID dan angka\n"
         "3. [SUMMARY] — ringkasan bulanan\n"
         "4. [METADATA] — data agregat"
     )
@@ -105,7 +124,7 @@ class PromptBuilder:
             self.config: Dict = yaml.safe_load(f)
 
         self.logger            = logging.getLogger(self.__class__.__name__)
-        self.max_context_chars = 5000
+        self.max_context_chars = 8000  # raised from 5000 for broad queries
 
     # ── Formatters ─────────────────────────────────────────────────────────────
 
@@ -113,6 +132,16 @@ class PromptBuilder:
         """Format retrieved chunks menjadi blok konteks historis bernomor."""
         if not results:
             return "Tidak ada data historis yang relevan ditemukan."
+
+        # Deteksi apakah ini hasil broad retrieval (machine_index)
+        is_machine_index = any(
+            getattr(r, 'retrieval_method', '') == 'machine_index'
+            for r in results
+        )
+
+        if is_machine_index:
+            # Group by doc_id untuk broad query — lebih compact
+            return self._format_grouped_context(results)
 
         lines       = ["[KONTEKS HISTORIS & DOKUMEN RELEVAN]"]
         total_chars = 0
@@ -141,6 +170,40 @@ class PromptBuilder:
             total_chars += len(entry)
 
         return "\n".join(lines)
+
+    def _format_grouped_context(self, results: List[RetrievalResult]) -> str:  
+        """Format broad retrieval results grouped by doc_id — compact layout."""
+        from collections import OrderedDict                              
+
+        # Group chunks by doc_id                                         
+        groups: OrderedDict = OrderedDict()                              
+        for r in results:                                                
+            doc_id = r.chunk_id.split("__")[0] if "__" in r.chunk_id else r.chunk_id  
+            groups.setdefault(doc_id, []).append(r)                       
+
+        # Header eksplisit: sebutkan SETIAP dokumen agar LLM tidak skip  
+        doc_names = list(groups.keys())                                  
+        doc_list  = ", ".join(                                           
+            f"{i}. {name}" for i, name in enumerate(doc_names, 1)        
+        )                                                                
+        lines = [                                                        
+            f"[DATA DARI {len(groups)} DOKUMEN — WAJIB sebutkan "        
+            f"SEMUA {len(groups)} dokumen dalam jawaban]\n"              
+            f"DAFTAR LENGKAP: {doc_list}\n"                              
+            f"INSTRUKSI: Jawab berdasarkan SETIAP dokumen di atas. "     
+            f"Jangan skip satupun."                                      
+        ]                                                                
+        total_chars = 0                                                  
+
+        for i, (doc_id, chunks) in enumerate(groups.items(), 1):          
+            if total_chars > self.max_context_chars:                       
+                break                                                    
+            combined_text = "\n".join(c.text_content for c in chunks)     
+            entry = f"\n=== [{i}/{len(groups)}] {doc_id} ===\n{combined_text}"  
+            lines.append(entry)                                          
+            total_chars += len(entry)                                    
+
+        return "\n".join(lines)                                          
 
     def _format_history(self, history: Optional[List[Dict]]) -> str:
         """Format chat history menjadi blok riwayat percakapan (max 6 pesan terakhir)."""
@@ -226,3 +289,102 @@ class PromptBuilder:
             has_live_context = has_live_ctx,
             query            = query,
         )
+
+    def build_dynamic_response(
+        self,
+        query: str,
+        intent_result: IntentResult,
+        vector_store: VectorStore | None = None,
+    ) -> dict:
+        """
+        Shortcircuit handler untuk intent yang tidak butuh LLM/retrieval.
+        
+        Returns dict dengan keys:
+            - shortcircuit: bool — True jika tidak perlu lanjut ke LLM
+            - response: str | None — response langsung jika shortcircuit
+            - intent: str — nama intent
+            - normalized_query: str — query yang sudah dinormalisasi
+        
+        Jika shortcircuit=False, caller harus lanjutkan ke retrieval + LLM normal.
+        """
+        intent = intent_result.intent
+        machine_id = intent_result.extracted_machine_id
+
+        # ── IDENTITY ──────────────────────────────────────────────────────────
+        if intent == QueryIntent.IDENTITY:
+            return {
+                "shortcircuit": True,
+                "response": IDENTITY_RESPONSE,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── SYSTEM INFO ───────────────────────────────────────────────────────
+        if intent == QueryIntent.SYSTEM_INFO:
+            return {
+                "shortcircuit": True,
+                "response": SYSTEM_DESCRIPTION,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── OFF TOPIC ─────────────────────────────────────────────────────────
+        if intent == QueryIntent.OFF_TOPIC:
+            return {
+                "shortcircuit": True,
+                "response": OUT_OF_SCOPE_RESPONSE,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── DOCUMENT INQUIRY ──────────────────────────────────────────────────
+        if intent == QueryIntent.DOCUMENT_INQUIRY:
+            if vector_store is None:
+                return {
+                    "shortcircuit": True,
+                    "response": "Maaf, saya tidak dapat mengakses informasi dokumen saat ini.",
+                    "intent": intent.value,
+                    "normalized_query": intent_result.normalized_query,
+                }
+            
+            stats = vector_store.get_document_stats(machine_id=machine_id)
+            total = stats["total_documents"]
+            docs  = stats["documents"]
+
+            if machine_id:
+                if total == 0:
+                    response = (
+                        f"Tidak ditemukan dokumen yang berhubungan dengan mesin "
+                        f"{machine_id} dalam sistem PRIME."
+                    )
+                else:
+                    doc_list = "\n".join(f"  {i+1}. {d}" for i, d in enumerate(docs))
+                    response = (
+                        f"Terdapat **{total} dokumen** yang berhubungan dengan "
+                        f"mesin {machine_id} dalam sistem PRIME:\n\n{doc_list}"
+                    )
+            else:
+                if total == 0:
+                    response = "Belum ada dokumen yang terindeks dalam sistem PRIME."
+                else:
+                    doc_list = "\n".join(f"  {i+1}. {d}" for i, d in enumerate(docs[:20]))
+                    more = f"\n  ... dan {total - 20} dokumen lainnya." if total > 20 else ""
+                    response = (
+                        f"Terdapat **{total} dokumen** yang sudah terindeks "
+                        f"dalam sistem PRIME:\n\n{doc_list}{more}"
+                    )
+
+            return {
+                "shortcircuit": True,
+                "response": response,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── MACHINE QUICK, ANALYTICAL, FOLLOW_UP → lanjut ke LLM ─────────────
+        return {
+            "shortcircuit": False,
+            "response": None,
+            "intent": intent.value,
+            "normalized_query": intent_result.normalized_query,
+        }

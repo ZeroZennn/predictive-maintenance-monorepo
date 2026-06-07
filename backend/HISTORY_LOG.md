@@ -266,11 +266,13 @@ Alert trigger otomatis.
 - **Verified:** Pipeline complete tanpa crash saat ML tidak aktif ✅
 
 ## FASE 5B — ML Orchestration Contract Fix & Full Integration ✅
+
 **Tanggal:** 2026-05-19
 
 ### Perbaikan dari Handover ML Engineer:
 
 **Files Modified:**
+
 - `src/config/migrate5.js` — tambah maintenance_type + confidence
 - `src/services/mlService.js` — fix health_score formula + is_active + sensor_history
 - `src/services/dispatcherService.js` — SEQ_LEN=24 + fetchMaintenanceKPIs
@@ -290,10 +292,12 @@ Alert trigger otomatis.
 | WebSocket payload | sensors/prediction flat | sensor_live/health_status/rul/kpis |
 
 **ML Service Docker Fix:**
+
 - Export ulang rul_predictor ke .h5 format (HDF5 universal)
 - Resolve Keras version mismatch (TF 2.15 → .h5 backward compatible)
 
 **End-to-End Verified:**
+
 - ML Engine: xgb_classifier_v2 + lstm_rul_v2 (healthy)
 - Full pipeline: M-01 CRITICAL | Health:0% | RUL:2d
 - Alert: rul_critical triggered dan disimpan ke DB
@@ -392,13 +396,17 @@ migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
 ---
 
 ## FASE 8 — Historical Logs, Simulator & Maintenance Scheduler ✅
+
 **Tanggal:** 2026-05-24
 
 ### Langkah 8.A — Historical & Anomaly Endpoints ✅
+
 ### Langkah 8.B — Maintenance KPIs & Scheduler ✅
+
 ### Langkah 8.C — Dynamic IoT Simulator ✅
 
 **Files Created:**
+
 - `src/controllers/telemetryHistoryController.js`
 - `src/controllers/maintenanceController.js`
 - `src/services/simulatorService.js`
@@ -406,6 +414,7 @@ migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
 - `src/routes/apiRoutes.js`
 
 **Files Modified:**
+
 - `src/app.js` — mount apiRoutes at /api
 - `src/websockets/socketManager.js` — add join:simulator channel
 
@@ -433,6 +442,7 @@ migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
 | noise_level | 74.30 dB |
 
 **Simulator Features:**
+
 - Baca CSV dari machine_learning/data/raw/sensor_readings.csv
 - Group by timestamp → 20 mesin per tick
 - Parameter: start_date (opsional), tick_interval_seconds (0.1-60)
@@ -440,6 +450,7 @@ migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
 - WebSocket broadcast: simulator:tick event ke channel 'simulator'
 
 **Verified:**
+
 - GET /api/telemetry/history/M-01?limit=5 → 5 readings ASC ✅
 - GET /api/maintenance/schedules → M-01 URGENT EMERGENCY ✅
 - GET /api/simulator/status → csv_loaded, is_running fields ✅
@@ -447,15 +458,100 @@ migrate4.js untuk sesuaikan tabel documents dengan skema NLP Engineer.
 - 20 mesin paralel: Redis berurutan, TimescaleDB non-deterministic (expected) ✅
 
 **Known Issue (ML Engineer side):**
+
 - ML Engine HTTP 500 saat Replay Script:
   TypeError di preprocessing_pipeline.py line 100
   sort_values(["machine_id", "timestamp"]) — Categorical type issue
   Status: Dilaporkan ke ML Engineer, menunggu fix
 
+- ML Engine memperbaiki file tersebut, namun terdapat error lain yaitu
+  TypeError: - **Problem:** pandas ValueError — mix tz-aware (TimescaleDB)
+  dan tz-naive (CSV) timestamp dalam satu DataFrame
+
+## HOTFIX — ML Integration Fixes ✅
+
+**Tanggal:** 2026-05-24
+
+### HF-1: Timestamp Normalization ✅
+
+- **File:** `src/services/mlService.js`
+- **Problem:** pandas ValueError — mix tz-aware (TimescaleDB)
+  dan tz-naive (CSV) timestamp dalam satu DataFrame
+- **Fix:** `normalizeTimestamp()` helper — strip timezone suffix
+  sebelum kirim ke ML Engine
+  Format: "2025-07-01 00:00:00" (no timezone, no milliseconds)
+
+### HF-2: rul_days NOT NULL Constraint ✅
+
+- **Problem:** HEALTHY machines return rul_days=null
+  tapi kolom ml_predictions.rul_days NOT NULL
+- **Fix:** `ALTER TABLE ml_predictions ALTER COLUMN rul_days DROP NOT NULL`
+
+### HF-3: rul_days Precision ✅
+
+- **File:** `src/services/mlService.js`
+- **Problem:** Math.ceil() buang desimal — 1.585 → 2
+- **Fix:** Math.round(x \* 100) / 100 — pertahankan 2 desimal
+  1.585 → 1.59 (akurat untuk Safety Margin Calculator)
+
+### Konfirmasi ke ML Engineer:
+
+- ✅ sensor_history: 23 baris query TimescaleDB sebelum setiap ML call
+- ✅ health_score formula: clip((P(H)*100)-(P(W)*30)-(P(C)\*70), 0, 100)
+- ✅ rul_days: 2 decimal places dipertahankan
+
+---
+
 **Git:**
+
 - Branch: backend-feature/fase-8
 - Merge: development → rey-workspace (include FE Fase 11 dari Amir)
 
 ---
+
+## FASE 9 — Hardening & Security ✅
+**Tanggal:** 2026-05-28
+
+### Langkah 9.A — Rate Limiting & Input Sanitization ✅
+- **Packages Added:** express-rate-limit, xss
+- **Files Created:**
+  - `src/middlewares/rateLimitMiddleware.js`
+  - `src/middlewares/sanitizeMiddleware.js`
+- **Rate Limits:**
+  | Endpoint | Max | Window | Alasan |
+  |----------|-----|--------|--------|
+  | /api/telemetry | 300/min | 1 menit | 20 mesin × 12 tick/min + buffer |
+  | /api/auth | 10/min | 1 menit | Brute force protection |
+  | /api/nlp | 30/min | 1 menit | LLM cost protection |
+  | /* (global) | 300/min | 1 menit | Safety net |
+- **Sanitization:** XSS recursive sanitization pada semua req.body
+- **Verified:**
+  - Auth rate limit → 429 setelah 10 request ✅
+  - XSS payload → disanitize, return 401 bukan 500 ✅
+  - Telemetry rate limit → tidak ganggu simulator 5s tick ✅
+- **FE Integration Confirmed:**
+  - Frontend (port 3001) → Backend (port 3000) CORS OK ✅
+  - GET /api/telemetry/anomaly/M-03 → 200 OK dari browser ✅
+
+---
+
+## STATUS FINAL BACKEND LAPIS AI
+Seluruh fase backend telah selesai:
+
+| Fase | Status |
+|------|--------|
+| 0 — Environment & Monorepo | ✅ |
+| 1 — Core Ingestion & Dispatcher | ✅ |
+| 2 — Database Schema | ✅ |
+| 3 — Authentication (JWT + RBAC) | ✅ |
+| 4 — WebSocket Broadcast Engine | ✅ |
+| 5 — ML Orchestration | ✅ |
+| 5B — ML Contract Fix & SEQ_LEN=24 | ✅ |
+| 6 — Smart NLP Router & Context Injection | ✅ |
+| 7 — Admin Panel APIs | ✅ |
+| 8 — Historical Logs, Simulator & Scheduler | ✅ |
+| HF — ML Integration Hotfixes | ✅ |
+| 9 — Hardening & Security | ✅ |
+
 
 _Log ini diupdate setiap akhir fase oleh Backend Engineer._

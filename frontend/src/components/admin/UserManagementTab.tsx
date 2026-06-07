@@ -266,8 +266,8 @@ export default function UserManagementTab() {
                     </td>
                   </tr>
                 ) : (
-                  paginatedUsers.map(user => (
-                    <tr key={user.user_id}
+                  paginatedUsers.map((user, idx) => (
+                    <tr key={user.user_id ?? `user-row-${idx}`}
                       className="bg-[#101617] border-b border-[#2B3739]
                              hover:bg-lapis-surface/30
                              transition-colors duration-100">

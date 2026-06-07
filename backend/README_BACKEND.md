@@ -219,6 +219,55 @@ Server berjalan di: `http://localhost:3000`
 
 ---
 
+---
+
+## Integration Guide
+
+Lihat `backend/INTEGRATION_GUIDE.md` untuk panduan lengkap integrasi
+dengan ML Engineer dan Frontend Engineer, mencakup:
+- Setup & installation step-by-step
+- WebSocket event contract (payload structure)
+- Simulator / Replay Script usage
+- Monitoring & debugging commands
+
+---
+
+## WebSocket Quick Reference
+
+| Event | Channel | Trigger |
+|-------|---------|---------|
+| `sensor:update` | `machine:{id}` | Setiap tick IoT masuk |
+| `alert:new` | `machine:{id}` + `global` | Status kritis terdeteksi |
+| `machine:status_update` | `global` | Status mesin berubah |
+| `new_maintenance_task` | `global` | Jadwal servis dibuat/update |
+| `simulator:tick` | `simulator` | Per tick replay script |
+
+### sensor:update Payload Structure
+```json
+{
+  "machine_id": "M-01",
+  "timestamp": "2026-05-24T12:00:00Z",
+  "sensor_live": { "temperature": 89.7, "vibration": 1.23, "..." : "..." },
+  "health_status": {
+    "label": "CRITICAL",
+    "health_score": 0,
+    "confidence": 0.8357,
+    "probabilities": { "HEALTHY": 0.10, "WARNING": 0.25, "CRITICAL": 0.65 }
+  },
+  "rul": {
+    "is_active": true,
+    "rul_days": 1.59,
+    "urgency_level": "CRITICAL"
+  },
+  "maintenance_kpis": {
+    "issues_this_week": 8,
+    "days_since_last_maintenance": 45,
+    "total_downtime_hours": 12,
+    "mtbf_days": 120
+  }
+}
+```
+
 ## Database Architecture
 
 ```
@@ -267,6 +316,7 @@ main                          ← Production ready
 | 6 | ✅ | Smart NLP Router & Context Injection |
 | 7 | ✅ | Admin Panel APIs |
 | 8 | ✅ | Historical Logs, Replay Script & Maintenance Scheduler |
-| 9 | ⏳ | Hardening & End-to-End Integration Test |
+| HF | ✅ | ML Integration Hotfixes (timestamp, nullable, precision) |
+| 9 | ✅ | Hardening & End-to-End Integration Test |
 
 Lihat `backend/HISTORY_LOG.md` untuk detail setiap fase.

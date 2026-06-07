@@ -136,13 +136,14 @@ class DocumentIngestionPipeline:
     def extract_with_pymupdf(self, pdf_path: Path) -> Tuple[str, int]:
         """Fallback extractor menggunakan PyMuPDF."""
         doc = fitz.open(str(pdf_path))
+        page_count = doc.page_count
         pages_text = []
         for page in doc:
             text = page.get_text("text")
             if text and text.strip():
                 pages_text.append(text)
         doc.close()
-        return "\n\n".join(pages_text), doc.page_count
+        return "\n\n".join(pages_text), page_count
 
     def clean_text(self, raw_text: str) -> str:
         """Bersihkan teks dari noise — universal, tidak ada aturan format spesifik."""
@@ -169,20 +170,32 @@ class DocumentIngestionPipeline:
         page_count = 0
         extraction_method = "pdfplumber"
 
+        use_table_extraction = self.config.get("ingestion", {}).get("table_extraction", True)
+
         try:
-            raw_text, tables, page_count = self.extract_with_pdfplumber(pdf_path)
-            clean_text_content = self.clean_text(raw_text)
-        except Exception as plumber_err:
-            logger.warning(
-                "pdfplumber failed for '%s': %s — trying PyMuPDF.",
-                filename, plumber_err
-            )
-            try:
+            if use_table_extraction:
+                raw_text, tables, page_count = self.extract_with_pdfplumber(pdf_path)
+                clean_text_content = self.clean_text(raw_text)
+            else:
                 extraction_method = "pymupdf"
                 raw_text, page_count = self.extract_with_pymupdf(pdf_path)
                 clean_text_content = self.clean_text(raw_text)
-            except Exception as fitz_err:
-                logger.error("PyMuPDF also failed for '%s': %s", filename, fitz_err)
+        except Exception as primary_err:
+            logger.warning(
+                "Primary extractor failed for '%s': %s — trying fallback.",
+                filename, primary_err
+            )
+            try:
+                if use_table_extraction:
+                    extraction_method = "pymupdf"
+                    raw_text, page_count = self.extract_with_pymupdf(pdf_path)
+                    clean_text_content = self.clean_text(raw_text)
+                else:
+                    extraction_method = "pdfplumber"
+                    raw_text, tables, page_count = self.extract_with_pdfplumber(pdf_path)
+                    clean_text_content = self.clean_text(raw_text)
+            except Exception as fallback_err:
+                logger.error("All extractors failed for '%s': %s", filename, fallback_err)
                 return None
 
         # Ekstrak metadata dari konten

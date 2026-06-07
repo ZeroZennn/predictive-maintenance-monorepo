@@ -1,15 +1,14 @@
-'use strict';
+"use strict";
 
-const pgPool      = require('../config/postgresClient');
-const authService = require('../services/authService');
-const axios       = require('axios');
-const fs          = require('fs');
-const path        = require('path');
-const FormData    = require('form-data');
-const logger      = require('../config/logger');
+const pgPool = require("../config/postgresClient");
+const authService = require("../services/authService");
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+const FormData = require("form-data");
+const logger = require("../config/logger");
 
 const adminController = {
-
   // USER MANAGEMENT
 
   /**
@@ -22,11 +21,11 @@ const adminController = {
         `SELECT id, username, email, role, is_active,
                 last_login, created_at
          FROM users
-         ORDER BY created_at DESC`
+         ORDER BY created_at DESC`,
       );
 
       return res.status(200).json({
-        status: 'success',
+        status: "success",
         data: {
           users: result.rows,
           total: result.rows.length,
@@ -51,21 +50,21 @@ const adminController = {
         `INSERT INTO users (username, email, password_hash, role)
          VALUES ($1, $2, $3, $4)
          RETURNING id, username, email, role`,
-        [username, email, password_hash, role]
+        [username, email, password_hash, role],
       );
 
       logger.info(`[Admin] User created: ${email} (${role})`);
 
       return res.status(201).json({
-        status: 'success',
+        status: "success",
         data: { user: result.rows[0] },
       });
     } catch (err) {
       // Unique constraint violation - duplicate email or username
-      if (err.code === '23505') {
+      if (err.code === "23505") {
         return res.status(409).json({
-          status:  'error',
-          message: 'Email or username already exists',
+          status: "error",
+          message: "Email or username already exists",
         });
       }
       next(err);
@@ -87,18 +86,18 @@ const adminController = {
              is_active = $4, updated_at = NOW()
          WHERE id = $5
          RETURNING id, username, email, role, is_active`,
-        [username, email, role, is_active, id]
+        [username, email, role, is_active, id],
       );
 
       if (result.rowCount === 0) {
         return res.status(404).json({
-          status: 'error',
-          message: 'User not found',
+          status: "error",
+          message: "User not found",
         });
       }
 
       return res.status(200).json({
-        status: 'success',
+        status: "success",
         data: { user: result.rows[0] },
       });
     } catch (err) {
@@ -115,8 +114,8 @@ const adminController = {
       // Prevent self-deactivation
       if (parseInt(req.params.id) === req.user.id) {
         return res.status(400).json({
-          status: 'error',
-          message: 'Cannot deactivate your own account',
+          status: "error",
+          message: "Cannot deactivate your own account",
         });
       }
 
@@ -124,19 +123,19 @@ const adminController = {
         `UPDATE users
          SET is_active = false, updated_at = NOW()
          WHERE id = $1`,
-        [req.params.id]
+        [req.params.id],
       );
 
       if (result.rowCount === 0) {
         return res.status(404).json({
-          status: 'error',
-          message: 'User not found',
+          status: "error",
+          message: "User not found",
         });
       }
 
       return res.status(200).json({
-        status: 'success',
-        message: 'User deactivated successfully',
+        status: "success",
+        message: "User deactivated successfully",
       });
     } catch (err) {
       next(err);
@@ -155,25 +154,42 @@ const adminController = {
     try {
       if (!req.file) {
         return res.status(400).json({
-          status:  'error',
-          message: 'No file uploaded',
+          status: "error",
+          message: "No file uploaded",
         });
       }
 
-      const { doc_type, label }                            = req.body;
+      const { doc_type, label } = req.body;
       const { originalname, path: tempFilePath, size, mimetype } = req.file;
 
       // Generate unique document_id
-      const timestamp = new Date().toISOString().replace(/[-:T.Z]/g, '').substring(0, 8);
-      const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[-:T.Z]/g, "")
+        .substring(0, 8);
+      const randomSuffix = Math.floor(Math.random() * 1000)
+        .toString()
+        .padStart(3, "0");
       const document_id = `DOC-${timestamp}-${randomSuffix}`;
 
       // Move file from multer temp location to final storage path
-      const storagePath = process.env.STORAGE_PATH || '/app/uploads';
-      const finalFilename = `${document_id}-${originalname.replace(/\s+/g, '_')}`;
+      const storagePath = process.env.STORAGE_PATH || "./uploads";
+      const finalFilename = `${document_id}-${originalname.replace(/\s+/g, "_")}`;
       const finalPath = path.join(storagePath, finalFilename);
 
       fs.renameSync(tempFilePath, finalPath);
+      const nlpRawDir = path.join(__dirname, "../../../nlp/data/raw");
+      const nlpFilePath = path.join(nlpRawDir, finalFilename);
+
+      try {
+        if (!fs.existsSync(nlpRawDir)) {
+          fs.mkdirSync(nlpRawDir, { recursive: true });
+        }
+        fs.copyFileSync(finalPath, nlpFilePath);
+        logger.debug(`[Admin] File copied to NLP raw dir: ${nlpFilePath}`);
+      } catch (copyErr) {
+        logger.warn(`[Admin] Failed to copy to NLP dir: ${copyErr.message}`);
+      }
 
       // Persist record to PostgreSQL with status "processing"
       await pgPool.query(
@@ -190,9 +206,9 @@ const adminController = {
           size,
           finalPath,
           label || originalname,
-          doc_type || 'manual',
+          doc_type || "manual",
           req.user.id,
-        ]
+        ],
       );
 
       // Fire-and-forget NLP ingest (non-blocking)
@@ -200,42 +216,48 @@ const adminController = {
       setImmediate(async () => {
         try {
           await axios.post(
-            process.env.NLP_ENGINE_URL + '/nlp/ingest',
+            process.env.NLP_ENGINE_URL + "/nlp/ingest",
             {
               document_id,
-              file_path: finalPath,
+              file_path: `/app/nlp/data/raw/${finalFilename}`,
               filename: finalFilename,
-              doc_type: doc_type || 'manual',
+              doc_type: doc_type || "manual",
             },
-            { timeout: 10000 }
+            { timeout: 10000 },
           );
           logger.info(`[Admin] NLP ingest triggered for ${document_id}`);
         } catch (err) {
-          logger.error(`[Admin] NLP ingest failed for ${document_id}: ${err.message}`);
+          logger.error(
+            `[Admin] NLP ingest failed for ${document_id}: ${err.message}`,
+          );
           // Mark document as failed in DB so admin can see the error
           await pgPool.query(
             `UPDATE documents
              SET status = 'failed', error_message = $1
              WHERE document_id = $2`,
-            [err.message, document_id]
+            [err.message, document_id],
           );
         }
       });
 
       // Return immediately - do NOT wait for NLP Engine
       return res.status(201).json({
-        status: 'success',
-        message: 'Document uploaded and queued for processing',
+        status: "success",
+        message: "Document uploaded and queued for processing",
         data: {
           document_id,
           filename: finalFilename,
-          status: 'processing',
+          status: "processing",
         },
       });
     } catch (err) {
       // Clean up temp file if it still exists after an error
       if (req.file?.path) {
-        try { fs.unlinkSync(req.file.path); } catch (_) { /* ignore */ }
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (_) {
+          /* ignore */
+        }
       }
       next(err);
     }
@@ -248,14 +270,19 @@ const adminController = {
   async getDocuments(req, res, next) {
     try {
       const result = await pgPool.query(
-        'SELECT * FROM documents ORDER BY uploaded_at DESC'
+        "SELECT * FROM documents ORDER BY uploaded_at DESC",
       );
 
+      const documents = result.rows.map(doc => ({
+        ...doc,
+        status: doc.status === 'indexed' ? 'ready' : doc.status
+      }));
+
       return res.status(200).json({
-        status: 'success',
+        status: "success",
         data: {
-          documents: result.rows,
-          total: result.rows.length,
+          documents,
+          total: documents.length,
         },
       });
     } catch (err) {
@@ -272,19 +299,19 @@ const adminController = {
       const { document_id } = req.params;
 
       const result = await pgPool.query(
-        'SELECT * FROM documents WHERE document_id = $1',
-        [document_id]
+        "SELECT * FROM documents WHERE document_id = $1",
+        [document_id],
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({
-          status: 'error',
-          message: 'Document not found',
+          status: "error",
+          message: "Document not found",
         });
       }
 
       return res.status(200).json({
-        status:'success',
+        status: "success",
         data: { document: result.rows[0] },
       });
     } catch (err) {
@@ -301,17 +328,21 @@ const adminController = {
   async updateDocumentStatus(req, res, next) {
     try {
       // Verify internal secret key
-      const internalKey = req.headers['x-internal-key'];
+      const internalKey = req.headers["x-internal-key"];
       if (internalKey !== process.env.INTERNAL_API_KEY) {
         return res.status(401).json({
-          status: 'error',
-          message: 'Invalid internal key',
+          status: "error",
+          message: "Invalid internal key",
         });
       }
 
       // Extract fields from callback body
       const { document_id } = req.params;
-      const { status, chunks_count, doc_type, processed_at, error_message } = req.body;
+      const { status, chunks_count, doc_type, processed_at, error_message, error } =
+        req.body;
+
+      // Map 'ready' from NLP to 'indexed' for database constraint compatibility
+      const mappedStatus = status === 'ready' ? 'indexed' : status;
 
       // Update document record
       const result = await pgPool.query(
@@ -324,25 +355,36 @@ const adminController = {
              updated_at = NOW()
          WHERE document_id = $6
          RETURNING document_id, status, chunks_count`,
-        [status, chunks_count, doc_type, processed_at, error_message, document_id]
+        [
+          mappedStatus,
+          chunks_count || 0,
+          doc_type || null,
+          processed_at || null,
+          error_message || error || null,
+          document_id,
+        ],
       );
 
       if (result.rowCount === 0) {
         return res.status(404).json({
-          status: 'error',
-          message: 'Document not found',
+          status: "error",
+          message: "Document not found",
         });
       }
 
       // Log outcome
-      if (status === 'ready') {
-        logger.info(`[Admin] Document ${document_id} indexed: ${chunks_count} chunks`);
-      } else if (status === 'failed') {
-        logger.error(`[Admin] Document ${document_id} failed: ${error_message}`);
+      if (status === "ready") {
+        logger.info(
+          `[Admin] Document ${document_id} indexed: ${chunks_count} chunks`,
+        );
+      } else if (status === "failed") {
+        logger.error(
+          `[Admin] Document ${document_id} failed: ${error_message}`,
+        );
       }
 
       return res.status(200).json({
-        status: 'success',
+        status: "success",
         message: `Document status updated to ${status}`,
       });
     } catch (err) {
@@ -362,14 +404,14 @@ const adminController = {
 
       // Retrieve file_path before deleting
       const docResult = await pgPool.query(
-        'SELECT file_path FROM documents WHERE document_id = $1',
-        [document_id]
+        "SELECT file_path FROM documents WHERE document_id = $1",
+        [document_id],
       );
 
       if (docResult.rows.length === 0) {
         return res.status(404).json({
-          status: 'error',
-          message: 'Document not found',
+          status: "error",
+          message: "Document not found",
         });
       }
 
@@ -379,18 +421,19 @@ const adminController = {
       try {
         await axios.delete(
           process.env.NLP_ENGINE_URL + `/nlp/documents/${document_id}`,
-          { timeout: 10000 }
+          { timeout: 10000 },
         );
       } catch (nlpErr) {
         // NLP unavailability must NOT block the deletion
-        logger.warn(`[Admin] NLP vector delete failed for ${document_id}: ${nlpErr.message} - continuing`);
+        logger.warn(
+          `[Admin] NLP vector delete failed for ${document_id}: ${nlpErr.message} - continuing`,
+        );
       }
 
       // Delete record from PostgreSQL
-      await pgPool.query(
-        'DELETE FROM documents WHERE document_id = $1',
-        [document_id]
-      );
+      await pgPool.query("DELETE FROM documents WHERE document_id = $1", [
+        document_id,
+      ]);
 
       // Async physical file cleanup (non-blocking)
       fs.unlink(file_path, (err) => {
@@ -400,8 +443,8 @@ const adminController = {
       logger.info(`[Admin] Document deleted: ${document_id}`);
 
       return res.status(200).json({
-        status: 'success',
-        message: 'Document deleted successfully',
+        status: "success",
+        message: "Document deleted successfully",
       });
     } catch (err) {
       next(err);

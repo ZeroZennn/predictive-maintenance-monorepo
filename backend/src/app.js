@@ -12,8 +12,13 @@ const logger = require("./config/logger");
 const telemetryRoutes = require("./routes/telemetryRoutes");
 const authRoutes = require("./routes/authRoutes");
 const nlpRoutes = require('./routes/nlpRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const adminRoutes  = require('./routes/adminRoutes');
-const apiRoutes = require('./routes/apiRoutes');
+const apiRoutes    = require('./routes/apiRoutes');
+const { telemetryLimiter, authLimiter, nlpLimiter, generalLimiter } =
+  require('./middlewares/rateLimitMiddleware');
+const { sanitizeBody, sanitizeParams } =
+  require('./middlewares/sanitizeMiddleware');
 const socketManager = require('./websockets/socketManager')
 
 // Database & Cache connections - initialize on startup
@@ -34,10 +39,17 @@ app.use(helmet());
 // 2. CORS - open for development, restrict in production
 app.use(cors({ origin: "*" }));
 
-// 3. JSON body parser - large limit for IoT batch payloads
+// 3. Global rate limiter — safety net for all routes
+app.use(generalLimiter);
+
+// 4. Global input sanitization — strip XSS payloads from body + params
+app.use(sanitizeBody);
+app.use(sanitizeParams);
+
+// 5. JSON body parser - large limit for IoT batch payloads
 app.use(express.json({ limit: "10mb" }));
 
-// 4. URL-encoded body parser
+// 6. URL-encoded body parser
 app.use(express.urlencoded({ extended: true }));
 
 // 5. HTTP request logging piped through Winston
@@ -59,12 +71,13 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API Routes
-app.use("/api/telemetry", telemetryRoutes);
-app.use("/api/auth", authRoutes);
-app.use('/api/nlp', nlpRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api', apiRoutes);
+// API Routes — specific rate limiters applied per route group
+app.use("/api/telemetry", telemetryLimiter, telemetryRoutes);
+app.use("/api/auth",     authLimiter,      authRoutes);
+app.use('/api/nlp',      nlpLimiter,       nlpRoutes);
+app.use('/api/chat',     chatRoutes);
+app.use('/api/admin',    adminRoutes);
+app.use('/api',          apiRoutes);
 
 // 404 handler (catch-all for undefined routes)
 app.use((req, res) => {

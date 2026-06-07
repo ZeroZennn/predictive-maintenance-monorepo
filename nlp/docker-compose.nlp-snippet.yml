@@ -1,0 +1,87 @@
+# ─────────────────────────────────────────────────────────────
+# LAPIS AI — NLP SERVICE SNIPPET untuk docker-compose.yml
+# Copy-paste blok ini ke root docker-compose.yml milik Reynaldi.
+#
+# MERGE INSTRUCTIONS:
+#   1. Copy blok 'nlp-service' ke bawah section 'services:'
+#   2. Copy blok 'nlp-qdrant-data' ke bawah section 'volumes:'
+#   3. Pastikan 'lapis-network' sudah didefinisikan di 'networks:'
+#      — Jika sudah ada dari ml-service, TIDAK perlu duplikat.
+#      — Jika belum ada, copy blok networks di bawah.
+#   4. Pastikan file .env ada di root monorepo dengan key:
+#      NVIDIA_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, REDIS_URL
+# ─────────────────────────────────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════════
+# Di bawah section 'services:' tambahkan:
+# ═══════════════════════════════════════════════════════════════
+
+  nlp-service:
+    build:
+      context: .                    # monorepo root (karena COPY nlp/... di Dockerfile)
+      dockerfile: nlp/Dockerfile.nlp
+    container_name: lapis-nlp-service
+    ports:
+      - "8001:8001"
+
+    # ── Environment ─────────────────────────────────────────────
+    # .env berisi: NVIDIA_API_KEY, GROQ_API_KEY, OPENAI_API_KEY,
+    #              REDIS_URL, dll.
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/.cache/huggingface
+
+    # ── Volumes (KRUSIAL — tanpa ini data hilang saat restart) ──
+    volumes:
+      # 1. Named volume: Qdrant vector database (persisten)
+      - nlp-qdrant-data:/app/nlp/data/vector_db/qdrant
+      # 2. Bind mount: Raw PDF files (untuk ingest dari host)
+      - ./nlp/data/raw:/app/nlp/data/raw
+      # 3. Bind mount: Processed chunks (agar bisa diakses host)
+      - ./nlp/data/processed:/app/nlp/data/processed
+
+    # ── Health Check ────────────────────────────────────────────
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8001/nlp/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s            # lebih lama — embedding model ~30s load
+
+    # ── Dependencies ────────────────────────────────────────────
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    restart: unless-stopped
+    networks:
+      - lapis-network
+
+
+# ═══════════════════════════════════════════════════════════════
+# Di bawah section 'volumes:' tambahkan:
+# ═══════════════════════════════════════════════════════════════
+
+volumes:
+  nlp-qdrant-data:
+    driver: local
+
+
+# ═══════════════════════════════════════════════════════════════
+# Di bawah section 'networks:' pastikan ada:
+# (Jika 'lapis-network' sudah dideklarasikan oleh ml-service
+#  atau backend, SKIP blok ini dan gunakan external: true)
+# ═══════════════════════════════════════════════════════════════
+
+# Opsi A — Jika ini network BARU (belum ada di compose lain):
+networks:
+  lapis-network:
+    driver: bridge
+
+# Opsi B — Jika network SUDAH ada dari service lain:
+# networks:
+#   lapis-network:
+#     external: true

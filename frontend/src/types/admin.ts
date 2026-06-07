@@ -8,7 +8,7 @@ export interface AdminUser {
 }
 
 export interface AdminDocument {
-  doc_id: string
+  document_id: string
   filename: string
   file_type: 'PDF' | 'DOCX' | 'TXT'
   status: 'READY' | 'PROCESSING' | 'FAILED'

@@ -31,13 +31,27 @@ const ALLOWED_MIME_TYPES = new Set([
   'text/plain',
 ]);
 
-const fileFilter = (_req, file, cb) => {
-  if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
-    cb(null, true);
+const fileFilter = (req, file, cb) => {
+  const allowedMimes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+    'application/octet-stream'  // PowerShell & some clients send this
+  ]
+  
+  const allowedExtensions = ['.pdf', '.docx', '.txt']
+  const ext = path.extname(file.originalname).toLowerCase()
+  
+  if (allowedMimes.includes(file.mimetype) && 
+      allowedExtensions.includes(ext)) {
+    cb(null, true)
+  } else if (allowedExtensions.includes(ext)) {
+    // Extension valid even if MIME type is generic
+    cb(null, true)
   } else {
-    cb(new Error('Only PDF, DOCX, TXT allowed'), false);
+    cb(new Error('Only PDF, DOCX, and TXT files are allowed'), false)
   }
-};
+}
 
 const upload = multer({
   storage,

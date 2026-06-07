@@ -11,17 +11,17 @@ import { Upload, FileText, FileType, File, Trash2, CheckCircle, AlertCircle, Loa
 // MOCK DATA
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const MOCK_DOCUMENTS: AdminDocument[] = [
-  { doc_id: 'd-001',
+  { document_id: 'd-001',
     filename: 'SOP-01_M-01_Rev2.pdf',
     file_type: 'PDF', status: 'READY',
     file_size_kb: 2048,
     uploaded_at: '2026-04-25T00:00:00Z' },
-  { doc_id: 'd-002',
+  { document_id: 'd-002',
     filename: 'Manual_Operasi_M-07.docx',
     file_type: 'DOCX', status: 'PROCESSING',
     file_size_kb: 512,
     uploaded_at: '2026-05-01T00:00:00Z' },
-  { doc_id: 'd-003',
+  { document_id: 'd-003',
     filename: 'Panduan_Safety_Pabrik.txt',
     file_type: 'TXT', status: 'FAILED',
     file_size_kb: 128,
@@ -144,12 +144,12 @@ export default function DocumentManagementTab() {
     if (!deleteTarget) return
     setIsDeleting(true)
     try {
-      await deleteDocument(deleteTarget.doc_id)
+      await deleteDocument(deleteTarget.document_id)
     } catch {
       // Optimistic delete untuk dev
     } finally {
       setDocuments(prev => prev.filter(
-        d => d.doc_id !== deleteTarget.doc_id
+        d => d.document_id !== deleteTarget.document_id
       ))
       setDeleteTarget(null)
       setIsDeleting(false)
@@ -178,6 +178,11 @@ export default function DocumentManagementTab() {
   }
 
   const STATUS_CONFIG = {
+    PENDING: {
+      label: 'Pending',
+      className: 'bg-lapis-muted/10 text-lapis-muted border-lapis-muted/30',
+      icon: Loader2,
+    },
     READY: {
       label: 'Ready',
       className: 'bg-lapis-neon/10 text-lapis-neon border-lapis-neon/30',
@@ -194,6 +199,12 @@ export default function DocumentManagementTab() {
       icon: AlertCircle,
     },
   } as const
+
+  const DEFAULT_STATUS_CFG = {
+    label: 'Unknown',
+    className: 'bg-lapis-muted/10 text-lapis-muted border-lapis-muted/30',
+    icon: AlertCircle,
+  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // STRUKTUR JSX
@@ -324,7 +335,7 @@ export default function DocumentManagementTab() {
           <table className="w-full text-xs">
             <thead className="sticky top-0 z-10 bg-[#505C5E]">
               <tr className="border-b border-lapis-border/20">
-                {['Nama File', 'Tipe', 'Status', 
+                {['No', 'Nama File', 'Tipe', 'Status', 
                   'Ukuran', 'Upload Date', 'Aksi']
                   .map(h => (
                     <th key={h}
@@ -341,7 +352,7 @@ export default function DocumentManagementTab() {
               {isLoading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <tr key={i} className="bg-[#101617] border-b border-lapis-border/20">
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 7 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className="h-3 bg-lapis-surface/50 rounded animate-pulse"/>
                       </td>
@@ -350,22 +361,30 @@ export default function DocumentManagementTab() {
                 ))
               ) : documents.length === 0 ? (
                 <tr className="bg-[#101617]">
-                  <td colSpan={6}
+                  <td colSpan={7}
                     className="px-4 py-12 text-center text-lapis-muted">
                     Belum ada dokumen terunggah
                   </td>
                 </tr>
               ) : (
-                documents.map(doc => {
+                documents.map((doc, index) => {
                   const FileIcon = getFileIcon(doc.file_type)
-                  const statusCfg = STATUS_CONFIG[doc.status]
+                  const statusCfg =
+                    STATUS_CONFIG[
+                      (doc.status?.toUpperCase() ?? '') as keyof typeof STATUS_CONFIG
+                    ] ?? DEFAULT_STATUS_CFG
                   const StatusIcon = statusCfg.icon
 
                   return (
-                    <tr key={doc.doc_id}
+                    <tr key={doc.document_id || index}
                       className="bg-[#101617] border-b border-[#2B3739]
                                  hover:bg-lapis-surface/30
                                  transition-colors duration-100">
+
+                      {/* No */}
+                      <td className="px-4 py-3 text-lapis-muted font-medium w-10">
+                        {index + 1}
+                      </td>
 
                       {/* Nama File */}
                       <td className="px-4 py-3">

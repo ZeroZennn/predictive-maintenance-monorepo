@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import time
+import traceback  
 import warnings
 import asyncio
 from datetime import datetime, timezone
@@ -39,7 +40,7 @@ from nlp.prompting.llm_interface import LLMInterface
 # ── RAGAS ──────────────────────────────────────────────────────────────────────
 from ragas import evaluate
 from ragas.dataset_schema import SingleTurnSample, EvaluationDataset
-from ragas.run_config import RunConfig # CHANGED
+from ragas.run_config import RunConfig 
 
 # Monkeypatch ragas.metrics.collections untuk mengekspos singleton lowercase ke collections namespace
 # karena versi 0.4.3 hanya mengekspos class camelCase di collections, sedangkan singleton lama di-deprecate
@@ -63,13 +64,13 @@ from ragas.metrics.collections import (
     answer_similarity,
 )
 from langchain_groq import ChatGroq
-from langchain_openai import ChatOpenAI # CHANGED
+from langchain_openai import ChatOpenAI 
 from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
 from langchain_core.embeddings import Embeddings
-from langchain_core.language_models.chat_models import BaseChatModel # CHANGED
-from langchain_core.outputs import ChatResult # CHANGED
-from typing import Any, List, Optional # CHANGED
+from langchain_core.language_models.chat_models import BaseChatModel 
+from langchain_core.outputs import ChatResult 
+from typing import Any, List, Optional 
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -80,130 +81,175 @@ logger = logging.getLogger("lapis_eval")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# GOLDEN DATASET — Verified against nlp/data/processed/ (audit 2026-05-24)
+# GOLDEN DATASET — Advisory POV (rewrite 2026-05-26)
+# Sumber fakta: Buku_Manual_M01.clean.txt, Laporan M-01 Juli/Agustus 2025,
+#               Laporan M-02 November 2025, maintenance_logs.csv
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Setiap entri: (query, machine_ids untuk filter, ground_truth)
-# ground_truth HANYA berisi fakta yang ada verbatim di file processed.
+# Setiap entri: query advisory teknisi, ground_truth actionable, machine_ids
 GOLDEN_DATASET = [
-    # ── Emergency / Incident Spesifik (4 kasus) ───────────────────────────────
+    # ── Tindakan Darurat / Emergency Response (3 kasus) ───────────────────────
     {
         "case_id"     : "E001",
-        "query"       : "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+        "query"       : (
+            "Apa yang harus dilakukan jika sistem pendingin M-01 "
+            "mengalami kegagalan kritis?"
+        ),
         "machine_ids" : ["M-01"],
         "ground_truth": (
-            "Pada 02/08/2025 (Log ID: ML-0119) terjadi tindakan Emergency pada M-01 "
-            "berupa kegagalan sistem pendingin kritis. Part yang diganti adalah Motor "
-            "dengan downtime 21.6 jam dan biaya Rp 49.643.133. Selain itu pada "
-            "26/08/2025 (Log ID: ML-0447) terjadi short circuit pada panel kontrol "
-            "dengan downtime 33.5 jam dan biaya Rp 31.560.747. Total downtime M-01 "
-            "bulan Agustus 2025 mencapai 100.7 jam."
+            "Segera matikan mesin dan ganti komponen Motor. Berdasarkan "
+            "riwayat kejadian serupa pada 02/08/2025 (Log ID: ML-0119), "
+            "kegagalan sistem pendingin kritis menyebabkan downtime 21.6 jam "
+            "dengan biaya Rp 49.643.133. Setelah perbaikan, lakukan lubrikasi "
+            "komponen dan cek belt sebagai tindakan preventif."
+        ),
+    },
+    {
+        "case_id"     : "E002",
+        "query"       : (
+            "Langkah apa yang perlu diambil saat terjadi short circuit "
+            "pada panel kontrol mesin M-02?"
+        ),
+        "machine_ids" : ["M-02"],
+        "ground_truth": (
+            "Tekan tombol Emergency Stop, terapkan prosedur LOTO, dan "
+            "periksa panel kontrol secara menyeluruh. Pada kejadian "
+            "07/11/2025 (Log ID: ML-0058), short circuit pada panel kontrol "
+            "M-02 menyebabkan downtime 59.6 jam dengan biaya Rp 17.616.249. "
+            "Pastikan aliran listrik diputus total sebelum membuka panel."
+        ),
+    },
+    {
+        "case_id"     : "E003",
+        "query"       : (
+            "Bagaimana cara menangani kebocoran besar pada hydraulic "
+            "system M-01?"
+        ),
+        "machine_ids" : ["M-01"],
+        "ground_truth": (
+            "Hentikan mesin segera dan periksa seal jalur pengisian "
+            "(Part Code: SEAL-M01). Pada 10/11/2025 (Log ID: ML-0230), "
+            "kebocoran besar pada hydraulic system M-01 memerlukan "
+            "penggantian Belt dengan downtime 21.7 jam dan biaya "
+            "Rp 13.696.714. Periksa juga tekanan udara — jika drop "
+            "di bawah 90 PSI, kemungkinan ada seal atau valve yang robek."
+        ),
+    },
+
+    # ── Prosedur & Pencegahan / Preventive (3 kasus) ──────────────────────────
+    {
+        "case_id"     : "E004",
+        "query"       : (
+            "Bagaimana prosedur LOTO yang benar sebelum membuka "
+            "panel motor mesin?"
+        ),
+        "machine_ids" : [],
+        "ground_truth": (
+            "Teknisi wajib menggunakan APD berupa sarung tangan tahan panas, "
+            "pelindung telinga (earmuff), dan sepatu safety. Prosedur Lock "
+            "Out Tag Out (LOTO) mengharuskan aliran listrik diputus total "
+            "sebelum membuka panel motor atau menyentuh sabuk transmisi. "
+            "Jika mesin mengeluarkan asap atau getaran hebat mendadak, "
+            "tekan tombol Emergency Stop di panel samping kanan."
         ),
     },
     {
         "case_id"     : "E005",
-        "query"       : "Short circuit pada panel kontrol mesin M-02 November 2025",
-        "machine_ids" : ["M-02"],
-        "ground_truth": (
-            "Pada 07/11/2025 (Log ID: ML-0058) dilakukan tindakan Emergency pada M-02 "
-            "karena short circuit pada panel kontrol. Part yang diganti tercatat sebagai "
-            "Tidak ada. Aktivitas ini menyebabkan downtime selama 59.6 jam dengan biaya "
-            "Rp 17.616.249."
+        "query"       : (
+            "Apa yang harus dilakukan saat inspeksi rutin 500 jam "
+            "operasional mesin?"
         ),
-    },
-    {
-        "case_id"     : "E007",
-        "query"       : "Kebocoran hydraulic system pada M-01 November 2025",
-        "machine_ids" : ["M-01"],
+        "machine_ids" : [],
         "ground_truth": (
-            "Pada 10/11/2025 (Log ID: ML-0230) dilakukan tindakan Emergency pada M-01 "
-            "karena kebocoran besar pada hydraulic system. Part yang diganti tercatat "
-            "sebagai Belt dengan downtime 21.7 jam dan biaya Rp 13.696.714."
+            "Inspeksi rutin setiap 500 jam operasional mencakup: "
+            "penggantian oli pelumas, pembersihan filter udara, dan "
+            "pengecekan koneksi elektrikal. Selain itu periksa ketegangan "
+            "sabuk (belt) dan kondisi pulley — jika ditemukan retakan halus "
+            "pada belt, segera lakukan penggantian sebelum putus."
         ),
-    },
-    {
-        "case_id"     : "E010",
-        "query"       : "Motor overheat dan penggantian komponen pendingin M-02 Juli 2025",
-        "machine_ids" : ["M-02"],
-        "ground_truth": (
-            "Pada 25/07/2025 (Log ID: ML-0266) dilakukan tindakan Corrective pada M-02 "
-            "karena motor overheat, ganti komponen pendingin. Part yang diganti tercatat "
-            "sebagai Belt dengan downtime 12.8 jam dan biaya Rp 7.067.223."
-        ),
-    },
-
-    # ── Spesifikasi Teknis dari Manual (3 kasus) ──────────────────────────────
-    {
-        "case_id"     : "E002",
-        "query"       : "Berapa batas kritis suhu operasional mesin M-01?",
-        "machine_ids" : ["M-01"],
-        "ground_truth": (
-            "Berdasarkan Buku Manual Operasional Mesin M-01, suhu operasional normal "
-            "adalah 65°C-75°C. Batas Peringatan (Warning) dimulai dari 80°C. Batas "
-            "Kritis (Critical/Shut-off) adalah lebih dari 95°C yang menyebabkan risiko "
-            "overheat pada motor."
-        ),
-    },
+    }, 
     {
         "case_id"     : "E006",
-        "query"       : "Getaran kritis dan cara menangani bearing aus pada mesin M-01",
+        "query"       : (
+            "Bagaimana cara mencegah belt putus pada mesin M-01 "
+            "berdasarkan riwayat perawatan?"
+        ),
         "machine_ids" : ["M-01"],
         "ground_truth": (
-            "Getaran normal M-01 adalah 0.35-0.55 mm/s. Batas kritis getaran adalah "
-            "lebih dari 1.0 mm/s yang mengindikasikan kerusakan bearing atau poros tidak "
-            "presisi. Jika getaran melebihi 1.2 mm/s, tindakan perbaikan adalah "
-            "kencangkan baut housing atau ganti komponen Bearing dengan Part Code BRG-M01."
-        ),
-    },
-    {
-        "case_id"     : "E009",
-        "query"       : "Prosedur pemeliharaan rutin setiap 500 jam operasional",
-        "machine_ids" : [],
-        "ground_truth": (
-            "Inspeksi rutin dilakukan setiap 500 jam operasional. Tindakan yang dilakukan "
-            "mencakup penggantian oli pelumas, pembersihan filter udara, dan pengecekan "
-            "koneksi elektrikal. Selain itu dilakukan pemeriksaan ketegangan sabuk (belt) "
-            "dan kondisi pulley, serta penggantian belt jika ditemukan retakan halus."
+            "Lakukan pemeriksaan ketegangan sabuk (belt) dan kondisi pulley "
+            "secara berkala. Jika ditemukan retakan halus, segera ganti "
+            "sebelum putus. Pada 28/08/2025 (Log ID: ML-0201) terjadi belt "
+            "putus pada M-01 yang memerlukan penggantian belt dan pulley "
+            "dengan downtime 18.9 jam dan biaya Rp 7.085.779. Tindakan "
+            "preventif: lubrikasi komponen dan cek belt secara rutin."
         ),
     },
 
-    # ── Prosedur / SOP (2 kasus) ──────────────────────────────────────────────
+    # ── Diagnosis Komponen / Troubleshooting (2 kasus) ────────────────────────
     {
-        "case_id"     : "E003",
-        "query"       : "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
-        "machine_ids" : [],
+        "case_id"     : "E007",
+        "query"       : (
+            "Kenapa bearing pada M-01 bisa aus dan apa yang perlu "
+            "diperiksa untuk mengatasinya?"
+        ),
+        "machine_ids" : ["M-01"],
         "ground_truth": (
-            "Teknisi wajib menggunakan APD berupa sarung tangan tahan panas, pelindung "
-            "telinga (earmuff), dan sepatu safety. Prosedur Lock Out Tag Out (LOTO) "
-            "mengharuskan aliran listrik diputus total sebelum membuka panel motor atau "
-            "menyentuh sabuk transmisi."
+            "Bearing aus terdeteksi jika getaran melebihi 1.0 mm/s "
+            "(batas kritis). Jika getaran melebihi 1.2 mm/s, kencangkan "
+            "baut housing atau ganti komponen Bearing (Part Code: BRG-M01). "
+            "Pada 31/07/2025 (Log ID: ML-0105), M-01 mengalami bearing aus "
+            "yang memerlukan penggantian Seal dengan downtime 20.3 jam "
+            "dan biaya Rp 4.531.286."
         ),
     },
     {
         "case_id"     : "E008",
-        "query"       : "Bearing aus dan penggantian komponen pada M-01 Juli 2025",
-        "machine_ids" : ["M-01"],
+        "query"       : (
+            "Apa yang harus diperiksa jika motor M-02 mengalami "
+            "overheat berulang?"
+        ),
+        "machine_ids" : ["M-02"],
         "ground_truth": (
-            "Pada 31/07/2025 (Log ID: ML-0105) dilakukan tindakan Corrective pada M-01 "
-            "karena bearing aus, perlu penggantian. Part yang diganti tercatat sebagai "
-            "Seal dengan downtime 20.3 jam dan biaya Rp 4.531.286. Total downtime M-01 "
-            "bulan Juli 2025 mencapai 58.0 jam dari 7 aktivitas pemeliharaan "
-            "(2 Corrective, 5 Preventive)."
+            "Periksa suhu operasional — batas warning adalah 80°C dan "
+            "batas kritis adalah lebih dari 95°C. Tambahkan pelumas pada "
+            "poros utama atau cek kipas pendingin motor. Pada 30/11/2025 "
+            "(Log ID: ML-0006), motor M-02 mengalami overheat dan "
+            "memerlukan penggantian komponen pendingin berupa Filter "
+            "dengan downtime 14.2 jam dan biaya Rp 5.763.765."
         ),
     },
 
-    # ── Ringkasan / Agregasi (1 kasus) ────────────────────────────────────────
+    # ── Threshold & Batas Operasional (2 kasus) ───────────────────────────────
     {
-        "case_id"     : "E004",
-        "query"       : "Ringkasan kejadian emergency pada mesin M-02 sepanjang 2025",
-        "machine_ids" : ["M-02"],
+        "case_id"     : "E009",
+        "query"       : (
+            "Pada kondisi suhu berapa mesin M-01 harus segera "
+            "dihentikan untuk mencegah kerusakan?"
+        ),
+        "machine_ids" : ["M-01"],
         "ground_truth": (
-            "M-02 mengalami 3 kejadian Emergency: (1) 28/08/2025 (ML-0216) mesin berhenti "
-            "total karena kerusakan motor utama, downtime 32.1 jam, biaya Rp 16.044.880; "
-            "(2) 17/09/2025 (ML-0055) short circuit pada panel kontrol, downtime 18.9 jam, "
-            "biaya Rp 21.218.618; (3) 07/11/2025 (ML-0058) short circuit pada panel kontrol, "
-            "downtime 59.6 jam, biaya Rp 17.616.249. Total downtime emergency M-02 adalah "
-            "110.6 jam."
+            "Suhu operasional normal M-01 adalah 65°C-75°C. Batas "
+            "peringatan (warning) dimulai dari 80°C — pada titik ini "
+            "tambahkan pelumas pada poros utama atau cek kipas pendingin. "
+            "Batas kritis (critical/shut-off) adalah lebih dari 95°C yang "
+            "menyebabkan risiko overheat pada motor — mesin harus segera "
+            "dihentikan."
+        ),
+    },
+    {
+        "case_id"     : "E010",
+        "query"       : (
+            "Apakah mesin perlu dihentikan jika tekanan udara "
+            "turun di bawah 90 PSI?"
+        ),
+        "machine_ids" : [],
+        "ground_truth": (
+            "Ya, tekanan udara normal adalah 98-105 PSI. Jika tekanan "
+            "drop di bawah 90 PSI, kemungkinan ada kebocoran pada katup "
+            "(valve) atau seal yang robek. Lakukan pengecekan pada seal "
+            "jalur pengisian (Part Code: SEAL-M01). Batas kritis tekanan "
+            "adalah lebih dari 115 PSI yang berisiko kebocoran pada seal "
+            "atau katup."
         ),
     },
 ]
@@ -266,16 +312,16 @@ def run_pipeline(
             )
             contexts = [r.text_content for r in results if r.text_content]
 
-            # 2. Live context DISABLED untuk evaluasi RAGAS — agar faithfulness  # CHANGED
-            #    diukur secara akurat hanya terhadap retrieved_contexts,          # CHANGED
-            #    tanpa kontaminasi dari mock sensor data.                         # CHANGED
-            live_data = None  # CHANGED
+            # 2. Live context DISABLED untuk evaluasi RAGAS — agar faithfulness  
+            #    diukur secara akurat hanya terhadap retrieved_contexts,          
+            #    tanpa kontaminasi dari mock sensor data.                         
+            live_data = None  
 
             # 3. Build prompt + generate
             pkg      = builder.build(
                 query             = case["query"],
                 results           = results,
-                live_context_data = live_data,  # CHANGED: always None for eval
+                live_context_data = live_data, 
             )
             llm_resp = llm.generate(pkg)
             answer   = llm_resp.answer
@@ -287,7 +333,11 @@ def run_pipeline(
             )
 
         except Exception as e:
-            logger.error("  ❌ Error [%s]: %s", case["case_id"], e, exc_info=True)
+            logger.error("  ❌ Error [%s]: %s", case["case_id"], e, exc_info=True)  
+            print(f"\n{'='*60}")                                      
+            print(f"TRACEBACK for {case['case_id']}:")                 
+            print(traceback.format_exc())                              
+            print(f"{'='*60}\n")                                      
             # Sertakan sample kosong agar jumlah dataset tetap konsisten
             answer   = ""
             contexts = [""]
@@ -304,59 +354,55 @@ def run_pipeline(
     return samples
 
 
-class LLMSingleGenWrapper(BaseChatModel): # CHANGED
-    """ # CHANGED
-    Provider-agnostic wrapper yang memotong parameter 'n' dari setiap # CHANGED
-    LLM API call. Wajib karena RAGAS secara internal request n=3 # CHANGED
-    untuk multi-generation scoring, sedangkan sebagian besar provider # CHANGED
-    free tier hanya support n=1 dan akan throw BadRequestError jika n>1. # CHANGED
-    """ # CHANGED
-    inner: Any # CHANGED
-    model_config = {"arbitrary_types_allowed": True} # CHANGED
-# CHANGED
-    @property # CHANGED
-    def _llm_type(self) -> str: # CHANGED
-        return "llm_single_gen_wrapper" # CHANGED
-# CHANGED
-    def _generate( # CHANGED
-        self, # CHANGED
-        messages: List, # CHANGED
-        stop: Optional[List[str]] = None, # CHANGED
-        run_manager=None, # CHANGED
-        **kwargs, # CHANGED
-    ) -> ChatResult: # CHANGED
-        kwargs.pop("n", None)  # Strip n — provider only supports n=1 # CHANGED
-        return self.inner._generate( # CHANGED
-            messages, stop=stop, run_manager=run_manager, **kwargs # CHANGED
-        ) # CHANGED
-# CHANGED
-    async def _agenerate( # CHANGED
-        self, # CHANGED
-        messages: List, # CHANGED
-        stop: Optional[List[str]] = None, # CHANGED
-        run_manager=None, # CHANGED
-        **kwargs, # CHANGED
-    ) -> ChatResult: # CHANGED
-        kwargs.pop("n", None)  # Strip n — async path # CHANGED
-        return await self.inner._agenerate( # CHANGED
-            messages, stop=stop, run_manager=run_manager, **kwargs # CHANGED
-        ) # CHANGED
+class LLMSingleGenWrapper(BaseChatModel): 
+    """ 
+    Provider-agnostic wrapper yang memotong parameter 'n' dari setiap 
+    LLM API call. Wajib karena RAGAS secara internal request n=3 
+    untuk multi-generation scoring, sedangkan sebagian besar provider 
+    free tier hanya support n=1 dan akan throw BadRequestError jika n>1. 
+    """ 
+    inner: Any 
+    model_config = {"arbitrary_types_allowed": True} 
+
+    @property 
+    def _llm_type(self) -> str: 
+        return "llm_single_gen_wrapper" 
+
+    def _generate( 
+        self, 
+        messages: List, 
+        stop: Optional[List[str]] = None, 
+        run_manager=None, 
+        **kwargs, 
+    ) -> ChatResult: 
+        kwargs.pop("n", None)  # Strip n — provider only supports n=1 
+        return self.inner._generate( 
+            messages, stop=stop, run_manager=run_manager, **kwargs 
+        ) 
+
+    async def _agenerate( 
+        self, 
+        messages: List, 
+        stop: Optional[List[str]] = None, 
+        run_manager=None, 
+        **kwargs, 
+    ) -> ChatResult: 
+        kwargs.pop("n", None)  # Strip n — async path 
+        return await self.inner._agenerate( 
+            messages, stop=stop, run_manager=run_manager, **kwargs 
+        ) 
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TIMEOUT GUARD FOR RAGAS EVALUATE
 # ══════════════════════════════════════════════════════════════════════════════
 
-async def run_evaluation_with_timeout(dataset, metrics, run_config=None, timeout_seconds=120): # CHANGED
-    try:
-        result = await asyncio.wait_for(
-            asyncio.to_thread(evaluate, dataset, metrics=metrics, run_config=run_config), # CHANGED
-            timeout=timeout_seconds
-        )
-        return result
-    except asyncio.TimeoutError:
-        print("[ERROR] Evaluasi RAGAS timeout setelah", timeout_seconds, "detik")
-        return None
+async def run_evaluation_with_timeout(dataset, metrics, run_config=None, timeout_seconds=None):
+    """Run ragas.evaluate() in a thread — no timeout (evaluation-only)."""
+    result = await asyncio.to_thread(
+        evaluate, dataset, metrics=metrics, run_config=run_config,
+    )
+    return result
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -377,25 +423,25 @@ def main(quick: bool = False) -> None:
     samples = run_pipeline(cases)
     dataset = EvaluationDataset(samples=samples)
 
-    if quick: # CHANGED
-        dataset = dataset[0:min(3, len(dataset))] # CHANGED
+    if quick: 
+        dataset = dataset[0:min(3, len(dataset))] 
 
-    openai_llm = ChatOpenAI( # CHANGED
-        model="gpt-4o-mini", # CHANGED
-        api_key=os.getenv("OPENAI_API_KEY"), # CHANGED
-        temperature=0, # CHANGED
-        max_tokens=2048, # CHANGED
-        max_retries=2, # CHANGED
-        timeout=30, # CHANGED
-    ) # CHANGED
-    ragas_llm = LangchainLLMWrapper(openai_llm) # CHANGED
+    openai_llm = ChatOpenAI( 
+        model="gpt-4o-mini", 
+        api_key=os.getenv("OPENAI_API_KEY"), 
+        temperature=0, 
+        max_tokens=2048, 
+        max_retries=2, 
+        timeout=30, 
+    ) 
+    ragas_llm = LangchainLLMWrapper(openai_llm) 
     ragas_embeddings = LangchainEmbeddingsWrapper(_E5Embeddings())
 
-    ragas_run_config = RunConfig( # CHANGED
-        max_workers=1, # CHANGED
-        max_retries=2, # CHANGED
-        timeout=120, # CHANGED
-    ) # CHANGED
+    ragas_run_config = RunConfig( 
+        max_workers=1, 
+        max_retries=2, 
+        timeout=120, 
+    ) 
 
     # ── Step 3: Set LLM & Embeddings ke semua metrik secara eksplisit ──────────
     faithfulness.llm = ragas_llm
@@ -421,9 +467,9 @@ def main(quick: bool = False) -> None:
         answer_similarity,
     ]
 
-    # ── Step 4: Evaluate dengan Timeout Guard ──────────────────────────────────
-    logger.info("Menjalankan ragas.evaluate() dengan %d metrik (Timeout Guard: 120s)...", len(metrics))
-    result = asyncio.run(run_evaluation_with_timeout(dataset, metrics, run_config=ragas_run_config, timeout_seconds=600)) # CHANGED
+    # ── Step 4: Evaluate ───────────────────────────────────────────────────────
+    logger.info("Menjalankan ragas.evaluate() dengan %d metrik...", len(metrics))
+    result = asyncio.run(run_evaluation_with_timeout(dataset, metrics, run_config=ragas_run_config))
 
     if result is None:
         logger.error("❌ Evaluasi gagal atau terhenti karena timeout.")
