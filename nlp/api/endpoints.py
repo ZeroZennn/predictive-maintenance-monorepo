@@ -95,7 +95,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
     )
     
     if intent_result.intent.value in (
-        "identity", "system_info", "off_topic", "document_inquiry"
+        "document_inquiry",
     ):
         try:
             vs = VectorStore()
@@ -109,9 +109,8 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
         )
         
         if sc["shortcircuit"]:
-            import uuid, datetime
             return {
-                "query_id": f"QRY-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-SC",
+                "query_id": f"QRY-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-SC",
                 "query": request.query,
                 "answer": sc["response"],
                 "action_suggestions": [],
@@ -124,7 +123,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
                 "confidence": "high",
                 "latency_ms": 0,
                 "session_id": getattr(request, "session_id", None),
-                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
     # ── End Shortcircuit — lanjut ke retrieval pipeline normal ────────────
 
