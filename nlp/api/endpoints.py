@@ -137,14 +137,29 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
     try:
         t0 = time.time()
 
+        # 0. Intent Classification
+        history_dicts = [
+            {"role": m.role, "content": m.content}
+            for m in (request.history or [])
+        ]
+        intent_res = _intent_classifier.classify(request.query, history=history_dicts)
+        
+        context_free_intents = ["system_info", "identity", "off_topic"]
+        is_context_free = intent_res.intent.value in context_free_intents
+
         # 1. Retrieval
         machine_ids = request.machine_ids or []
-        results, route = pipeline.run(
-            query            = request.query,
-            machine_ids_hint = machine_ids if machine_ids else None,
-            use_reranker     = request.use_reranker,
-            use_hybrid       = request.use_hybrid,
-        )
+        results = []
+        route_mode = intent_res.intent.value
+        
+        if not is_context_free:
+            results, route = pipeline.run(
+                query            = request.query,
+                machine_ids_hint = machine_ids if machine_ids else None,
+                use_reranker     = request.use_reranker,
+                use_hybrid       = request.use_hybrid,
+            )
+            route_mode = route.mode.value
 
         # 2. Live Context
         live_data: list = []
@@ -154,10 +169,6 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
             live_context_used = any(lc.should_inject() for lc in live_data)
 
         # 3. Build prompt
-        history_dicts = [
-            {"role": m.role, "content": m.content}
-            for m in (request.history or [])
-        ]
         prompt_pkg = builder.build(
             query             = request.query,
             results           = results,
@@ -171,13 +182,18 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
 
         # 5. Format output
         citations      = extractor.extract_citations(results)
+        
+        # Opsi C: Post-processing citations sebagai safety net
+        if route_mode == "general" and not machine_ids:
+            citations = []
+            
         live_snapshots = extractor.format_live_context_snapshot(live_data)
         confidence     = extractor.determine_confidence(results, live_context_used)
         total_latency  = int((time.time() - t0) * 1000)
 
         _log.info(
             "Query OK | id=%s | mode=%s | results=%d | latency=%dms",
-            query_id, route.mode.value, len(results), total_latency,
+            query_id, route_mode, len(results), total_latency,
         )
 
         return QueryResponse(
@@ -188,7 +204,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
             citations          = citations,
             live_context_used  = live_context_used,
             live_context_data  = live_snapshots if live_snapshots else None,
-            mode               = route.mode.value,
+            mode               = route_mode,
             provider_used      = llm_response.provider_used,
             model_used         = llm_response.model_used,
             confidence         = confidence,
