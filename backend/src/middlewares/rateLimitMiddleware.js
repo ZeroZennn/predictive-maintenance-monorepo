@@ -9,7 +9,7 @@ const logger = require('../config/logger');
  */
 const telemetryLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 300,
+  max: process.env.NODE_ENV === 'development' ? 10000 : 300,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
@@ -63,7 +63,7 @@ const nlpLimiter = rateLimit({
  */
 const generalLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 300,
+  max: process.env.NODE_ENV === 'development' ? 10000 : 300,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
