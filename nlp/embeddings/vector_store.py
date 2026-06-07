@@ -310,6 +310,75 @@ class VectorStore:
         )
         return results
 
+    def get_document_stats(self, machine_id: str = None) -> dict:
+        """
+        Hitung statistik dokumen yang terindeks di Qdrant.
+        Dipakai untuk menjawab intent document_inquiry tanpa LLM.
+
+        Args:
+            machine_id: filter per mesin (e.g. "M-01"). None = semua mesin.
+
+        Returns:
+            {
+                "total_documents": int,
+                "documents": List[str],  # distinct source_doc names
+                "machine_id": str | None
+            }
+        """
+        try:
+            from qdrant_client.models import Filter, FieldCondition, MatchValue
+
+            all_docs = set()
+            offset = None
+
+            # Build filter jika machine_id diberikan
+            scroll_filter = None
+            if machine_id:
+                scroll_filter = Filter(
+                    must=[
+                        FieldCondition(
+                            key="machine_ids",
+                            match=MatchValue(value=machine_id)
+                        )
+                    ]
+                )
+
+            # Scroll seluruh collection untuk ambil distinct source_doc
+            while True:
+                results, next_offset = self.client.scroll(
+                    collection_name=self.collection_name,
+                    scroll_filter=scroll_filter,
+                    limit=250,
+                    offset=offset,
+                    with_payload=["source_doc"],
+                    with_vectors=False
+                )
+
+                for point in results:
+                    source = point.payload.get("source_doc", "")
+                    if source and source.strip():
+                        all_docs.add(source)
+
+                if next_offset is None:
+                    break
+                offset = next_offset
+
+            sorted_docs = sorted(all_docs)
+
+            return {
+                "total_documents": len(sorted_docs),
+                "documents": sorted_docs,
+                "machine_id": machine_id
+            }
+
+        except Exception as e:
+            self.logger.error("get_document_stats error: %s", e)
+            return {
+                "total_documents": 0,
+                "documents": [],
+                "machine_id": machine_id
+            }
+
 
 # ── Entry Point ────────────────────────────────────────────────────────────────
 

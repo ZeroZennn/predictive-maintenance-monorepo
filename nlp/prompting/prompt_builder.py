@@ -8,6 +8,15 @@ from typing import Any, Dict, List, Optional
 from nlp.prompting.live_context import LiveContextData
 from nlp.retrieval.retriever import RetrievalResult
 
+from nlp.retrieval.intent_classifier import IntentClassifier, QueryIntent, IntentResult
+from nlp.prompting.assistant_identity import (
+    IDENTITY_RESPONSE,
+    OUT_OF_SCOPE_RESPONSE,
+    SYSTEM_DESCRIPTION,
+    ASSISTANT_NAME,
+)
+from nlp.embeddings.vector_store import VectorStore
+
 
 # ── Logging Setup ──────────────────────────────────────────────────────────────
 
@@ -270,3 +279,102 @@ class PromptBuilder:
             has_live_context = has_live_ctx,
             query            = query,
         )
+
+    def build_dynamic_response(
+        self,
+        query: str,
+        intent_result: IntentResult,
+        vector_store: VectorStore | None = None,
+    ) -> dict:
+        """
+        Shortcircuit handler untuk intent yang tidak butuh LLM/retrieval.
+        
+        Returns dict dengan keys:
+            - shortcircuit: bool — True jika tidak perlu lanjut ke LLM
+            - response: str | None — response langsung jika shortcircuit
+            - intent: str — nama intent
+            - normalized_query: str — query yang sudah dinormalisasi
+        
+        Jika shortcircuit=False, caller harus lanjutkan ke retrieval + LLM normal.
+        """
+        intent = intent_result.intent
+        machine_id = intent_result.extracted_machine_id
+
+        # ── IDENTITY ──────────────────────────────────────────────────────────
+        if intent == QueryIntent.IDENTITY:
+            return {
+                "shortcircuit": True,
+                "response": IDENTITY_RESPONSE,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── SYSTEM INFO ───────────────────────────────────────────────────────
+        if intent == QueryIntent.SYSTEM_INFO:
+            return {
+                "shortcircuit": True,
+                "response": SYSTEM_DESCRIPTION,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── OFF TOPIC ─────────────────────────────────────────────────────────
+        if intent == QueryIntent.OFF_TOPIC:
+            return {
+                "shortcircuit": True,
+                "response": OUT_OF_SCOPE_RESPONSE,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── DOCUMENT INQUIRY ──────────────────────────────────────────────────
+        if intent == QueryIntent.DOCUMENT_INQUIRY:
+            if vector_store is None:
+                return {
+                    "shortcircuit": True,
+                    "response": "Maaf, saya tidak dapat mengakses informasi dokumen saat ini.",
+                    "intent": intent.value,
+                    "normalized_query": intent_result.normalized_query,
+                }
+            
+            stats = vector_store.get_document_stats(machine_id=machine_id)
+            total = stats["total_documents"]
+            docs  = stats["documents"]
+
+            if machine_id:
+                if total == 0:
+                    response = (
+                        f"Tidak ditemukan dokumen yang berhubungan dengan mesin "
+                        f"{machine_id} dalam sistem PRIME."
+                    )
+                else:
+                    doc_list = "\n".join(f"  {i+1}. {d}" for i, d in enumerate(docs))
+                    response = (
+                        f"Terdapat **{total} dokumen** yang berhubungan dengan "
+                        f"mesin {machine_id} dalam sistem PRIME:\n\n{doc_list}"
+                    )
+            else:
+                if total == 0:
+                    response = "Belum ada dokumen yang terindeks dalam sistem PRIME."
+                else:
+                    doc_list = "\n".join(f"  {i+1}. {d}" for i, d in enumerate(docs[:20]))
+                    more = f"\n  ... dan {total - 20} dokumen lainnya." if total > 20 else ""
+                    response = (
+                        f"Terdapat **{total} dokumen** yang sudah terindeks "
+                        f"dalam sistem PRIME:\n\n{doc_list}{more}"
+                    )
+
+            return {
+                "shortcircuit": True,
+                "response": response,
+                "intent": intent.value,
+                "normalized_query": intent_result.normalized_query,
+            }
+
+        # ── MACHINE QUICK, ANALYTICAL, FOLLOW_UP → lanjut ke LLM ─────────────
+        return {
+            "shortcircuit": False,
+            "response": None,
+            "intent": intent.value,
+            "normalized_query": intent_result.normalized_query,
+        }

@@ -28,12 +28,8 @@ from nlp.prompting.live_context import LiveContextFetcher
 from nlp.prompting.llm_interface import LLMInterface
 from nlp.prompting.prompt_builder import PromptBuilder
 from nlp.retrieval.pipeline import RetrievalPipeline
+from nlp.retrieval.intent_classifier import IntentClassifier
 
-
-# ── Router & Logger ────────────────────────────────────────────────────────────
-
-router = APIRouter()
-logger = logging.getLogger("endpoints")
 
 # ── Singleton Component State ──────────────────────────────────────────────────
 
@@ -43,6 +39,15 @@ _builder   : Optional[PromptBuilder]      = None
 _llm       : Optional[LLMInterface]       = None
 _extractor : CitationExtractor            = CitationExtractor()
 _start_time: float                        = time.time()
+
+_intent_classifier = IntentClassifier()
+_prompt_builder_instance = PromptBuilder()
+
+
+# ── Router & Logger ────────────────────────────────────────────────────────────
+
+router = APIRouter()
+logger = logging.getLogger("endpoints")
 
 
 def get_components():
@@ -82,6 +87,46 @@ def get_components():
 async def query_endpoint(request: QueryRequest) -> QueryResponse:
     """Handle query dari teknisi melalui Backend."""
     _log = logging.getLogger("endpoints.query")
+
+    # ── Intent Classification & Shortcircuit ──────────────────────────────
+    intent_result = _intent_classifier.classify(
+        query=request.query,
+        history=request.history or [],
+    )
+    
+    if intent_result.intent.value in (
+        "identity", "system_info", "off_topic", "document_inquiry"
+    ):
+        try:
+            vs = VectorStore()
+        except Exception:
+            vs = None
+        
+        sc = _prompt_builder_instance.build_dynamic_response(
+            query=request.query,
+            intent_result=intent_result,
+            vector_store=vs,
+        )
+        
+        if sc["shortcircuit"]:
+            import uuid, datetime
+            return {
+                "query_id": f"QRY-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-SC",
+                "query": request.query,
+                "answer": sc["response"],
+                "action_suggestions": [],
+                "citations": [],
+                "live_context_used": False,
+                "live_context_data": [],
+                "mode": sc["intent"],
+                "provider_used": "shortcircuit",
+                "model_used": "none",
+                "confidence": "high",
+                "latency_ms": 0,
+                "session_id": getattr(request, "session_id", None),
+                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            }
+    # ── End Shortcircuit — lanjut ke retrieval pipeline normal ────────────
 
     pipeline, fetcher, builder, llm, extractor = get_components()
 
