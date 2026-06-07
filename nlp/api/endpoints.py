@@ -214,8 +214,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
 
 def _do_callback(document_id: str, status: str, chunks_count: int = 0, error: str = "") -> None:
     """Sync HTTP PATCH ke backend — dipanggil dalam thread executor."""
-    import json as _json
-    import urllib.request as _urllib
+    import httpx
 
     backend_url  = os.getenv("BACKEND_URL", "http://host.docker.internal:3000")
     internal_key = os.getenv("INTERNAL_API_KEY", "")
@@ -224,20 +223,20 @@ def _do_callback(document_id: str, status: str, chunks_count: int = 0, error: st
     if error:
         payload["error"] = error
 
-    data = _json.dumps(payload).encode("utf-8")
-    req  = _urllib.Request(
-        url,
-        data   = data,
-        method = "PATCH",
-        headers = {
-            "Content-Type"  : "application/json",
-            "X-Internal-Key": internal_key,
-        },
-    )
     try:
-        with _urllib.urlopen(req, timeout=10) as resp:
+        # Gunakan httpx karena lebih robust menangani IPv4/IPv6 fallback di Docker Desktop
+        with httpx.Client(timeout=10.0) as client:
+            resp = client.patch(
+                url,
+                json=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "X-Internal-Key": internal_key,
+                },
+            )
+            resp.raise_for_status()
             logging.getLogger("endpoints.callback").info(
-                "Callback OK: %s → %s (%d)", document_id, status, resp.status
+                "Callback OK: %s → %s (%d)", document_id, status, resp.status_code
             )
     except Exception as cb_err:
         logging.getLogger("endpoints.callback").error(
