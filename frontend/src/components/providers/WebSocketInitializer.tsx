@@ -25,6 +25,7 @@ function WebSocketInitializer() {
       wsManager.joinGlobal();
       wsManager.joinSimulator();
 
+      // [ALUR PRIME] FASE 4: Frontend Integration & Visualization (Fetch Data). Bagian ini mendengarkan (listen) event WebSocket secara real-time dari backend untuk menerima data sensor dan hasil prediksi ML, lalu memperbarui state global (useMachineStore).
       const handleSensorUpdate = (data: any) => {
         // DEBUG LOG
         // console.log(`[WS] Received sensor:update for ${data.machine_id}`);

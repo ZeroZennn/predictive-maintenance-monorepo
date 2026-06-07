@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "migrate": "node -r dotenv/config src/config/initDb.js && node -r dotenv/config src/config/migrate.js && node -r dotenv/config src/config/migrate2.js && node -r dotenv/config src/config/migrate3.js && node -r dotenv/config src/config/migrate4.js && node -r dotenv/config src/config/migrate5.js && node -r dotenv/config src/config/migrate6.js && node -r dotenv/config src/config/migrate7.js && node -r dotenv/config src/config/seedUsers.js"
   },
   "keywords": [
     "predictive-maintenance",

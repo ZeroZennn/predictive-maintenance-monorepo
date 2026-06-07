@@ -150,6 +150,7 @@ class SimulatorService {
 
   // processTick
 
+  // [ALUR PRIME] FASE 1: Data Simulation (Input). Fungsi ini bertanggung jawab untuk mensimulasikan streaming data historis sensor. Fungsi mengirimkan HTTP POST (seolah-olah data dari sensor asli secara real-time) ke endpoint ingestion backend untuk diproses lebih lanjut.
   /**
    * Sends one group (all machines at a given timestamp) to the telemetry
    * ingest endpoint, then advances the index and broadcasts progress.
