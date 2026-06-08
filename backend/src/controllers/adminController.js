@@ -320,6 +320,46 @@ const adminController = {
   },
 
   /**
+   * GET /api/admin/documents/:document_id/serve
+   * Serves the physical file for preview or download.
+   */
+  async serveDocument(req, res, next) {
+    try {
+      const { document_id } = req.params;
+      const { download } = req.query;
+
+      const result = await pgPool.query(
+        "SELECT file_path, original_name, file_format FROM documents WHERE document_id = $1",
+        [document_id],
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ status: "error", message: "Document not found" });
+      }
+
+      const { file_path, original_name, file_format } = result.rows[0];
+      const absolutePath = path.resolve(file_path);
+
+      if (!fs.existsSync(absolutePath)) {
+        return res.status(404).json({ status: "error", message: "File not found on disk" });
+      }
+
+      if (download === '1') {
+        res.download(absolutePath, original_name);
+      } else {
+        res.sendFile(absolutePath, {
+          headers: {
+            'Content-Type': file_format || 'application/pdf',
+            'Content-Disposition': `inline; filename="${original_name}"`
+          }
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * PATCH /api/admin/documents/:document_id/status
    *
    * Internal callback endpoint - called by NLP Engine when indexing completes.

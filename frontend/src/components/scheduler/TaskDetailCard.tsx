@@ -44,6 +44,7 @@ const getCardColorTheme = (type: string) => {
 
 export default function TaskDetailCard({ task }: TaskDetailCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const addAlert = useToastStore((state) => state.addAlert);
 
   const isPredictive = task.status === "PENDING_CONFIRMATION";
@@ -84,6 +85,9 @@ export default function TaskDetailCard({ task }: TaskDetailCardProps) {
       message: `Penyelesaian perawatan untuk ${task.machine_id} berhasil dikonfirmasi. (Biaya: ${formatRupiah(completionData.cost_idr)})`,
       timestamp: new Date().toISOString()
     });
+    
+    setIsConfirmed(true);
+    setIsModalOpen(false);
   };
 
   const theme = getCardColorTheme(task.type);
@@ -155,12 +159,21 @@ export default function TaskDetailCard({ task }: TaskDetailCardProps) {
 
           {/* BUTTONS */}
           <div className="mt-4 pt-2 relative z-10">
-            <button
-              onClick={handleConfirmClick}
-              className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-heading font-bold text-sm cursor-pointer ${theme.ctaButton}`}
-            >
-              <CheckCircle size={16} /> Konfirmasi
-            </button>
+            {isConfirmed ? (
+              <button
+                disabled
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-heading font-bold text-sm cursor-not-allowed bg-gray-500/20 text-gray-400 border border-gray-500/30 transition-colors"
+              >
+                <CheckCircle size={16} /> Confirmed
+              </button>
+            ) : (
+              <button
+                onClick={handleConfirmClick}
+                className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-heading font-bold text-sm cursor-pointer ${theme.ctaButton}`}
+              >
+                <CheckCircle size={16} /> Konfirmasi
+              </button>
+            )}
           </div>
         </div>
 
@@ -224,12 +237,21 @@ export default function TaskDetailCard({ task }: TaskDetailCardProps) {
             <button className="flex-1 py-2.5 font-heading text-sm font-medium text-gray-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 rounded-xl transition-colors flex items-center justify-center gap-2">
               <Edit2 size={14} /> Edit
             </button>
-            <button
-              onClick={handleConfirmClick}
-              className="flex-1 py-2.5 font-heading text-sm font-bold text-[#081819] bg-[#5FDA0A] hover:bg-[#5FDA0A]/90 rounded-xl transition-colors flex items-center justify-center gap-2"
-            >
-              <CheckCircle size={15} /> Mark Selesai
-            </button>
+            {isConfirmed ? (
+              <button
+                disabled
+                className="flex-1 py-2.5 font-heading text-sm font-bold text-gray-400 bg-gray-500/20 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-not-allowed border border-gray-500/30"
+              >
+                <CheckCircle size={15} /> Confirmed
+              </button>
+            ) : (
+              <button
+                onClick={handleConfirmClick}
+                className="flex-1 py-2.5 font-heading text-sm font-bold text-[#081819] bg-[#5FDA0A] hover:bg-[#5FDA0A]/90 rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                <CheckCircle size={15} /> Mark Selesai
+              </button>
+            )}
           </div>
         </div>
 

@@ -45,10 +45,6 @@ class QueryRequest(BaseModel):
     )
     use_reranker: bool = Field(default=True)
     use_hybrid  : bool = Field(default=True)
-    historical_context: Optional[str] = Field(
-        default     = None,
-        description = "Riwayat anomali atau data timeseries sebelumnya dari Backend",
-    )
 
 
 class IngestRequest(BaseModel):
@@ -121,6 +117,7 @@ class QueryResponse(BaseModel):
     timestamp         : str = ""
 
     class Config:
+        protected_namespaces = ()
         json_schema_extra = {
             "example": {
                 "query_id"          : "QRY-20260517-001",

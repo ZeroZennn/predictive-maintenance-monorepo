@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { cookies } from "next/headers";
 
-export default function HeroSection() {
+export default async function HeroSection() {
+  const cookieStore = await cookies();
+  const hasToken = cookieStore.has("lapis_token");
+  const bypassAuth = process.env.NEXT_PUBLIC_SKIP_AUTH === "true";
+  const isLoggedIn = hasToken || bypassAuth;
+
   return (
     <section className="relative w-full min-h-screen flex items-center pl-6 md:pl-16 lg:pl-24 xl:pl-32 pt-20 overflow-hidden">
       {/* Background Image & Gradient Blend */}
@@ -27,12 +33,21 @@ export default function HeroSection() {
           Platform pemantauan kondisi mesin industrial yang memadukan prediksi hibrida ML/DL dan RAG Asisten Teknis dalam satu ekosistem terpadu.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link
-            href="/dashboard"
-            className="px-8 py-4 bg-[#5FDA0A] text-black font-bold rounded-full flex items-center justify-center gap-2 hover:bg-[#4bc208] transition-colors"
-          >
-            Mulai Pemantauan <ArrowRight size={20} />
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              className="px-8 py-4 bg-[#5FDA0A] text-black font-bold rounded-full flex items-center justify-center gap-2 hover:bg-[#4bc208] transition-colors"
+            >
+              Access Dashboard <ArrowRight size={20} />
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="px-8 py-4 bg-[#5FDA0A] text-black font-bold rounded-full flex items-center justify-center gap-2 hover:bg-[#4bc208] transition-colors"
+            >
+              Login <ArrowRight size={20} />
+            </Link>
+          )}
           <a
             href="#features"
             className="px-8 py-4 border border-white/20 text-white font-bold rounded-full flex items-center justify-center hover:bg-white/5 transition-colors"

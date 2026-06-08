@@ -8,6 +8,7 @@ import { queryCopilot } from "@/lib/api";
 import { ChatBubble, CitationChip, ChatInput } from "./index";
 import { clsx } from "clsx";
 import { usePathname } from "next/navigation";
+import DocumentPreviewModal from "@/components/ui/DocumentPreviewModal";
 
 export default function CopilotSlidingPanel() {
   // Surgical Subscriptions
@@ -25,6 +26,8 @@ export default function CopilotSlidingPanel() {
 
   // sessionId: generate sekali pakai
   const [sessionId] = useState(() => crypto.randomUUID());
+  
+  const [previewTarget, setPreviewTarget] = useState<{documentId: string, filename: string} | null>(null);
 
   // Auto-scroll ke pesan terbaru
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -196,13 +199,24 @@ export default function CopilotSlidingPanel() {
                     msg.sources &&
                     msg.sources.length > 0 && (
                       <div className="flex flex-wrap gap-2 pl-11">
-                        {msg.sources.map((src, i) => (
-                          <CitationChip
-                            key={i}
-                            filename={src.filename || src.source_doc || "Unknown Document"}
-                            page={src.page}
-                          />
-                        ))}
+                        {msg.sources.map((src, i) => {
+                          const filename = src.filename || src.source_doc || "Unknown Document";
+                          const match = filename.match(/^(DOC-\d{8}-\d{3})/);
+                          const docId = match ? match[1] : "";
+                          
+                          return (
+                            <CitationChip
+                              key={i}
+                              filename={filename}
+                              page={src.page}
+                              onClick={() => {
+                                if (docId) {
+                                  setPreviewTarget({ documentId: docId, filename });
+                                }
+                              }}
+                            />
+                          );
+                        })}
                       </div>
                     )}
                 </div>
@@ -246,6 +260,14 @@ export default function CopilotSlidingPanel() {
           }
         }
       `}</style>
+      
+      {/* PREVIEW MODAL */}
+      <DocumentPreviewModal
+        isOpen={!!previewTarget}
+        documentId={previewTarget?.documentId || ""}
+        filename={previewTarget?.filename || ""}
+        onClose={() => setPreviewTarget(null)}
+      />
     </>
   );
 }

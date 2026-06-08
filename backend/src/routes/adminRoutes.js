@@ -147,6 +147,13 @@ router.get(
   adminController.getDocumentStatus
 );
 
+// Serve/preview document
+router.get(
+  '/documents/:document_id/serve',
+  authenticate, // Both Admin and Technician can view documents
+  adminController.serveDocument
+);
+
 // NLP Engine callback - verified by X-Internal-Key header
 router.patch(
   '/documents/:document_id/status',
