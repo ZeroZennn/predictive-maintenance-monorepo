@@ -10,6 +10,7 @@ import {
 } from "@/components/copilot";
 import { Bot } from "lucide-react";
 import { useCopilotStore } from "@/stores";
+import DocumentPreviewModal from "@/components/ui/DocumentPreviewModal";
 
 export default function CopilotHubPage() {
   // Surgical Subscriptions exactly like CopilotSlidingPanel
@@ -24,6 +25,7 @@ export default function CopilotHubPage() {
   // The user requirement says "Pastikan session_id dan history conversation ter-handle dengan cara yang sama"
   // CopilotSlidingPanel uses local state for session: const [sessionId] = useState(() => crypto.randomUUID());
   const [sessionId] = useState(() => crypto.randomUUID());
+  const [previewTarget, setPreviewTarget] = useState<{documentId: string, filename: string} | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -146,13 +148,23 @@ export default function CopilotHubPage() {
                 msg.sources &&
                 msg.sources.length > 0 && (
                   <div className="flex flex-wrap gap-2 pl-12 max-w-[520px]">
-                    {msg.sources.map((src, i) => (
-                      <CitationChip
-                        key={i}
-                        filename={src.filename || src.source_doc || "Unknown Document"}
-                        page={src.page}
-                      />
-                    ))}
+                    {msg.sources.map((src, i) => {
+                      const filename = src.filename || src.source_doc || "Unknown Document";
+                      const match = filename.match(/^(DOC-\d{8}-\d{3})/);
+                      const docId = match ? match[1] : "";
+                      return (
+                        <CitationChip
+                          key={i}
+                          filename={filename}
+                          page={src.page}
+                          onClick={() => {
+                            if (docId) {
+                              setPreviewTarget({ documentId: docId, filename });
+                            }
+                          }}
+                        />
+                      );
+                    })}
                   </div>
                 )}
             </div>
@@ -199,6 +211,14 @@ export default function CopilotHubPage() {
           }
         }
       `}</style>
+      
+      {/* PREVIEW MODAL */}
+      <DocumentPreviewModal
+        isOpen={!!previewTarget}
+        documentId={previewTarget?.documentId || ""}
+        filename={previewTarget?.filename || ""}
+        onClose={() => setPreviewTarget(null)}
+      />
     </div>
   );
 }
