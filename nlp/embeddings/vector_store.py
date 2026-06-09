@@ -49,19 +49,26 @@ class VectorStore:
         self.mode: str            = config["vector_db"].get("mode", "memory")
 
         # ── Client init berdasarkan mode ───────────────────────────────────────
-        if self.mode == "memory":
+        import os
+        qdrant_url = os.environ.get("QDRANT_URL", "")
+
+        if qdrant_url:
+            # Docker / production: koneksi ke Qdrant server via URL
+            self.client = QdrantClient(url=qdrant_url)
+            self.logger.info("Qdrant: server mode (env) → %s", qdrant_url)
+        elif self.mode == "memory":
             self.client = QdrantClient(":memory:")
             self.logger.info("Qdrant: in-memory mode")
         elif self.mode == "local":
             local_path = config["vector_db"].get("local_path", "nlp/data/vector_db/qdrant")
-            import os; os.makedirs(local_path, exist_ok=True)
+            os.makedirs(local_path, exist_ok=True)
             self.client = QdrantClient(path=local_path)
             self.logger.info("Qdrant: local persistent mode → %s", local_path)
         else:
             host: str = config["vector_db"].get("host", "localhost")
             port: int = config["vector_db"].get("port", 6333)
             self.client = QdrantClient(host=host, port=port)
-            self.logger.info("Qdrant: server mode %s:%d", host, port)
+            self.logger.info("Qdrant: server mode (config) → %s:%d", host, port)
 
         self._collection_ready: bool = False
 
@@ -155,12 +162,13 @@ class VectorStore:
         ]
         total_batches = len(batches)
         upserted = 0
+        import uuid
 
         for batch_num, batch in enumerate(batches, start=1):
             try:
                 points = [
                     PointStruct(
-                        id=upserted + local_idx,           # global sequential int ID
+                        id=uuid.uuid4().hex,               # unique UUID per chunk
                         vector=chunk["embedding"],          # list[float]
                         payload=self._build_payload(chunk), # metadata tanpa embedding
                     )
@@ -302,6 +310,75 @@ class VectorStore:
             len(results),
         )
         return results
+
+    def get_document_stats(self, machine_id: str = None) -> dict:
+        """
+        Hitung statistik dokumen yang terindeks di Qdrant.
+        Dipakai untuk menjawab intent document_inquiry tanpa LLM.
+
+        Args:
+            machine_id: filter per mesin (e.g. "M-01"). None = semua mesin.
+
+        Returns:
+            {
+                "total_documents": int,
+                "documents": List[str],  # distinct source_doc names
+                "machine_id": str | None
+            }
+        """
+        try:
+            from qdrant_client.models import Filter, FieldCondition, MatchValue
+
+            all_docs = set()
+            offset = None
+
+            # Build filter jika machine_id diberikan
+            scroll_filter = None
+            if machine_id:
+                scroll_filter = Filter(
+                    must=[
+                        FieldCondition(
+                            key="machine_ids",
+                            match=MatchValue(value=machine_id)
+                        )
+                    ]
+                )
+
+            # Scroll seluruh collection untuk ambil distinct source_doc
+            while True:
+                results, next_offset = self.client.scroll(
+                    collection_name=self.collection_name,
+                    scroll_filter=scroll_filter,
+                    limit=250,
+                    offset=offset,
+                    with_payload=["source_doc"],
+                    with_vectors=False
+                )
+
+                for point in results:
+                    source = point.payload.get("source_doc", "")
+                    if source and source.strip():
+                        all_docs.add(source)
+
+                if next_offset is None:
+                    break
+                offset = next_offset
+
+            sorted_docs = sorted(all_docs)
+
+            return {
+                "total_documents": len(sorted_docs),
+                "documents": sorted_docs,
+                "machine_id": machine_id
+            }
+
+        except Exception as e:
+            self.logger.error("get_document_stats error: %s", e)
+            return {
+                "total_documents": 0,
+                "documents": [],
+                "machine_id": machine_id
+            }
 
 
 # ── Entry Point ────────────────────────────────────────────────────────────────

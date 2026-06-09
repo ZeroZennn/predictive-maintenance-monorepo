@@ -92,6 +92,7 @@ def _prepare_lstm_input(features: np.ndarray,
     return seq.reshape(1, seq_len, N_FEATURES)
 
 
+# [ALUR PRIME] FASE 2: ML & DL Inference (Processing). Ini adalah fungsi utama (Core Logic) dimana model Machine Learning (Klasifikasi Status Kesehatan) dan Deep Learning (Regresi RUL) dieksekusi secara berjenjang (cascaded).
 def predict(payload: dict,
             history_df: Optional[pd.DataFrame] = None) -> dict:
     """

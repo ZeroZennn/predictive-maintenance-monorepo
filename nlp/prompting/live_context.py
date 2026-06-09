@@ -32,7 +32,7 @@ class LiveContextData:
     pressure_psi  : Optional[float] = None
     rpm           : Optional[float] = None
     ml_prediction : str = "unknown"       # normal | butuh_perawatan | kritis | unknown
-    rul_days      : Optional[int] = None
+    rul_days      : Optional[float] = None
     active_alerts : List[str] = field(default_factory=list)
     last_updated  : str = ""
     data_source   : str = "redis"         # redis | mock | unavailable

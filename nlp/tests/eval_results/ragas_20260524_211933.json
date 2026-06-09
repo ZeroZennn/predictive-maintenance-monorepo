@@ -1,0 +1,198 @@
+{
+  "timestamp": "20260524_211933",
+  "cases_evaluated": 10,
+  "scores_mean": {
+    "faithfulness": 0.6627,
+    "answer_relevancy": 0.7052,
+    "context_precision": 0.7667,
+    "context_recall": 0.5917,
+    "context_entity_recall": 0.3411,
+    "answer_correctness": 0.4619,
+    "answer_similarity": 0.9298
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Apa yang terjadi pada M-01 saat emergency di Agustus 2025?",
+      "retrieved_contexts": [
+        "[TIMELINE PEMELIHARAAN]\n02/08/2025 (Log ID: ML-0119): Dilakukan tindakan Emergency. Teknisi mencatat bahwa kegagalan sistem pendingin kritis. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini memakan waktu downtime 21.6 jam dengan biaya Rp 49.643.133. 05/08/2025 (Log ID: ML-0096): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing.",
+        "Aktivitas ini memakan waktu downtime 5.4 jam dengan biaya Rp 2.537.231. 16/08/2025 (Log ID: ML-0189): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 15.8 jam dengan biaya Rp 3.385.783. 26/08/2025 (Log ID: ML-0447): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol.",
+        "Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 33.5 jam dengan biaya Rp 31.560.747. 28/08/2025 (Log ID: ML-0201): Dilakukan tindakan Corrective. Teknisi mencatat bahwa belt putus, ganti belt dan pulley. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini menyebabkan downtime selama 18.9 jam dengan biaya Rp 7.085.779.",
+        "Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini memakan waktu downtime 5.5 jam dengan biaya Rp 2.496.700. 06/08/2025 (Log ID: ML-0009): Dilakukan tindakan Preventive. Teknisi mencatat bahwa lubrikasi komponen, cek belt. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini memakan waktu downtime 5.4 jam dengan biaya Rp 2.537.231."
+      ],
+      "response": "## ANALISIS\nPada bulan Agustus 2025, terdapat dua insiden emergency pada M-01. Kedua insiden tersebut terjadi pada tanggal 16/08/2025 (Log ID: ML-0189) dan 26/08/2025 (Log ID: ML-0447). Insiden pertama menyebabkan downtime selama 15.8 jam dengan biaya Rp 3.385.783 karena kebocoran pressure line dan ganti seal. Insiden kedua menyebabkan downtime selama 33.5 jam dengan biaya Rp 31.560.747 karena short circuit pada panel kontrol.\n\n## REKOMENDASI\n- SEGERA: Periksa kondisi panel kontrol dan pressure line untuk mencegah insiden serupa di masa depan.\n- PREVENTIF: Pastikan semua komponen yang diganti dalam insiden emergency di atas (Motor, Seal, Bearing, pulley) dalam kondisi baik dan tidak ada kerusakan.\n\n## REFERENSI\n- [Referensi 1]: Laporan_M-01_Agustus_2025\n- [Referensi 2]: Laporan_M-01_Agustus_2025\n- [Referensi 3]: Laporan_M-01_Agustus_2025\n- [Referensi 4]: Laporan_M-01_Agustus_2025",
+      "reference": "Pada 02/08/2025 (Log ID: ML-0119) terjadi tindakan Emergency pada M-01 berupa kegagalan sistem pendingin kritis. Part yang diganti adalah Motor dengan downtime 21.6 jam dan biaya Rp 49.643.133. Selain itu pada 26/08/2025 (Log ID: ML-0447) terjadi short circuit pada panel kontrol dengan downtime 33.5 jam dan biaya Rp 31.560.747. Total downtime M-01 bulan Agustus 2025 mencapai 100.7 jam.",
+      "faithfulness": 0.45454545454545453,
+      "answer_relevancy": 0.9077207416655152,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.75,
+      "context_entity_recall": 0.6428571423979591,
+      "answer_correctness": 0.48655379968000123,
+      "answer_similarity": 0.9462151987200053
+    },
+    {
+      "user_input": "Short circuit pada panel kontrol mesin M-02 November 2025",
+      "retrieved_contexts": [
+        "[TIMELINE PEMELIHARAAN]\n07/11/2025 (Log ID: ML-0058): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Tidak ada. Aktivitas ini memakan waktu downtime 59.6 jam dengan biaya Rp 17.616.249. 10/11/2025 (Log ID: ML-0419): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli.",
+        "Aktivitas ini menyebabkan downtime selama 9.6 jam dengan biaya Rp 7.392.873. 26/11/2025 (Log ID: ML-0108): Dilakukan tindakan Corrective. Teknisi mencatat bahwa sensor rusak, ganti sensor baru. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 23.0 jam dengan biaya Rp 5.269.657. 30/11/2025 (Log ID: ML-0006): Dilakukan tindakan Corrective. Teknisi mencatat bahwa motor overheat, ganti komponen pendingin.",
+        "Teknisi mencatat bahwa motor overheat, ganti komponen pendingin. Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini menyebabkan downtime selama 14.2 jam dengan biaya Rp 5.763.765. 30/11/2025 (Log ID: ML-0479): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Valve. Aktivitas ini memakan waktu downtime 6.3 jam dengan biaya Rp 1.641.143.",
+        "Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 8.0 jam dengan biaya Rp 2.561.045. 21/11/2025 (Log ID: ML-0022): Dilakukan tindakan Corrective. Teknisi mencatat bahwa sensor rusak, ganti sensor baru. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 9.6 jam dengan biaya Rp 7.392.873."
+      ],
+      "response": "## ANALISIS\nPada tanggal 07/11/2025, terjadi short circuit pada panel kontrol mesin M-02, menyebabkan downtime selama 59.6 jam dengan biaya Rp 17.616.249. Log ID terkait adalah ML-0058.\n\n## REKOMENDASI\n- SEGERA: Periksa kondisi panel kontrol mesin M-02 untuk mencegah kejadian serupa di masa depan.\n- PREVENTIF: Lakukan inspeksi rutin pada panel kontrol untuk memastikan keamanan sistem.\n\n## REFERENSI\n- [Referensi 1]: Laporan_M-02_November_2025 (Log ID: ML-0058)",
+      "reference": "Pada 07/11/2025 (Log ID: ML-0058) dilakukan tindakan Emergency pada M-02 karena short circuit pada panel kontrol. Part yang diganti tercatat sebagai Tidak ada. Aktivitas ini menyebabkan downtime selama 59.6 jam dengan biaya Rp 17.616.249.",
+      "faithfulness": 0.2857142857142857,
+      "answer_relevancy": 0.8600134023755532,
+      "context_precision": 0.999999999975,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.6666666659259258,
+      "answer_correctness": 0.6143104256997376,
+      "answer_similarity": 0.9572417027989504
+    },
+    {
+      "user_input": "Kebocoran hydraulic system pada M-01 November 2025",
+      "retrieved_contexts": [
+        "Teknisi mencatat bahwa kebocoran besar pada hydraulic system. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 21.7 jam dengan biaya Rp 13.696.714. 12/11/2025 (Log ID: ML-0154): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327.",
+        "[TIMELINE PEMELIHARAAN]\n04/11/2025 (Log ID: ML-0339): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 5.0 jam dengan biaya Rp 2.323.582. 10/11/2025 (Log ID: ML-0230): Dilakukan tindakan Emergency. Teknisi mencatat bahwa kebocoran besar pada hydraulic system.",
+        "Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327. 23/11/2025 (Log ID: ML-0181): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Valve. Aktivitas ini memakan waktu downtime 3.2 jam dengan biaya Rp 728.959. 26/11/2025 (Log ID: ML-0222): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Filter.",
+        "Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini memakan waktu downtime 38.9 jam dengan biaya Rp 21.083.914."
+      ],
+      "response": "## ANALISIS\nKebocoran hydraulic system terjadi pada M-01 November 2025 (Log ID: ML-0339 dan ML-0230) dan menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327 (Referensi 2) dan downtime total selama 40.7 jam dengan biaya Rp 13.696.714 (Referensi 1 dan 2). Part yang diganti pada sistem adalah Seal dan Belt.\n\n## REKOMENDASI\n- [SEGERA] Lakukan inspeksi pada hydraulic system untuk menemukan sumber kebocoran dan mengambil tindakan preventif untuk mencegah kebocoran di masa depan.\n\n## REFERENSI\n- [Referensi 1]: Laporan_M-01_November_2025 (Dok ID: Laporan_M-01_November_2025 | Score: 5.548)\n- [Referensi 2]: Laporan_M-01_November_2025 (Dok ID: Laporan_M-01_November_2025 | Score: 4.637)",
+      "reference": "Pada 10/11/2025 (Log ID: ML-0230) dilakukan tindakan Emergency pada M-01 karena kebocoran besar pada hydraulic system. Part yang diganti tercatat sebagai Belt dengan downtime 21.7 jam dan biaya Rp 13.696.714.",
+      "faithfulness": 0.36363636363636365,
+      "answer_relevancy": 0.8974638552474516,
+      "context_precision": 0.99999999995,
+      "context_recall": 0.5,
+      "context_entity_recall": 0.7142857132653061,
+      "answer_correctness": 0.3281648213274506,
+      "answer_similarity": 0.9376592853098022
+    },
+    {
+      "user_input": "Motor overheat dan penggantian komponen pendingin M-02 Juli 2025",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-02 pada periode Juli 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 23.0 jam dengan total biaya pemeliharaan sebesar Rp 11.047.468. Masalah utama bulan ini berpusat pada komponen Filter dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[TIMELINE PEMELIHARAAN]\n16/07/2025 (Log ID: ML-0187): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini memakan waktu downtime 7.3 jam dengan biaya Rp 2.973.718.\n20/07/2025 (Log ID: ML-0487): Dilakukan tindakan Preventive. Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini memakan waktu downtime 2.9 jam dengan biaya Rp 1.006.527.\n25/07/2025 (Log ID: ML-0266): Dilakukan tindakan Corrective. Teknisi mencatat bahwa motor overheat, ganti komponen pendingin. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini menyebabkan downtime selama 12.8 jam dengan biaya Rp 7.067.223.",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: Juli 2025\nTotal_Downtime: 23.0 Jam\nTotal_Cost: Rp 11.047.468\nLog_Count: 3 (1 Corrective, 2 Preventive)"
+      ],
+      "response": "## ANALISIS\nHasil analisis kondisi mesin M-02 pada bulan Juli 2025 menunjukkan bahwa motor overheat dan penggantian komponen pendingin telah terjadi pada tanggal 25/07/2025 (Log ID: ML-0266). Aktivitas ini menyebabkan downtime selama 12.8 jam dengan biaya Rp 7.067.223. Komponen yang diganti pada sistem tercatat sebagai Belt.\n\n## REKOMENDASI\n- [SEGERA] Lakukan pemantauan kondisi motor untuk mencegah kejadian serupa di masa depan.\n- [7 HARI] Lakukan pembersihan filter dan kalibrasi sensor untuk memastikan kinerja mesin optimal.\n\n## REFERENSI\n- [Referensi 2]: Laporan pemeliharaan tanggal 25/07/2025 (Log ID: ML-0266)\n- [Referensi 3]: Metadata mesin M-02 pada bulan Juli 2025",
+      "reference": "Pada 25/07/2025 (Log ID: ML-0266) dilakukan tindakan Corrective pada M-02 karena motor overheat, ganti komponen pendingin. Part yang diganti tercatat sebagai Belt dengan downtime 12.8 jam dan biaya Rp 7.067.223.",
+      "faithfulness": 0.8,
+      "answer_relevancy": 0.8558621537721788,
+      "context_precision": 0.9999999999666667,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.4285714279591837,
+      "answer_correctness": 0.7383771347519801,
+      "answer_similarity": 0.9535085390079202
+    },
+    {
+      "user_input": "Berapa batas kritis suhu operasional mesin M-01?",
+      "retrieved_contexts": [
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).",
+        "Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor). - Getaran (Vibration):\no Normal: 0.35 - 0.55 mm/s o Batas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi). - Tekanan Udara (Pressure):\no Normal: 98 - 105 PSI\no Batas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve). - Kecepatan Putaran (RPM):\no Standar Produksi: 2300 - 2500 RPM. o Mode High-Speed: Maksimal 3500$RPM.",
+        "Buku Manual Operasional Mesin M-01 (Filling & Capping)\nIndustri: FMCG - Produksi Air Minum Kemasan (PT Tirta Segar)\nModel Mesin: M-01 MasterFiller Series\nVersi Dokumen: 2025.1-PRO\n1. Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis.",
+        "o Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\n- Inspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. - Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus."
+      ],
+      "response": "## ANALISIS\nBerdasarkan referensi yang tersedia, batas kritis suhu operasional mesin M-01 adalah >95°C.\n\n## REKOMENDASI\n- [SEGERA] Pastikan mesin M-01 tidak mencapai suhu operasional yang kritikal untuk menghindari kerusakan pada motor.\n\n## REFERENSI\n- [Referensi 1]: Buku_Manual_M01 - Deskripsi Umum Mesin\n- [Referensi 2]: Buku_Manual_M01 - Spesifikasi Teknis & Batas Operasional (Threshold)\n- [Referensi 3]: Buku_Manual_M01 - Buku Manual Operasional Mesin M-01 (Filling & Capping)\n- [Referensi 4]: Buku_Manual_M01 - Prosedur Pemeliharaan",
+      "reference": "Berdasarkan Buku Manual Operasional Mesin M-01, suhu operasional normal adalah 65°C-75°C. Batas Peringatan (Warning) dimulai dari 80°C. Batas Kritis (Critical/Shut-off) adalah lebih dari 95°C yang menyebabkan risiko overheat pada motor.",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9414144758830624,
+      "context_precision": 0.9999999999666667,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.33333333277777777,
+      "answer_correctness": 0.373556544530196,
+      "answer_similarity": 0.9487716326662385
+    },
+    {
+      "user_input": "Getaran kritis dan cara menangani bearing aus pada mesin M-01",
+      "retrieved_contexts": [
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).",
+        "Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor). - Getaran (Vibration):\no Normal: 0.35 - 0.55 mm/s o Batas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi). - Tekanan Udara (Pressure):\no Normal: 98 - 105 PSI\no Batas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve). - Kecepatan Putaran (RPM):\no Standar Produksi: 2300 - 2500 RPM. o Mode High-Speed: Maksimal 3500$RPM.",
+        "Buku Manual Operasional Mesin M-01 (Filling & Capping)\nIndustri: FMCG - Produksi Air Minum Kemasan (PT Tirta Segar)\nModel Mesin: M-01 MasterFiller Series\nVersi Dokumen: 2025.1-PRO\n1. Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis.",
+        "o Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\n- Inspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. - Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus."
+      ],
+      "response": "## ANALISIS\nBerdasarkan Referensi 2 [SEMANTIC SLIDING WINDOW], getaran kritik pada mesin M-01 adalah >1.0 mm/s, yang menunjukkan indikasi kerusakan bearing atau poros tidak presisi. Namun, tidak ada informasi tentang kondisi getaran mesin M-01 saat ini. Sehingga, tidak dapat dipastikan apakah mesin M-01 telah mencapai getaran kritik.\n\n## REKOMENDASI\n- [SEGERA] Lakukan inspeksi rutin setiap 500 jam operasional untuk memantau kondisi bearing dan poros mesin M-01, serta melakukan penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal.\n\n## REFERENSI\n- [Referensi 2]: Spesifikasi Teknis & Batas Operasional (Threshold) Mesin M-01\n- [Referensi 4]: Prosedur Pemeliharaan Mesin M-01",
+      "reference": "Getaran normal M-01 adalah 0.35-0.55 mm/s. Batas kritis getaran adalah lebih dari 1.0 mm/s yang mengindikasikan kerusakan bearing atau poros tidak presisi. Jika getaran melebihi 1.2 mm/s, tindakan perbaikan adalah kencangkan baut housing atau ganti komponen Bearing dengan Part Code BRG-M01.",
+      "faithfulness": 0.875,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.9166666666361111,
+      "context_recall": 0.6666666666666666,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.3361823307539626,
+      "answer_similarity": 0.9161578944444217
+    },
+    {
+      "user_input": "Prosedur pemeliharaan rutin setiap 500 jam operasional",
+      "retrieved_contexts": [
+        "o Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\n- Inspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. - Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus.",
+        "Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor). - Getaran (Vibration):\no Normal: 0.35 - 0.55 mm/s o Batas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi). - Tekanan Udara (Pressure):\no Normal: 98 - 105 PSI\no Batas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve). - Kecepatan Putaran (RPM):\no Standar Produksi: 2300 - 2500 RPM. o Mode High-Speed: Maksimal 3500$RPM.",
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).",
+        "Buku Manual Operasional Mesin M-01 (Filling & Capping)\nIndustri: FMCG - Produksi Air Minum Kemasan (PT Tirta Segar)\nModel Mesin: M-01 MasterFiller Series\nVersi Dokumen: 2025.1-PRO\n1. Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis."
+      ],
+      "response": "## ANALISIS\nJadwal pemeliharaan rutin setiap 500 jam operasional meliputi: penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. Tindakan tambahan adalah pengecekan komponen transmisi, seperti ketegangan sabuk (belt) dan kondisi pulley.\n\n## REKOMENDASI\n- SEGERA: Lakukan penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal setiap 500 jam operasional. Pastikan juga untuk memeriksa ketegangan sabuk (belt) dan kondisi pulley dalam keadaan optimal.\n\n## REFERENSI\n- [Referensi 1]: Prosedur Pemeliharaan untuk Mode High-Speed: Maksimal 3500$RPM.\n- [Referensi 2]: Spesifikasi Teknis & Batas Operasional (Threshold) untuk Mesin M-01.",
+      "reference": "Inspeksi rutin dilakukan setiap 500 jam operasional. Tindakan yang dilakukan mencakup penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. Selain itu dilakukan pemeriksaan ketegangan sabuk (belt) dan kondisi pulley, serta penggantian belt jika ditemukan retakan halus.",
+      "faithfulness": 0.7,
+      "answer_relevancy": 0.8650765526915262,
+      "context_precision": 0.7499999999625,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.6249999992187499,
+      "answer_correctness": 0.733005102182364,
+      "answer_similarity": 0.9320204087294564
+    },
+    {
+      "user_input": "Prosedur keselamatan dan LOTO sebelum membuka panel motor",
+      "retrieved_contexts": [
+        "o Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\n- Inspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan koneksi elektrikal. - Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus.",
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan sensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).",
+        "Buku Manual Operasional Mesin M-01 (Filling & Capping)\nIndustri: FMCG - Produksi Air Minum Kemasan (PT Tirta Segar)\nModel Mesin: M-01 MasterFiller Series\nVersi Dokumen: 2025.1-PRO\n1. Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis.",
+        "Spesifikasi Teknis & Batas Operasional (Threshold)\n- Suhu Operasional (Temperature):\no Normal: 65°C - 75°C\no Batas Peringatan (Warning): 80°C\no Batas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor). - Getaran (Vibration):\no Normal: 0.35 - 0.55 mm/s o Batas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi). - Tekanan Udara (Pressure):\no Normal: 98 - 105 PSI\no Batas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve). - Kecepatan Putaran (RPM):\no Standar Produksi: 2300 - 2500 RPM. o Mode High-Speed: Maksimal 3500$RPM."
+      ],
+      "response": "## ANALISIS\nDiketahui bahwa mesin M-01 memiliki batas operasional suhu maksimum 95°C untuk mencegah overheating pada motor. Namun, tidak ada informasi spesifik tentang prosedur keselamatan dan LOTO (Lockout/Tagout) sebelum membuka panel motor. Log ID tidak ditemukan.\n\n## REKOMENDASI\n- [SEGERA] Lakukan pelatihan dan pemahaman tentang prosedur keselamatan dan LOTO sebelum membuka panel motor, serta pastikan semua teknisi mengetahui dan mengikuti prosedur tersebut.\n\n## REFERENSI\n- [Referensi 2]: Deskripsi Umum Mesin - Spesifikasi Teknis & Batas Operasional (Threshold)\n- [Referensi 4]: Spesifikasi Teknis & Batas Operasional (Threshold) - Kecepatan Putaran (RPM): Maksimal 3500$RPM.",
+      "reference": "Teknisi wajib menggunakan APD berupa sarung tangan tahan panas, pelindung telinga (earmuff), dan sepatu safety. Prosedur Lock Out Tag Out (LOTO) mengharuskan aliran listrik diputus total sebelum membuka panel motor atau menyentuh sabuk transmisi.",
+      "faithfulness": 0.625,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.41672223776359063,
+      "answer_similarity": 0.8668889510543626
+    },
+    {
+      "user_input": "Bearing aus dan penggantian komponen pada M-01 Juli 2025",
+      "retrieved_contexts": [
+        "Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 5.2 jam dengan biaya Rp 1.252.610. 12/07/2025 (Log ID: ML-0095): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 4.3 jam dengan biaya Rp 904.478.",
+        "Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 2.1 jam dengan biaya Rp 2.749.730. 21/07/2025 (Log ID: ML-0190): Dilakukan tindakan Preventive. Teknisi mencatat bahwa lubrikasi komponen, cek belt. Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini memakan waktu downtime 6.4 jam dengan biaya Rp 2.815.382.",
+        "[TIMELINE PEMELIHARAAN]\n01/07/2025 (Log ID: ML-0383): Dilakukan tindakan Corrective. Teknisi mencatat bahwa sensor rusak, ganti sensor baru. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 17.7 jam dengan biaya Rp 3.306.114. 11/07/2025 (Log ID: ML-0084): Dilakukan tindakan Preventive. Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter.",
+        "Aktivitas ini memakan waktu downtime 4.3 jam dengan biaya Rp 904.478. 20/07/2025 (Log ID: ML-0500): Dilakukan tindakan Preventive. Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 2.0 jam dengan biaya Rp 2.874.865. 21/07/2025 (Log ID: ML-0082): Dilakukan tindakan Preventive. Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter."
+      ],
+      "response": "## ANALISIS\nPada tanggal 11/07/2025, terjadi tindakan Preventive dengan Log ID ML-0084, dimana teknisi melakukan kalibrasi sensor dan bersihkan filter. Selain itu, pada tanggal 20/07/2025, terjadi tindakan Preventive dengan Log ID ML-0500, dimana teknisi melakukan kalibrasi sensor dan bersihkan filter. Part yang diganti pada sistem tercatat sebagai Belt.\n\n## REKOMENDASI\n- [7 HARI] Lakukan pemeriksaan ulang bearing dan komponen lainnya untuk memastikan kondisi optimal.\n\n## REFERENSI\n- [Referensi 3]: Laporan_M-01_Juli_2025 - Hasil tindakan corrective 01/07/2025 (Log ID: ML-0383)\n- [Referensi 4]: Laporan_M-01_Juli_2025 - Hasil tindakan preventive 20/07/2025 (Log ID: ML-0500)",
+      "reference": "Pada 31/07/2025 (Log ID: ML-0105) dilakukan tindakan Corrective pada M-01 karena bearing aus, perlu penggantian. Part yang diganti tercatat sebagai Seal dengan downtime 20.3 jam dan biaya Rp 4.531.286. Total downtime M-01 bulan Juli 2025 mencapai 58.0 jam dari 7 aktivitas pemeliharaan (2 Corrective, 5 Preventive).",
+      "faithfulness": 0.7,
+      "answer_relevancy": 0.8451931719298237,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.2269676481058321,
+      "answer_similarity": 0.9078705924233283
+    },
+    {
+      "user_input": "Ringkasan kejadian emergency pada mesin M-02 sepanjang 2025",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-02 pada periode November 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 3 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 120.7 jam dengan total biaya pemeliharaan sebesar Rp 40.244.732. Masalah utama bulan ini berpusat pada komponen Motor dan Sensor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-02 pada periode Juli 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 23.0 jam dengan total biaya pemeliharaan sebesar Rp 11.047.468. Masalah utama bulan ini berpusat pada komponen Filter dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-02 pada periode Desember 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 3 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 47.0 jam dengan total biaya pemeliharaan sebesar Rp 27.646.777. Masalah utama bulan ini berpusat pada komponen Sensor dan Seal, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-02 pada periode Agustus 2025. Terjadi total 4 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 47.2 jam dengan total biaya pemeliharaan sebesar Rp 33.016.100. Masalah utama bulan ini berpusat pada komponen Valve dan Sensor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: November 2025\nTotal_Downtime: 120.7 Jam\nTotal_Cost: Rp 40.244.732\nLog_Count: 6 (3 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: Agustus 2025\nTotal_Downtime: 47.2 Jam\nTotal_Cost: Rp 33.016.100\nLog_Count: 4 (1 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: Juli 2025\nTotal_Downtime: 23.0 Jam\nTotal_Cost: Rp 11.047.468\nLog_Count: 3 (1 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-02\nPeriode: Desember 2025\nTotal_Downtime: 47.0 Jam\nTotal_Cost: Rp 27.646.777\nLog_Count: 5 (2 Corrective, 3 Preventive)"
+      ],
+      "response": "## ANALISIS\nPada tahun 2025, mesin M-02 mengalami beberapa kejadian emergency yang signifikan. Berdasarkan laporan pemeliharaan bulanan, terdapat total 6 aktivitas pemeliharaan pada November 2025, yang mencakup 2 tindakan Preventive dan 3 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 120,7 jam dengan total biaya pemeliharaan sebesar Rp 40.244.732.\n\nPada bulan Juli 2025, mesin M-02 mengalami downtime sebesar 23,0 jam dengan total biaya pemeliharaan sebesar Rp 11.047.468. Pada bulan Agustus 2025, mesin M-02 mengalami downtime sebesar 47,2 jam dengan total biaya pemeliharaan sebesar Rp 33.016.100. Pada bulan Desember 2025, mesin M-02 mengalami downtime sebesar 47,0 jam dengan total biaya pemeliharaan sebesar Rp 27.646.777.\n\n## REKOMENDASI\n- [SEGERA] Lakukan analisis lebih lanjut untuk mengetahui penyebab utama downtime mesin M-02 pada tahun 2025, terutama pada komponen Motor, Sensor, dan Valve.\n\n## REFERENSI\n- [Referensi 1]: Laporan pemeliharaan bulanan untuk Mesin M-02 pada periode November 2025\n- [Referensi 2]: Laporan pemeliharaan bulanan untuk Mesin M-02 pada periode Juli 2025\n- [Referensi 4]: Laporan pemeliharaan bulanan untuk Mesin M-02 pada periode Agustus 2025\n- [Referensi 3]: Laporan pemeliharaan bulanan untuk Mesin M-02 pada periode Desember 2025",
+      "reference": "M-02 mengalami 3 kejadian Emergency: (1) 28/08/2025 (ML-0216) mesin berhenti total karena kerusakan motor utama, downtime 32.1 jam, biaya Rp 16.044.880; (2) 17/09/2025 (ML-0055) short circuit pada panel kontrol, downtime 18.9 jam, biaya Rp 21.218.618; (3) 07/11/2025 (ML-0058) short circuit pada panel kontrol, downtime 59.6 jam, biaya Rp 17.616.249. Total downtime emergency M-02 adalah 110.6 jam.",
+      "faithfulness": 0.8235294117647058,
+      "answer_relevancy": 0.878808030723944,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.36521907263573433,
+      "answer_similarity": 0.931464525837055
+    }
+  ]
+}

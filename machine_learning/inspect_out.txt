@@ -1,0 +1,127 @@
+﻿=== CELL 7 ===
+# FASE 8E ΓÇö Cell 2 (V2): Arsitektur & Training LSTM V2
+from tensorflow.keras.regularizers import l2
+
+print("=" * 65)
+print("  FASE 8E ΓÇö Cell 2: ARSITEKTUR & TRAINING LSTM V2")
+print("=" * 65)
+
+SEP = "=" * 65
+sep = "-" * 65
+
+LSTM_PARAMS_V2 = {
+    "lstm_units_1"       : 64,
+    "lstm_units_2"       : 32,
+    "dropout_rate"       : 0.3,       # V1: 0.2 ΓåÆ lebih kuat
+    "l2_reg"             : 0.001,     # V1: ΓÇö ΓåÆ baru
+    "learning_rate"      : 0.001,
+    "batch_size"         : 32,
+    "max_epochs"         : 200,       # V1: 100 ΓåÆ beri ruang konvergensi
+    "patience"           : 30,        # V1: 15 ΓåÆ tunggu lebih lama
+    "reduce_lr_factor"   : 0.5,
+    "reduce_lr_patience" : 10,        # V1: 7 ΓåÆ LR decay lebih hati-hati
+    "min_lr"             : 1e-6,
+}
+
+CHANGES = {
+    "dropout_rate"       : "0.2 ΓåÆ 0.3  (regularisasi lebih kuat)",
+    "l2_reg"             : "ΓÇö ΓåÆ 0.001  (baru: L2 pada semua layer)",
+    "max_epochs"         : "100 ΓåÆ 200  (beri ruang konvergensi)",
+    "patience"           : "15 ΓåÆ 30    (tunggu lebih lama)",
+    "reduce_lr_patience" : "7 ΓåÆ 10     (LR decay lebih hati-hati)",
+}
+
+print("\n  LSTM V2 Hyperparameters (+ keterangan perubahan dari V1):")
+print(f"  {'-'*62}")
+for k, v in LSTM_PARAMS_V2.items():
+    change = f"  ΓåÉ {CHANGES[k]}" if k in CHANGES else ""
+    print(f"  {k:<24} : {str(v):<10}{change}")
+
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+# BANGUN ARSITEKTUR V2
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+print(f
+
+=== CELL 9 ===
+# FASE 8E ΓÇö Cell 3 (V2): Training History Analysis
+print("=" * 65)
+print("  FASE 8E ΓÇö Cell 3: TRAINING HISTORY V2 ANALYSIS")
+print("=" * 65)
+
+SEP = "=" * 65
+sep = "-" * 65
+
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+# HITUNG VARIABEL PENDUKUNG
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+mae_hist     = history_v2.history["mae"]
+val_mae_hist = history_v2.history["val_mae"]
+mse_hist     = history_v2.history.get("mse",     [])
+val_mse_hist = history_v2.history.get("val_mse", [])
+lr_hist      = history_v2.history.get("lr",      [])
+
+gap           = [v - t for v, t in zip(val_mae_hist, mae_hist)]
+total_ep      = len(mae_hist)
+best_epoch_idx = int(np.argmin(val_mae_hist))   # 0-indexed untuk plot
+best_epoch    = best_epoch_idx + 1              # 1-indexed untuk display
+best_val      = float(min(val_mae_hist))
+final_gap     = gap[-1] if gap else 0.0
+epochs_range  = range(1, total_ep + 1)
+
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+# 2├ù2 FIGURE
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+
+# PLOT 1 ΓÇö MAE Full
+ax = axes[0, 0]
+ax.plot(epochs_range, mae_hist,     color="#2ecc71", linewidth=1.5,
+        label="Train MAE")
+ax.plot(epochs_range, val_mae_hist, color="#e74c3c", linewidth=1.5,
+        label="Val MAE")
+ax.axvline(best_epoch, color="gray", linestyle="--", linewidth=1.2,
+           alpha=0.8, label=f"Best epoch ({best_epoch})")
+ax.set_xlabel("Epoch", fonts
+
+=== CELL 13 ===
+# FASE 8E ΓÇö Cell 5: Export Model
+print("=" * 65)
+print("  FASE 8E ΓÇö Cell 5: EXPORT MODEL")
+print("=" * 65)
+
+SEP = "=" * 65
+sep = "-" * 65
+
+MODELS_DL_DIR.mkdir(parents=True, exist_ok=True)
+FINAL_PATH      = MODELS_DL_DIR / "lstm_rul_final.keras"
+CHECKPOINT_PATH = MODELS_DL_DIR / "lstm_rul_best.keras"
+
+model.save(str(FINAL_PATH))
+
+final_mb      = FINAL_PATH.stat().st_size      / (1024 ** 2)
+checkpoint_mb = CHECKPOINT_PATH.stat().st_size  / (1024 ** 2) \
+    if CHECKPOINT_PATH.exists() else 0.0
+
+total_params   = model.count_params()
+best_epoch_val = min(history_v2.history["val_mae"])
+
+print(f"\n  Path lstm_rul_final.keras : {FINAL_PATH}")
+print(f"  Ukuran final              : {final_mb:.2f} MB")
+print(f"  Path lstm_rul_best.keras  : {CHECKPOINT_PATH}")
+print(f"  Ukuran checkpoint         : {checkpoint_mb:.2f} MB")
+print(f"  Total params model        : {total_params:,}")
+print(f"  Best val_mae              : {best_epoch_val:.4f} hari")
+
+print(f"\n{sep}")
+print("  RINGKASAN PERFORMA AKHIR")
+print(sep)
+print(f"\n  MAE  (Val)            : {mae_val:.4f} hari")
+print(f"  MAE  (Test)           : {mae_test:.4f} hari")
+print(f"  RMSE (Val)            : {rmse_val:.4f} hari")
+print(f"  RMSE (Test)           : {rmse_test:.4f} hari")
+print(f"  R┬▓   (Val)            : {r2_val:.4f}")
+print(f"  R┬▓   (Test)           : {r2_test:.4f}")
+print(f"  Error Γëñ 1 hari (Test) : {pct1_test:.2f}%")
+print(f"  Error Γëñ 3 hari (Test) : {pct3_test:.2f}%")
+print(f"  Scope                 : WARNING + CRITICAL only
+

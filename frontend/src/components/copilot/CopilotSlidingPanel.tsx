@@ -8,6 +8,7 @@ import { queryCopilot } from "@/lib/api";
 import { ChatBubble, CitationChip, ChatInput } from "./index";
 import { clsx } from "clsx";
 import { usePathname } from "next/navigation";
+import DocumentPreviewModal from "@/components/ui/DocumentPreviewModal";
 
 export default function CopilotSlidingPanel() {
   // Surgical Subscriptions
@@ -25,6 +26,8 @@ export default function CopilotSlidingPanel() {
 
   // sessionId: generate sekali pakai
   const [sessionId] = useState(() => crypto.randomUUID());
+  
+  const [previewTarget, setPreviewTarget] = useState<{documentId: string, filename: string} | null>(null);
 
   // Auto-scroll ke pesan terbaru
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -52,12 +55,30 @@ export default function CopilotSlidingPanel() {
 
     setLoading(true);
 
+    const machinePattern = /\bM-(\d{2})\b|\bmesin\s*(\d{1,2})\b/gi;
+    const hasMachineInQuery = machinePattern.test(text);
+    const hasMachineContext = !!activeMachineContext;
+    const keywords = ['kondisi', 'status', 'rul', 'suhu', 'temperature', 'getaran', 'vibration', 'rusak', 'overheat', 'maintenance', 'servis', 'perbaikan', 'health', 'kritis', 'warning'];
+    const queryLower = text.toLowerCase();
+    const hasKeyword = keywords.some((kw) => queryLower.includes(kw));
+
+    if (!hasMachineContext && hasKeyword && !hasMachineInQuery) {
+      addMessage({
+        id: generateId(),
+        role: "ASSISTANT",
+        content: "Untuk pertanyaan terkait kondisi mesin, silakan pilih mesin terlebih dahulu dari sidebar, atau sebutkan ID mesin (contoh: M-01) dalam pertanyaan Anda.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       // 2. Panggil API
       const response = await queryCopilot({
         session_id: sessionId,
         query: text,
-        machine_id: activeMachineContext ?? undefined,
+        machine_id: activeMachineContext || undefined,
       });
 
       // 3. Tambah assistant message dengan sources
@@ -178,13 +199,24 @@ export default function CopilotSlidingPanel() {
                     msg.sources &&
                     msg.sources.length > 0 && (
                       <div className="flex flex-wrap gap-2 pl-11">
-                        {msg.sources.map((src, i) => (
-                          <CitationChip
-                            key={i}
-                            filename={src.filename}
-                            page={src.page}
-                          />
-                        ))}
+                        {msg.sources.map((src, i) => {
+                          const filename = src.filename || src.source_doc || "Unknown Document";
+                          const match = filename.match(/^(DOC-\d{8}-\d{3})/);
+                          const docId = match ? match[1] : "";
+                          
+                          return (
+                            <CitationChip
+                              key={i}
+                              filename={filename}
+                              page={src.page}
+                              onClick={() => {
+                                if (docId) {
+                                  setPreviewTarget({ documentId: docId, filename });
+                                }
+                              }}
+                            />
+                          );
+                        })}
                       </div>
                     )}
                 </div>
@@ -228,6 +260,14 @@ export default function CopilotSlidingPanel() {
           }
         }
       `}</style>
+      
+      {/* PREVIEW MODAL */}
+      <DocumentPreviewModal
+        isOpen={!!previewTarget}
+        documentId={previewTarget?.documentId || ""}
+        filename={previewTarget?.filename || ""}
+        onClose={() => setPreviewTarget(null)}
+      />
     </>
   );
 }

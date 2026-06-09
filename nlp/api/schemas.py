@@ -93,7 +93,7 @@ class LiveContextSnapshot(BaseModel):
     pressure_psi  : Optional[float] = None
     rpm           : Optional[float] = None
     ml_prediction : str = "unknown"
-    rul_days      : Optional[int] = None
+    rul_days      : Optional[float] = None
     active_alerts : List[str] = []
     data_source   : str = "mock"
 
@@ -117,6 +117,7 @@ class QueryResponse(BaseModel):
     timestamp         : str = ""
 
     class Config:
+        protected_namespaces = ()
         json_schema_extra = {
             "example": {
                 "query_id"          : "QRY-20260517-001",

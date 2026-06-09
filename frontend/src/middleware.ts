@@ -50,12 +50,31 @@ export default function middleware(request: NextRequest): NextResponse {
   // ============================================================
   if (process.env.NEXT_PUBLIC_SKIP_AUTH === "true") {
     const mockRole = process.env.NEXT_PUBLIC_MOCK_ROLE;
+    
+    // If we have a mock role, apply the mock role logic
     if (mockRole) {
       const isAdminRoute = ADMIN_ONLY_ROUTES.some((route) =>
         pathname.startsWith(route)
       );
       if (isAdminRoute && mockRole !== "ADMIN") {
         return NextResponse.redirect(new URL(DASHBOARD, request.url));
+      }
+      
+      const isDashboardRoute = pathname.startsWith(DASHBOARD);
+      if (isDashboardRoute && mockRole === "ADMIN") {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+    } else {
+      // If skip auth is true but no mock role, let's still parse token if present to route correctly
+      if (token) {
+        const payload = decodeJwtPayload(token);
+        if (payload && typeof payload.role === "string") {
+          const role = payload.role.toUpperCase() as UserRole;
+          const isDashboardRoute = pathname.startsWith(DASHBOARD);
+          if (isDashboardRoute && role === "ADMIN") {
+            return NextResponse.redirect(new URL("/admin", request.url));
+          }
+        }
       }
     }
     return NextResponse.next();

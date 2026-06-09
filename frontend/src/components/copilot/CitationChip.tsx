@@ -15,9 +15,10 @@ function getFileIcon(filename: string) {
 }
 
 export default function CitationChip({ filename, page, onClick }: CitationChipProps) {
+  const safeFilename = filename || "Unknown Document";
   // "SOP_Maintenance_V1.pdf" → "SOP_Maintenance_V1"
-  const label = filename.replace(/\.[^/.]+$/, "");
-  const Icon = getFileIcon(filename);
+  const label = safeFilename.replace(/\.[^/.]+$/, "");
+  const Icon = getFileIcon(safeFilename);
 
   return (
     <button

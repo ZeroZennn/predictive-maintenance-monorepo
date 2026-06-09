@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from nlp.prompting.prompt_builder import PromptPackage
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 
@@ -28,7 +28,7 @@ logging.basicConfig(
 
 class LLMProvider(Enum):
     """Provider LLM yang didukung pipeline."""
-    GROQ   = "groq"
+    OPENAI = "openai"
     MOCK   = "mock"
 
 
@@ -57,12 +57,12 @@ class LLMResponse:
 
 
 class LLMInterface:
-    """Multi-provider LLM client dengan fallback chain: Groq → mock."""
+    """Multi-provider LLM client dengan fallback chain: OpenAI → mock."""
 
     def __init__(
         self,
         config_path: str = "nlp/configs/config.yaml",
-        model: str = "llama-3.1-8b-instant"
+        model: str = "gpt-4o-mini"
     ) -> None:
         """Load config dan API keys dari environment."""
         with open(config_path, "r", encoding="utf-8") as f:
@@ -74,11 +74,12 @@ class LLMInterface:
         self.max_tokens        : int = llm_cfg["max_tokens"]
         self.temperature       : float = llm_cfg["temperature"]
         self.model_name        : str = model
+        self.primary_provider  : str = "openai"
 
-        # Inisialisasi ChatGroq
-        self.llm = ChatGroq(
+        # Inisialisasi ChatOpenAI
+        self.llm = ChatOpenAI(
             model=model,
-            api_key=os.getenv("GROQ_API_KEY"),
+            api_key=os.getenv("OPENAI_API_KEY"),
             temperature=self.temperature,
             max_retries=2,
             timeout=30,
@@ -87,13 +88,13 @@ class LLMInterface:
     # ── Safe & Mock Fallback Methods ──────────────────────────────────────────
 
     def _mock_response(self, prompt: str) -> str:
-        return f"[MOCK] Groq unavailable. Prompt received: {prompt[:50]}..."
+        return f"[MOCK] OpenAI unavailable. Prompt received: {prompt[:50]}..."
 
     def generate_safe(self, prompt: str) -> str:
         try:
             return self.llm.invoke(prompt).content
         except Exception as e:
-            print(f"[WARNING] Groq error: {e}. Using mock.")
+            print(f"[WARNING] OpenAI error: {e}. Using mock.")
             return self._mock_response(prompt)
 
     def _call_mock(
@@ -161,7 +162,7 @@ class LLMInterface:
     # ── Main Generate ──────────────────────────────────────────────────────────
 
     def generate(self, prompt_package: PromptPackage) -> LLMResponse:
-        """Generate respons LLM menggunakan ChatGroq dengan fallback mock."""
+        """Generate respons LLM menggunakan ChatOpenAI dengan fallback mock."""
         messages = prompt_package.to_messages()
         system   = prompt_package.system_prompt
 
@@ -186,9 +187,9 @@ class LLMInterface:
         t0 = time.time()
         try:
             # Periksa ketersediaan API key
-            groq_key = os.getenv("GROQ_API_KEY")
-            if not groq_key or groq_key == "your_groq_api_key_here":
-                raise ValueError("GROQ_API_KEY tidak dikonfigurasi atau masih default.")
+            openai_key = os.getenv("OPENAI_API_KEY")
+            if not openai_key or openai_key == "your_openai_api_key_here":
+                raise ValueError("OPENAI_API_KEY tidak dikonfigurasi atau masih default.")
 
             response = self.llm.invoke(lc_messages)
             latency = int((time.time() - t0) * 1000)
@@ -203,7 +204,7 @@ class LLMInterface:
             return LLMResponse(
                 answer             = answer,
                 action_suggestions = self._extract_actions(answer),
-                provider_used      = "groq",
+                provider_used      = "openai",
                 model_used         = self.model_name,
                 latency_ms         = latency,
                 tokens_used        = tokens,
@@ -211,7 +212,7 @@ class LLMInterface:
             )
 
         except Exception as e:
-            self.logger.warning("Groq call failed: %s. Using mock fallback.", e)
+            self.logger.warning("OpenAI call failed: %s. Using mock fallback.", e)
             mock_resp = self._call_mock(messages, system)
             mock_resp.error_message = str(e)
             return mock_resp
@@ -224,7 +225,7 @@ if __name__ == "__main__":
     from nlp.prompting.live_context import LiveContextFetcher
     from nlp.retrieval.pipeline import RetrievalPipeline
 
-    print("=== TEST FASE 8 — GROQ LLM INTERFACE ===\n")
+    print("=== TEST FASE 8 — OPENAI LLM INTERFACE ===\n")
 
     retrieval = RetrievalPipeline()
     fetcher   = LiveContextFetcher()

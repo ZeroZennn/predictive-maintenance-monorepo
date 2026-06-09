@@ -1,0 +1,213 @@
+Halo Pak/Bu, selamat pagi/siang. Izin waktunya sebentar untuk update progress paper tim kami, PRIME (Predictive Reliability and Intelligence Maintenance Engine).
+
+Saya akan jelaskan setiap bagian paper secara berurutan.
+
+==============================================================
+1. JUDUL & ABSTRAK
+==============================================================
+Paper kita berjudul "Hybrid Machine Learning and Deep Learning for
+Health Status Classification and Remaining Useful Life Prediction
+in Manufacturing". Di abstrak, kita rangkum dua masalah utama:
+(1) data failure yang sangat sedikit (hanya 0.056% dari total data),
+dan (2) risiko data leakage di data time-series. Solusinya adalah
+pipeline bertingkat: XGBoost untuk klasifikasi status mesin, dan
+LSTM V2 yang aktif hanya ketika mesin terdeteksi WARNING/CRITICAL.
+Hasilnya cukup memuaskan: F1-score 0.9906 dan akurasi prediksi sisa
+umur mesin (RUL) error rata-rata kurang dari 1 hari.
+
+==============================================================
+2. PENDAHULUAN (Introduction)
+==============================================================
+Latar belakangnya, era Industri 4.0 membuat sensor IoT di pabrik
+jadi sangat banyak, tapi pendekatan pemeliharaan konvensional masih
+kurang efisien. Di sini kita menyebutkan ada 4 kontribusi utama:
+- Teknik sampling baru bernama SSBS (Stratified Sequential Block
+  Sampling) yang aman untuk data time-series.
+- Label Engineering 3 kelas: HEALTHY, WARNING, CRITICAL.
+- Machine-based split + SMOTE yang benar untuk zero-leakage pipeline.
+- Arsitektur cascaded XGBoost + LSTM yang hemat komputasi.
+
+==============================================================
+3. STUDI PUSTAKA (Related Work)
+==============================================================
+Kita jelaskan kenapa LSTM lebih unggul dari GRU untuk prediksi RUL
+di zona WARNING (pola degradasinya lebih kompleks), kenapa XGBoost
+dipilih di atas Random Forest dan LightGBM untuk klasifikasi, dan
+bagaimana posisi paper kita mengisi celah penelitian yang belum ada
+sebelumnya, yaitu menggabungkan SSBS + machine-based split + SMOTE
+train-only + cascaded inference dalam satu pipeline.
+
+==============================================================
+4. DATASET DAN PREPROCESSING (Dataset and Preprocessing)
+==============================================================
+Data kita berasal dari 20 mesin industri selama 208 hari, total
+100.000 baris data sensor. Bagian terpenting di sini adalah
+Temporal Label Engineering: label biner (0/1) kita ubah menjadi
+3 kelas:
+  - HEALTHY  : kondisi normal
+  - WARNING  : 48 jam sebelum failure
+  - CRITICAL : 24 jam sebelum failure
+
+Kita juga punya "Sensor Confirmation Layer" berbasis P90 threshold
+(dirangkum di TABLE III) untuk memastikan label WARNING yang
+diberikan benar-benar didukung oleh minimal 2 sensor yang abnormal,
+bukan sekadar noise.
+
+[CATATAN GAMBAR - Fig. B]
+Ada placeholder untuk menampilkan visualisasi trajectory sensor
+(temperature, vibration, dll.) selama 72 jam sebelum failure di
+mesin M-05. Gambar ini bisa diambil dari notebook:
+  notebooks/fase_2_eda/02_eda_forensik.ipynb
+Export sebagai: figures/sensor_timeline_failure.png
+Lalu upload ke Overleaf dan uncomment blok figure di .tex.
+
+==============================================================
+5. REKAYASA FITUR (Feature Engineering)
+==============================================================
+Dari 8 sensor mentah, kita hasilkan total 69 fitur melalui:
+- Rolling Statistics 24h & 48h (mean, std, max) → 36 fitur
+- Lag Features (offset 1, 6, 24 jam) → 18 fitur
+- Cross-Sensor Ratios (misal vibration/pressure) → 4 fitur
+- Degradation Proxy: hours_since_last_maintenance → 1 fitur
+- NLP dari catatan teknisi (damage_category, severity_score) → 2 fitur
+
+Semua fitur di-scaling menggunakan StandardScaler yang hanya difit
+pada data mesin training (M-01 s/d M-14) untuk mencegah leakage.
+
+==============================================================
+6. PENANGANAN IMBALANCE & PEMBAGIAN DATA
+==============================================================
+Ini bagian paling krusial. Kita punya 3 langkah anti-leakage:
+
+LANGKAH 1 - SSBS (TABLE VI):
+Teknik sampling kita sendiri. Untuk tiap mesin, kita ambil:
+  Block A: 500 baris pertama (kondisi prima)
+  Block B: 500 baris terakhir minus buffer 24 jam sebelum WARNING
+Semua baris WARNING dan CRITICAL SELALU dipertahankan 100%.
+Hasilnya: data turun dari 100.000 ke 20.423 baris, tapi WARNING
+dan CRITICAL tidak ada yang hilang.
+
+[CATATAN GAMBAR - Fig. C]
+Ada placeholder untuk diagram SSBS (visualisasi Block A dan B
+per mesin). Sumber: notebooks/fase_6_imbalance/06_imbalance_handling.ipynb
+Export sebagai: figures/ssbs_diagram.png
+
+LANGKAH 2 - Machine-Based Split (TABLE VII):
+Bukan split berdasarkan waktu, tapi berdasarkan MESIN:
+  Train      : M-01 s/d M-14 (14 mesin, 70.60%)
+  Validation : M-15, M-16, M-17 (16.10%)
+  Test       : M-18, M-19, M-20 (13.30%)
+
+LANGKAH 3 - SMOTE Train-Only (TABLE VIII):
+SMOTE hanya diterapkan pada data Train SETELAH split.
+WARNING disintesis dari 901 → 4.000 sampel (+3.099 sintetis).
+CRITICAL dari 1.014 → 4.000 sampel (+2.986 sintetis).
+Data Val dan Test SAMA SEKALI tidak tersentuh SMOTE.
+
+==============================================================
+7. MODEL PREDIKTIF (Predictive Models)
+==============================================================
+Ada 2 model yang beroperasi secara bertingkat:
+
+MODEL 1 - Health Status Classifier:
+Tiga algoritma dibandingkan. Hyperparameter dirangkum di TABLE IX
+(dengan notasi N/A untuk parameter yang tidak berlaku dan catatan
+kaki † untuk model yang konvergen via early stopping):
+  - Random Forest (Baseline): F1 val = 0.9292
+  - LightGBM (Baseline)     : F1 val = 0.9845
+  - XGBoost V2 (Dipilih)    : F1 val = 0.9894
+
+XGBoost V2 dipilih karena paling stabil di validation set,
+terutama dengan threshold WARNING 0.60 (bukan default 0.50).
+
+[CATATAN GAMBAR - Fig. A]
+Ada placeholder untuk learning curve XGBoost V2 (mlogloss vs
+iterasi). Sumber: notebooks/fase_8_modeling/08b_clf_xgboost.ipynb
+Export sebagai: figures/xgb_learning_curve.png
+
+MODEL 2 - RUL Predictor:
+LSTM V2 dipilih karena kemampuannya menangkap pola degradasi
+jangka panjang di zona WARNING yang kompleks. Arsitekturnya:
+  LSTM(64) → Dropout(0.3) → BatchNorm
+  LSTM(32) → Dropout(0.3) → BatchNorm
+  Dense(16) → Dense(1)
+  Total: 47.649 parameter, dilatih 200 epoch (best: epoch 184).
+
+[CATATAN GAMBAR - Fig. D]
+Ada placeholder untuk learning curve LSTM V2 (MAE train vs val
+per epoch). Sumber: notebooks/fase_8_modeling/08e_rul_lstm.ipynb
+Export sebagai: figures/lstm_learning_curve.png
+
+==============================================================
+8. HASIL EKSPERIMEN (Experimental Results)
+==============================================================
+Untuk klasifikasi (TABLE Xa, Xb, Xc - dipecah jadi 3 tabel):
+Sebelumnya tabel ini terlalu lebar, jadi kita bagi menjadi:
+  - TABLE Xa: F1 val, F1 test, Accuracy, Fatal Error
+  - TABLE Xb: Per-class F1 (HEALTHY, WARNING, CRITICAL)
+  - TABLE Xc: Inference time dan ukuran model
+
+Poin utama: XGBoost V2 memiliki ZERO fatal error (CRITICAL
+diprediksi HEALTHY = 0 kejadian). Threshold tuning di TABLE XI
+menunjukkan kenaikan threshold dari 0.50 ke 0.60 berhasil
+menekan false alarm dari 954 turun ke hanya 1.
+
+Untuk prediksi RUL, TABLE XII kini diformat ulang:
+METRIK MENJADI BARIS, MODEL MENJADI KOLOM.
+Format ini memudahkan perbandingan langsung antar model.
+Hasilnya:
+  MAE Test  : LSTM V2 = 0.7985 hari (terbaik)
+  E≤1 day   : LSTM V2 = 98.04% (terbaik)
+  RMSE      : XGBoost Reg = 5.6002 (terkecil, tapi kurang relevan)
+
+TABLE XIII menunjukkan asimetri LSTM V2:
+  Zona WARNING  (208 sampel): MAE = 0.10 hari (hampir sempurna!)
+  Zona CRITICAL (225 sampel): MAE = 2.03 hari (ada outlier di ekor)
+  Overall                   : MAE = 0.7985 hari
+
+[CATATAN GAMBAR - Fig. E]
+Ada placeholder untuk scatter plot predicted vs actual RUL dari
+LSTM V2. Sumber: notebooks/fase_9_evaluation/09_evaluation.ipynb
+Export sebagai: figures/lstm_pred_vs_actual.png
+
+==============================================================
+9. DISKUSI (Discussion)
+==============================================================
+Kita bahas kenapa setiap keputusan desain itu penting:
+- SSBS > random sampling karena menjaga kontinuitas temporal.
+- Machine-based split menjamin model belajar dari siklus lengkap.
+- SMOTE train-only memastikan evaluasi pada data natural murni.
+- Threshold 0.60 mengurangi biaya operasional (dispatch sia-sia).
+- LSTM menang atas GRU di zona WARNING (pola lebih multi-modal).
+- R² sengaja tidak dijadikan metrik utama karena sensitif terhadap
+  outlier RUL (ada nilai RUL sampai 146 hari di CRITICAL zone).
+
+Keterbatasan yang kita akui:
+  1. Dataset masih sintetis, bukan data pabrik nyata.
+  2. Semua 20 mesin bertipe sama.
+  3. Belum ada online learning (update model secara inkremental).
+
+==============================================================
+10. KESIMPULAN (Conclusion)
+==============================================================
+PRIME berhasil menjawab dua tantangan utama: extreme imbalance
+dan temporal leakage. Dengan arsitektur cascaded:
+  - XGBoost V2 (threshold 0.60): WARNING F1=0.9818, fatal error=0
+  - LSTM V2: MAE=0.7985 hari, 98.04% prediksi dalam toleransi 1 hari
+  - Efisiensi komputasi: ~70% lebih hemat dari always-on inference
+
+Rencana ke depan: validasi di data pabrik nyata, implementasi
+online learning, dan generalisasi ke fleet mesin yang heterogen.
+
+==============================================================
+PANDUAN MENAMBAH GAMBAR DI OVERLEAF
+==============================================================
+1. Buka notebook yang disebutkan di atas (jalankan semua cell).
+2. Klik kanan pada plot → "Save image as" → simpan sebagai .png
+3. Di Overleaf: klik ikon Upload (↑) di panel kiri atas.
+4. Buat folder "figures/" jika belum ada (New Folder).
+5. Upload file .png ke dalam folder figures/.
+6. Di file .tex, cari blok yang diawali:
+     %% FIGURE PLACEHOLDER [X]: ...
+   Hapus tanda "%" pada baris \begin{figure} s.d. \end{figure}.
+7. Klik Recompile → gambar langsung muncul di PDF.
