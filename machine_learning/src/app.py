@@ -85,6 +85,7 @@ async def health_check():
     }
 
 
+# [ALUR PRIME] FASE 3: Backend API (Serving). Endpoint FastAPI ini berfungsi sebagai antarmuka API yang melayani (serving) model ke dunia luar. Menerima data sensor dan mengembalikan hasil prediksi (Health Status & RUL) dalam bentuk JSON.
 @app.post("/api/ml/predict")
 async def predict_endpoint(request: PredictRequest):
     """

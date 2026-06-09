@@ -10,6 +10,7 @@ const statusConfig = {
   CRITICAL: { color: "text-[#EF4444]", stroke: "#EF4444", label: "Critical" },
 };
 
+// [ALUR PRIME] FASE 4: Frontend Integration & Visualization (UI Rendering). Komponen ini mengambil hasil prediksi (seperti rul_days dan probabilitas Health Status) dari global store dan merendernya menjadi elemen UI/indikator visual di dashboard.
 export default function VitalSignBanner() {
   const selectedId = useMachineStore((state) => state.selectedMachineId) || "M-01";
   const machine = useMachineStore((state) => state.machines[selectedId]);

@@ -1,0 +1,206 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Combining Machine Learning and Retrieval-Augmented Generation for Predictive Maintenance Scheduling Optimization in Manufacturing Industry Equipment\\
+{
+}
+\thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{
+Achmad Zikran Maulida\textsuperscript{1},
+Amir Hamzah\textsuperscript{2},
+Aqsa Zamzami\textsuperscript{3}, 
+Reynaldi Chandra Kirana\textsuperscript{4} \\
+
+\textsuperscript{}Jurusan Teknik Informatika dan Komputer, 
+Program Studi Teknik Informatika \\
+Politeknik Negeri Jakarta \\
+Jln. Prof. DR. G.A. Siwabessy, Kampus Universitas Indonesia, Depok 16425 \\
+
+\textsuperscript{1}achmad.zikran.maulida.tik23@stu.pnj.ac.id \\
+\textsuperscript{2}amir.hamzah.tik23@stu.pnj.ac.id \\
+\textsuperscript{3}aqsa.zamzami.tik23@stu.pnj.ac.id \\
+\textsuperscript{4}reynaldi.chandra.kirana.tik23@stu.pnj.ac.id
+}
+
+\maketitle  
+
+\begin{abstract}
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+ 
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+The digital transformation in the Industry 4.0 era has accelerated the adoption of Internet of Things (IoT) and Artificial Intelligence (AI) technologies to enhance manufacturing efficiency globally. In the specific context of machine maintenance, the transition from traditional preventive methods to Predictive Maintenance (PdM) has become crucial for maintaining continuous production and minimizing unplanned operational costs. However, field implementations of maintenance systems still face serious challenges, particularly sudden machine failures that go undetected by conventional monitoring systems. These failures result in significantly inflated reactive maintenance costs and productivity losses of up to 20-30%. Without an integrated system, companies frequently incur substantial financial losses due to unpredictable downtime.
+
+To address these issues, various studies have developed models utilizing a combination of Deep Learning and Machine Learning algorithms. For instance, recent research demonstrated that using time-series data with Deep Learning architectures, such as Long Short-Term Memory (LSTM) and its hybrid variants, can yield high prediction accuracy for machine failure and Remaining Useful Life (RUL), reaching up to 96.1%. Additionally, conventional Machine Learning algorithms like Random Forest and XGBoost have been widely implemented for real-time anomaly classification of machine reliability status based on IoT sensor data. 
+
+Despite improvements in prediction accuracy, most current systems remain isolated and focus solely on the technical aspects of numerical detection. A significant research gap exists wherein existing systems cannot provide applicable repair recommendations for technicians through an intelligent assistant, and maintenance scheduling is still performed manually, making it vulnerable to handling delays.
+
+Based on these problems, this research aims to build an integrated platform combining hybrid predictive modeling—specifically Machine Learning and Deep Learning for classifying machine health status and forecasting remaining useful life—with Retrieval-Augmented Generation (RAG) technology serving as an intelligent technical assistant. Furthermore, this study integrates a Rule-Based Maintenance Scheduler to provide automated repair scheduling based on critical machine thresholds. This system is expected to provide a comprehensive solution that bridges the need for technical early warnings and operational guidance on the factory floor.
+
+The main objectives of this research include:
+
+\begin{enumerate}
+    \item Developing a hybrid predictive modeling system using Deep Learning and Machine Learning to predict RUL and classify health status based on time-series sensor data.
+    \item Designing an intelligent technical assistant based on RAG architecture to help technicians quickly find repair instructions from factory Standard Operating Procedures (SOPs).
+    \item Implementing a Rule-Based Maintenance Scheduler capable of responding to critical machine prediction thresholds by generating automated repair schedules without manual intervention.
+    \item Implementing a Rule-Based Maintenance Scheduler capable of responding to critical machine prediction thresholds by generating automated repair schedules without manual intervention.
+\end{enumerate}
+
+\section{RELATED WORK}
+The study of Predictive Maintenance has advanced rapidly with the utilization of various Machine Learning and Deep Learning architectures. A comprehensive study by Li \& Li (2025) tested the effectiveness of various models in predicting machine failure using industrial sensor data. The research compared Convolutional Neural Networks (CNN), Long Short-Term Memory (LSTM), and their hybrid variants on rotary, milling, and hydraulic datasets. The experimental results indicated that the hybrid CNN-LSTM model achieved the highest performance with an accuracy of 96.1\% and an F1-score of 95.2\%. This model was considered superior due to its ability to combine CNN's spatial/local feature extraction from sensor data with LSTM's capability to model long-term temporal dependencies. Nevertheless, the study noted that model performance is heavily dependent on data quality, where data augmentation and balancing techniques like SMOTE (Synthetic Minority Over-sampling Technique) are strictly necessary to handle class imbalance in industrial datasets.
+
+Another study by Narayanan et al. (2025) proposed a Machine Learning framework using Random Forest, Support Vector Machine (SVM), and Neural Networks on manufacturing and energy facility datasets (NASA/UCI), which achieved a 20\% reduction in downtime through structured RUL estimation and anomaly detection. However, this system remained fundamentally technical-prognostic, where repair instructions still depended on the manual interpretation of technicians.
+
+Based on the literature review, there is a clear separation between machine condition monitoring systems and technical document management systems. Most existing PdM platforms focus entirely on predicting "when" a machine will fail, leaving technicians to manually search for repair solutions through physical documents or static PDFs. 
+
+Our proposed system, Kainosoph, aims to fill this gap by integrating two cutting-edge technologies into a synchronized pipeline:
+
+\textbf{1. Hybrid Predictive Failure}
+
+Adopting ML/DL algorithms (such as LSTM and Random Forest) to provide early warnings regarding machine health conditions.
+
+\textbf{2. RAG-based AI Copilot}
+
+Providing an interactive 24/7 virtual assistant that allows technicians to directly consult repair steps based on factory SOPs—an innovative feature absent in conventional PdM models.
+
+
+
+\section{PROPOSED METHODOLOGY}
+
+\subsection{System Architecture}
+
+The proposed system, known as the Predictive Reliability & Intelligent Maintenance Engine (PRIME), is designed utilizing a dual-pipeline microservices architecture. This architecture separates the processing of numerical telemetry data from textual documents to ensure efficient parallel execution. The overarching framework integrates three core components:
+
+\textbf{1. Predictive Module (Numerical Pipeline)}
+
+Ingests real-time streaming sensor data, processes it through rigorous feature engineering, and utilizes Machine Learning algorithms to classify the machine's health status and predict its Remaining Useful Life (RUL).
+
+\textbf{2. Cognitive Assistant Module (Textual Pipeline)}
+
+Operates on a Retrieval-Augmented Generation (RAG) architecture that transforms factory Standard Operating Procedures (SOPs) into a queryable vector knowledge base, serving as an interactive AI Copilot.
+
+\textbf{3. Rule-Based Scheduler}
+
+Acts as the integration layer within the backend server. It continuously monitors the numerical output of the Predictive Module. Upon detecting that the RUL has breached a critical threshold, it triggers an automated response, generating a recommended maintenance schedule without manual intervention.
+
+\subsection{Data Foundation and Preprocessing}
+
+The foundation of the predictive model relies on two primary data sources: an operational sensor dataset and a historical maintenance log dataset. The sensor dataset comprises 100,000 time-series records from 20 industrial machines spanning six months, capturing parameters such as temperature, vibration, and pressure. To enrich this raw numerical data, natural language processing (NLP) was applied to the maintenance logs to extract textual technician complaints into binary mathematical features.
+
+To expose temporal patterns to the algorithms, extensive feature engineering was performed. This included generating 36 rolling statistics (e.g., mean, standard deviation, and maximum) utilizing 24-hour and 48-hour observation windows, alongside lag features. 
+
+A significant challenge in the dataset was extreme class imbalance, where normal operational states heavily outnumbered failure instances. To address this without disrupting the causality of time-series data, a Stratified Sequential Block Sampling (SSBS) technique was implemented. SSBS extracts chronologically intact blocks representing prime conditions and pre-warning degradation boundaries. Subsequently, the Synthetic Minority Over-sampling Technique (SMOTE) was applied exclusively to the training partition (Machine-Based Split). This strict isolation ensures that validation and test sets remain entirely natural, effectively preventing temporal data leakage.
+
+\subsection{Predictive Module (Machine Learning Track)}
+
+To accurately forecast machine conditions, the Predictive Module employs a sequential dual-track architecture:
+
+\textbf{1. Model 1 (Health Status Classification)}
+
+A multi-class classification ensemble model that evaluates sensor data at a single time point to predict the machine's temporal status as \textit{healthy}, \textit{warning}, or \textit{critical}. The \textit{warning} status is defined as 48 hours prior to failure, while \textit{critical} is 24 hours prior, based on empirical forensic data analysis.
+
+\textbf{Model 2 (RUL Predictor)}
+
+A regression model specifically designed to forecast the Remaining Useful Life in days. This model operates conditionally; it is exclusively activated when Model 1 detects a \textit{warning} or \textit{critical} status. Limiting Model 2 to degradation zones prevents inaccurate long-term estimations during healthy operational phases where sensor data lacks informative degradation signals.
+
+\subsection{Cognitive Assistant Module (RAG Track)}
+
+The generative aspect of the PRIME system is driven by the RAG textual pipeline. Factory SOP documents and technical manuals are ingested and processed through semantic chunking with deliberate overlapping to preserve contextual integrity. These text chunks are subsequently vectorized and stored in a vector database. To retrieve information efficiently, the system utilizes a Hybrid Retrieval mechanism—combining semantic vector search with BM25 keyword matching—to locate the most relevant procedures based on technician queries. These retrieved documents are then supplied as context to a Large Language Model (LLM), which synthesizes accurate, hallucination-free repair instructions. (Further evaluation of the LLM generation will be detailed in subsequent sections).
+
+
+
+\section{EXPERIMENTAL RESULTS AND DISCUSSION}
+
+\subsection{Experimental Setup}
+
+To ensure robust evaluation and prevent temporal data leakage, the dataset was partitioned using a strict Machine-Based Split methodology. Out of the 20 machines, 14 machines were exclusively allocated to the training set, and 3 machines to the validation set. Crucially, the remaining 3 machines were quarantined entirely as an independent test set. This approach guarantees that the final model evaluation is conducted on completely unseen machine degradation patterns, simulating real-world deployment scenarios.
+
+\subsection{Predictive Model Evaluation}
+
+The performance of the Predictive Module was evaluated across two tracks. For the Health Status Classification (Track 1), three ensemble algorithms were compared. The XGBoost Classifier V2 emerged as the optimal model after rigorous hyperparameter tuning and warning threshold optimization (set at 0.60 probability). It achieved an outstanding \textit{F1-Score} for the \textit{warning} class of 0.9818 and successfully eliminated false alarms. Most importantly for industrial safety, it recorded a Fatal Error rate of absolute zero, meaning no critical conditions were misclassified as healthy.
+
+For the RUL Predictor, the evaluation focused on machines exclusively within the *Warning* and *Critical* zones. The Long Short-Term Memory (LSTM) V2 architecture demonstrated superior sequential pattern recognition capabilities compared to XGBoost Regressor and GRU. The LSTM V2 model achieved a highly precise Mean Absolute Error (MAE) of 0.7985 days on the test set. Furthermore, it fulfilled the critical business tolerance metric, with 98.04\% of its RUL predictions falling within a margin of error of $\le$ 1 day.
+
+\subsection{RAG Evaluation}
+
+....
+
+\begin{thebibliography}{00}
+\bibitem{b1}Bhatnagar, Anurag. (2025). Customer Churn Prediction using Machine Learning Approach: A Comprehensive Study. Journal of Information Systems Engineering and Management. 10. 80-92. 10.52783/jisem.v10i25s.3944. 
+\bibitem{b2}Min, Sungwook \& Zhang, Xubing \& Kim, Namwoon \& Srivastava, Rajendra. (2016). Customer Acquisition and Retention Spending: An Analytical Model and Empirical Investigation in Wireless Telecommunications Markets. Journal of Marketing Research.
+
+\bibitem{b3}
+A. Manzoor, M. A. Qureshi, E. Kidney, and L. Longo, 
+“A Review on Machine Learning Methods for Customer Churn Prediction and Recommendations for Business Practitioners,” 
+\textit{IEEE Access}, vol. 12, pp. 70434–70463, 2024, doi:10.1109/ACCESS.2024.3402092. :contentReference[oaicite:0]{index=0}
+
+\bibitem{b4}
+D. Verbeke, B. Dejaeger, D. Martens, J. Hur, and B. Baesens, 
+“Customer churn prediction by hybrid neural networks,” 
+\textit{Expert Systems with Applications}, vol. 36, no. 3, pp. 4625–4631, 2009. 
+
+\bibitem{b5}
+A. Idris, O. A. Khan, and M. I. M. Ismail, 
+“A comparison of machine learning techniques for customer churn prediction,” 
+\textit{Simulation Modelling Practice and Theory}, vol. 55, pp. 1–9, 2015. 
+
+\bibitem{b6}
+J. Huang, X. Ling, and H. Li, 
+“Customer churn prediction using improved balanced random forests,” 
+\textit{Expert Systems with Applications}, vol. 36, no. 3, pp. 5445–5449, 2009.
+
+\bibitem{b7}
+R. J. Bolton and D. J. Hand, 
+“Defection Detection: Measuring and Understanding the Predictive Accuracy of Customer Churn Models,” 
+\textit{Journal of Marketing Research}, vol. X, pp. XXX–XXX, 2002. 
+
+\bibitem{b8}
+Y. Suh, 
+“Machine learning based customer churn prediction in home appliance rental business,” 
+\textit{Journal of Big Data}, vol. 10, art. no. 41, Apr. 2023, doi:10.1186/s40537-023-00721-8. :contentReference[oaicite:1]{index=1}
+
+\bibitem{b9}
+M. Buckinx and D. Van den Poel, 
+“Investigating the role of product features in preventing customer churn, by using survival analysis and choice modeling: The case of financial services,” 
+\textit{Expert Systems with Applications}, vol. XX, no. X, pp. XXX–XXX, 2004.
+
+\bibitem{b10}
+M. Burez and D. Van den Poel, 
+“Churn prediction in subscription services: An application of support vector machines while comparing two parameter-selection techniques,” 
+\textit{Expert Systems with Applications}, vol. 36, no. 10, pp. 12547–12553, 2009.
+
+\bibitem{b11}
+A. G. Woodside, 
+“Customer satisfaction, customer retention, and market share,” 
+\textit{Journal of Retailing}, vol. XX, no. X, pp. XXX–XXX, 1993.
+
+\bibitem{b12}
+W. Bi, M. Cai, M. Liu, and G. Li, 
+“A Big Data Clustering Algorithm for Mitigating the Risk of Customer Churn,” 
+\textit{IEEE Transactions on Industrial Informatics}, vol. 12, no. 3, pp. 1270–1281, Jun. 2016. :contentReference[oaicite:2]{index=2}
+
+\bibitem{b13}
+Abdalla, F.A., Satty, A., Mahmoud, A.F.A., Khamis, G.S.M., Mohammed, Z.M.S., Salih, M., Hassaballa, A.A., Adam, A.M.A. (2025). Assessing gradient-boosting techniques for customer churn prediction: A statistical perspective using SMOTE-ENN and SMOTE-Tomek. Ingénierie des Systèmes d’Information, Vol. 30, No. 9, pp. 2331-2337. https://doi.org/10.18280/isi.300910
+
+
+\end{thebibliography}
+\vspace{12pt}
+
+\end{document}
