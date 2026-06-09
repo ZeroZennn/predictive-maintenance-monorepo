@@ -137,14 +137,29 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
     try:
         t0 = time.time()
 
+        # 0. Intent Classification
+        history_dicts = [
+            {"role": m.role, "content": m.content}
+            for m in (request.history or [])
+        ]
+        intent_res = _intent_classifier.classify(request.query, history=history_dicts)
+        
+        context_free_intents = ["system_info", "identity", "off_topic"]
+        is_context_free = intent_res.intent.value in context_free_intents
+
         # 1. Retrieval
         machine_ids = request.machine_ids or []
-        results, route = pipeline.run(
-            query            = request.query,
-            machine_ids_hint = machine_ids if machine_ids else None,
-            use_reranker     = request.use_reranker,
-            use_hybrid       = request.use_hybrid,
-        )
+        results = []
+        route_mode = intent_res.intent.value
+        
+        if not is_context_free:
+            results, route = pipeline.run(
+                query            = request.query,
+                machine_ids_hint = machine_ids if machine_ids else None,
+                use_reranker     = request.use_reranker,
+                use_hybrid       = request.use_hybrid,
+            )
+            route_mode = route.mode.value
 
         # 2. Live Context
         live_data: list = []
@@ -154,15 +169,12 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
             live_context_used = any(lc.should_inject() for lc in live_data)
 
         # 3. Build prompt
-        history_dicts = [
-            {"role": m.role, "content": m.content}
-            for m in (request.history or [])
-        ]
         prompt_pkg = builder.build(
             query             = request.query,
             results           = results,
             live_context_data = live_data if live_context_used else None,
             history           = history_dicts if history_dicts else None,
+            historical_context= getattr(request, "historical_context", None),
         )
 
         # 4. Generate LLM response
@@ -170,13 +182,18 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
 
         # 5. Format output
         citations      = extractor.extract_citations(results)
+        
+        # Opsi C: Post-processing citations sebagai safety net
+        if route_mode == "general" and not machine_ids:
+            citations = []
+            
         live_snapshots = extractor.format_live_context_snapshot(live_data)
         confidence     = extractor.determine_confidence(results, live_context_used)
         total_latency  = int((time.time() - t0) * 1000)
 
         _log.info(
             "Query OK | id=%s | mode=%s | results=%d | latency=%dms",
-            query_id, route.mode.value, len(results), total_latency,
+            query_id, route_mode, len(results), total_latency,
         )
 
         return QueryResponse(
@@ -187,7 +204,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
             citations          = citations,
             live_context_used  = live_context_used,
             live_context_data  = live_snapshots if live_snapshots else None,
-            mode               = route.mode.value,
+            mode               = route_mode,
             provider_used      = llm_response.provider_used,
             model_used         = llm_response.model_used,
             confidence         = confidence,
@@ -213,8 +230,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
 
 def _do_callback(document_id: str, status: str, chunks_count: int = 0, error: str = "") -> None:
     """Sync HTTP PATCH ke backend — dipanggil dalam thread executor."""
-    import json as _json
-    import urllib.request as _urllib
+    import httpx
 
     backend_url  = os.getenv("BACKEND_URL", "http://host.docker.internal:3000")
     internal_key = os.getenv("INTERNAL_API_KEY", "")
@@ -223,20 +239,20 @@ def _do_callback(document_id: str, status: str, chunks_count: int = 0, error: st
     if error:
         payload["error"] = error
 
-    data = _json.dumps(payload).encode("utf-8")
-    req  = _urllib.Request(
-        url,
-        data   = data,
-        method = "PATCH",
-        headers = {
-            "Content-Type"  : "application/json",
-            "X-Internal-Key": internal_key,
-        },
-    )
     try:
-        with _urllib.urlopen(req, timeout=10) as resp:
+        # Gunakan httpx karena lebih robust menangani IPv4/IPv6 fallback di Docker Desktop
+        with httpx.Client(timeout=10.0) as client:
+            resp = client.patch(
+                url,
+                json=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "X-Internal-Key": internal_key,
+                },
+            )
+            resp.raise_for_status()
             logging.getLogger("endpoints.callback").info(
-                "Callback OK: %s → %s (%d)", document_id, status, resp.status
+                "Callback OK: %s → %s (%d)", document_id, status, resp.status_code
             )
     except Exception as cb_err:
         logging.getLogger("endpoints.callback").error(

@@ -162,12 +162,13 @@ class VectorStore:
         ]
         total_batches = len(batches)
         upserted = 0
+        import uuid
 
         for batch_num, batch in enumerate(batches, start=1):
             try:
                 points = [
                     PointStruct(
-                        id=upserted + local_idx,           # global sequential int ID
+                        id=uuid.uuid4().hex,               # unique UUID per chunk
                         vector=chunk["embedding"],          # list[float]
                         payload=self._build_payload(chunk), # metadata tanpa embedding
                     )

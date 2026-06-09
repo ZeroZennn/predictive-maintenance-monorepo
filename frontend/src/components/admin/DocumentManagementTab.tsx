@@ -5,7 +5,8 @@ import { fetchDocuments, uploadDocument, deleteDocument } from '@/lib/api'
 import type { AdminDocument } from '@/types'
 import { ConfirmDeleteModal } from './index'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileText, FileType, File, Trash2, CheckCircle, AlertCircle, Loader2, CloudUpload } from 'lucide-react'
+import { Upload, FileText, FileType, File, Trash2, CheckCircle, AlertCircle, Loader2, CloudUpload, Eye } from 'lucide-react'
+import DocumentPreviewModal from '@/components/ui/DocumentPreviewModal'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MOCK DATA
@@ -47,6 +48,7 @@ export default function DocumentManagementTab() {
   const [isDragging, setIsDragging] = useState(false)
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([])
   const [deleteTarget, setDeleteTarget] = useState<AdminDocument | null>(null)
+  const [previewTarget, setPreviewTarget] = useState<AdminDocument | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -434,19 +436,30 @@ export default function DocumentManagementTab() {
 
                       {/* Aksi */}
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => setDeleteTarget(doc)}
-                          disabled={doc.status === 'PROCESSING'}
-                          title={doc.status === 'PROCESSING'
-                            ? 'Tidak bisa hapus saat processing'
-                            : 'Hapus dokumen'}
-                          className="p-1.5 rounded-lg
-                            text-lapis-muted hover:text-lapis-red
-                            hover:bg-lapis-red/10
-                            disabled:opacity-30 disabled:cursor-not-allowed
-                            transition-colors duration-150">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setPreviewTarget(doc)}
+                            title="Preview dokumen"
+                            className="p-1.5 rounded-lg
+                              text-lapis-muted hover:text-lapis-neon
+                              hover:bg-lapis-neon/10
+                              transition-colors duration-150">
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(doc)}
+                            disabled={doc.status === 'PROCESSING'}
+                            title={doc.status === 'PROCESSING'
+                              ? 'Tidak bisa hapus saat processing'
+                              : 'Hapus dokumen'}
+                            className="p-1.5 rounded-lg
+                              text-lapis-muted hover:text-lapis-red
+                              hover:bg-lapis-red/10
+                              disabled:opacity-30 disabled:cursor-not-allowed
+                              transition-colors duration-150">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -467,6 +480,14 @@ export default function DocumentManagementTab() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
         isLoading={isDeleting}
+      />
+
+      {/* ── PREVIEW MODAL ── */}
+      <DocumentPreviewModal
+        isOpen={!!previewTarget}
+        documentId={previewTarget?.document_id || ''}
+        filename={previewTarget?.filename || ''}
+        onClose={() => setPreviewTarget(null)}
       />
     </>
   )

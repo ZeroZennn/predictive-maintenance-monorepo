@@ -117,6 +117,7 @@ class QueryResponse(BaseModel):
     timestamp         : str = ""
 
     class Config:
+        protected_namespaces = ()
         json_schema_extra = {
             "example": {
                 "query_id"          : "QRY-20260517-001",

@@ -51,39 +51,6 @@ services:
     networks:
       - lapis_network
 
-  machine_learning:
-    profiles: ["app"]
-    build:
-      context: ./machine_learning
-      dockerfile: Dockerfile
-    container_name: lapis_ml_engine
-    restart: unless-stopped
-    ports:
-      - "${ML_ENGINE_PORT:-8000}:8000"
-    networks:
-      - lapis_network
-
-  nlp:
-    profiles: ["app"]
-    build:
-      context: .
-      dockerfile: nlp/Dockerfile.nlp
-    container_name: lapis_nlp_engine
-    restart: unless-stopped
-    ports:
-      - "${NLP_ENGINE_PORT:-8001}:8001"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - QDRANT_URL=http://qdrant:6333
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-lapis_redis_secret}@redis:6379
-      - BACKEND_URL=http://host.docker.internal:3000
-      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
-    volumes:
-      - ./nlp/data/raw:/app/nlp/data/raw
-      - uploads_data:/app/uploads
-    networks:
-      - lapis_network
-
   # Infrastructure Services (Selalu aktif)
   qdrant:
     image: qdrant/qdrant:v1.10.1
@@ -108,7 +75,7 @@ services:
       dockerfile: Dockerfile.ml
     container_name: lapis-ml-service
     ports:
-      - "8000:8000"
+      - "${ML_ENGINE_PORT:-8000}:8000"
     environment:
       - PYTHONUNBUFFERED=1
     healthcheck:
@@ -133,7 +100,7 @@ services:
       dockerfile: nlp/Dockerfile.nlp
     container_name: lapis-nlp-service
     ports:
-      - "8001:8001"
+      - "${NLP_ENGINE_PORT:-8001}:8001"
     env_file:
       - .env
     environment:
@@ -141,10 +108,14 @@ services:
       - HF_HOME=/app/.cache/huggingface
       - QDRANT_URL=http://qdrant:6333
       - REDIS_URL=redis://:${REDIS_PASSWORD:-lapis_redis_secret}@redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - BACKEND_URL=http://host.docker.internal:3000
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
     volumes:
       - nlp_qdrant_data:/app/nlp/data/vector_db/qdrant
       - ./nlp/data/raw:/app/nlp/data/raw
       - ./nlp/data/processed:/app/nlp/data/processed
+      - uploads_data:/app/uploads
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/nlp/health')"]
       interval: 30s
@@ -153,6 +124,8 @@ services:
       start_period: 120s
     depends_on:
       redis:
+        condition: service_healthy
+      qdrant:
         condition: service_healthy
     restart: unless-stopped
     networks:
