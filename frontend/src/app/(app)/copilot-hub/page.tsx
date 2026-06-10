@@ -100,7 +100,7 @@ export default function CopilotHubPage() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold uppercase tracking-[0.25em] text-white">
-              AI HUB — ASISTEN SOP
+              PRAM AI - Asisten Teknisi
             </span>
           </div>
         </div>
