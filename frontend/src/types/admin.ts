@@ -10,10 +10,16 @@ export interface AdminUser {
 export interface AdminDocument {
   document_id: string
   filename: string
-  file_type: 'PDF' | 'DOCX' | 'TXT'
-  status: 'READY' | 'PROCESSING' | 'FAILED'
+  file_type: 'PDF' | 'DOCX' | 'TXT' | string
   file_size_kb: number
+  status: 'READY' | 'PROCESSING' | 'FAILED'
   uploaded_at: string
+  // Extended fields from backend
+  chunks_count?: number
+  doc_type?: string
+  label?: string
+  ready_at?: string | null
+  error_message?: string | null
 }
 
 export type AdminTab = 
