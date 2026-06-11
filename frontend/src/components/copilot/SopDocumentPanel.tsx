@@ -37,7 +37,7 @@ export default function SopDocumentPanel() {
             <BookOpen className="w-4 h-4 text-lapis-neon" />
           </div>
           <span className="text-sm font-bold uppercase tracking-[0.15em] text-white">
-            DOKUMEN SOP M-01 s/d M-20
+            DAFTAR DOKUMEN
           </span>
         </div>
 

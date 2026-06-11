@@ -165,6 +165,10 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
         live_data: list = []
         live_context_used = False
         if machine_ids:
+            if "ALL" in machine_ids:
+                machine_ids = [f"M-{i:02d}" for i in range(1, 21)]
+                route_mode = "fleet_wide"
+                
             live_data         = [fetcher.fetch(mid) for mid in machine_ids]
             live_context_used = any(lc.should_inject() for lc in live_data)
 
