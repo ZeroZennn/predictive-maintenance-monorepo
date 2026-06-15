@@ -11,13 +11,14 @@ import {
   ClipboardList,
   Terminal,
   Settings2,
-  Sliders
+  Sliders,
+  Bell
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@/config";
 import { clsx } from "clsx";
-import { useSimulatorStore } from "@/stores/simulatorStore";
+import { useSimulatorStore, useToastStore } from "@/stores";
 
 const TECHNICIAN_NAV_ITEMS = [
   { icon: LayoutDashboard, href: ROUTES.DASHBOARD, label: "Dashboard" },
@@ -59,6 +60,7 @@ export default function IconNavBar() {
   const navItems = role === "ADMIN" ? ADMIN_NAV_ITEMS : TECHNICIAN_NAV_ITEMS;
 
   const toggleSimulator = useSimulatorStore((state) => state.togglePanel);
+  const unreadCount = useToastStore((s) => s.alerts.filter((a) => !a.isDismissed).length);
 
   return (
     <nav
@@ -115,7 +117,26 @@ export default function IconNavBar() {
       </div>
 
       {/* Settings & Simulator di bottom / sisi kanan pada mobile */}
-      <div className="mt-0 md:mt-auto flex md:flex-col gap-2">
+      <div className="mt-0 md:mt-auto flex md:flex-col gap-2 relative">
+        <Link
+          href="/alerts"
+          className={clsx(
+            "w-10 h-10 md:w-12 md:h-12 rounded-lg",
+            "flex items-center justify-center relative",
+            "transition-all duration-200 group",
+            pathname === "/alerts"
+              ? "bg-gradient-to-b from-[#2B3739] to-[#1C2626] border border-lapis-neon text-lapis-neon"
+              : "border border-transparent text-lapis-muted hover:text-lapis-text hover:bg-lapis-card hover:border-lapis-border"
+          )}
+          title="Notification Alerts"
+        >
+          <Bell size={16} className={unreadCount > 0 ? "text-white" : ""} />
+          {unreadCount > 0 && (
+            <div className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-lg border border-[#081819] animate-pulse">
+              {unreadCount}
+            </div>
+          )}
+        </Link>
         <button
           onClick={toggleSimulator}
           className={clsx(

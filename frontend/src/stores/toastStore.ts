@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { ToastAlert } from "@/types";
 
 interface ToastStore {
@@ -9,6 +10,7 @@ interface ToastStore {
   // Actions
   addAlert: (alert: Omit<ToastAlert, "id" | "isDismissed">) => void;
   dismissToast: (id: string) => void;
+  dismissAllAlerts: () => void;
   resolveAlert: (id: string) => void;
   clearAllAlerts: () => void;
 
@@ -16,9 +18,11 @@ interface ToastStore {
   getActiveAlerts: () => ToastAlert[];
 }
 
-export const useToastStore = create<ToastStore>()((set, get) => ({
-  // State
-  alerts: [],
+export const useToastStore = create<ToastStore>()(
+  persist(
+    (set, get) => ({
+      // State
+      alerts: [],
   persistentAlerts: [],
 
   // Actions
@@ -60,6 +64,21 @@ export const useToastStore = create<ToastStore>()((set, get) => ({
       return { alerts: updatedAlerts, persistentAlerts: updatedPersistent };
     }),
 
+  dismissAllAlerts: () =>
+    set((state) => {
+      let newPersistent = [...state.persistentAlerts];
+      const updatedAlerts = state.alerts.map((a) => {
+        if (!a.isDismissed && (a.severity === "CRITICAL" || a.severity === "WARNING")) {
+          // Promote to persistent if not already there
+          if (!newPersistent.some((p) => p.id === a.id)) {
+            newPersistent.push({ ...a, isDismissed: true });
+          }
+        }
+        return { ...a, isDismissed: true };
+      });
+      return { alerts: updatedAlerts, persistentAlerts: newPersistent };
+    }),
+
   resolveAlert: (id: string) =>
     set((state) => ({
       alerts: state.alerts.filter((a) => a.id !== id),
@@ -68,6 +87,13 @@ export const useToastStore = create<ToastStore>()((set, get) => ({
 
   clearAllAlerts: () => set({ alerts: [], persistentAlerts: [] }),
 
-  // Selector — reads live state via get()
-  getActiveAlerts: () => get().alerts.filter((a) => !a.isDismissed),
-}));
+      // Selector — reads live state via get()
+      getActiveAlerts: () => get().alerts.filter((a) => !a.isDismissed),
+    }),
+    {
+      name: "lapis-alert-history",
+      // Hanya simpan history agar cache tidak membengkak dengan data active state sementara
+      partialize: (state) => ({ persistentAlerts: state.persistentAlerts }),
+    }
+  )
+);
