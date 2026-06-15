@@ -115,6 +115,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
                 "answer": sc["response"],
                 "action_suggestions": [],
                 "citations": [],
+                "context_texts": [],
                 "live_context_used": False,
                 "live_context_data": [],
                 "mode": sc["intent"],
@@ -165,6 +166,10 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
         live_data: list = []
         live_context_used = False
         if machine_ids:
+            if "ALL" in machine_ids:
+                machine_ids = [f"M-{i:02d}" for i in range(1, 21)]
+                route_mode = "fleet_wide"
+                
             live_data         = [fetcher.fetch(mid) for mid in machine_ids]
             live_context_used = any(lc.should_inject() for lc in live_data)
 
@@ -182,6 +187,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
 
         # 5. Format output
         citations      = extractor.extract_citations(results)
+        context_texts  = [r.text_content for r in results]
         
         # Opsi C: Post-processing citations sebagai safety net
         if route_mode == "general" and not machine_ids:
@@ -202,6 +208,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
             answer             = llm_response.answer,
             action_suggestions = llm_response.action_suggestions,
             citations          = citations,
+            context_texts      = context_texts,
             live_context_used  = live_context_used,
             live_context_data  = live_snapshots if live_snapshots else None,
             mode               = route_mode,

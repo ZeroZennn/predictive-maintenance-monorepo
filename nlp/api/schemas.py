@@ -106,6 +106,7 @@ class QueryResponse(BaseModel):
     answer            : str
     action_suggestions: List[str] = []
     citations         : List[CitationItem] = []
+    context_texts     : List[str] = []
     live_context_used : bool = False
     live_context_data : Optional[List[LiveContextSnapshot]] = None
     mode              : str = "general"

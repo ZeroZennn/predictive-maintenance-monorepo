@@ -14,21 +14,38 @@ const chatController = {
       const nlpContextService = require("../services/nlpContextService");
 
       // Detect machine ID from query text (regex)
-      // This OVERRIDES payload machine_id if user explicitly
-      // mentions a different machine in their message
       const detectedMachineIds = nlpContextService.detectMachineId(query);
-      const detectedMachineId = detectedMachineIds.length > 0
-        ? detectedMachineIds[0]
-        : null;
 
-      // Priority: regex detection > payload machine_id > null
-      const resolvedMachineId = detectedMachineId || payloadMachineId || null;
+      // Resolve all machine IDs
+      let resolvedMachineIds = [
+        ...new Set([
+          ...(payloadMachineId ? [payloadMachineId] : []),
+          ...detectedMachineIds,
+        ]),
+      ];
+
+      // Fleet-wide detection
+      if (resolvedMachineIds.length === 0) {
+        const qLower = query.toLowerCase();
+        const fleetKeywords = ['semua', 'seluruh', 'mana yang', 'paling', 'tiap mesin'];
+        const machineKeywords = ['mesin', 'kondisi', 'rusak', 'kritis', 'berisiko'];
+        
+        const hasFleetKw = fleetKeywords.some(kw => qLower.includes(kw));
+        const hasMachineKw = machineKeywords.some(kw => qLower.includes(kw));
+        
+        if (hasFleetKw && hasMachineKw) {
+          resolvedMachineIds = ["ALL"];
+          logger.info(`[Chat] Detected fleet-wide query: "${query}" -> ALL`);
+        }
+      }
+
+      const primaryMachineId = resolvedMachineIds.length > 0 ? resolvedMachineIds[0] : null;
 
       // Log override for debugging
-      if (detectedMachineId && payloadMachineId && detectedMachineId !== payloadMachineId) {
+      if (detectedMachineIds.length > 0 && payloadMachineId && !detectedMachineIds.includes(payloadMachineId)) {
         logger.info(
           `[Chat] Machine ID override: payload=${payloadMachineId} → ` +
-          `detected=${detectedMachineId} from query`
+          `detected=${detectedMachineIds.join(', ')} from query`
         );
       }
 
@@ -37,7 +54,7 @@ const chatController = {
       const session = await chatService.getOrCreateSession(
         activeSessionId,
         userId,
-        resolvedMachineId,
+        primaryMachineId,
       );
 
       await chatService.saveMessage(
@@ -45,23 +62,24 @@ const chatController = {
         "user",
         query,
         null,
-        resolvedMachineId,
+        primaryMachineId,
       );
 
       const history = await chatService.getRecentHistory(activeSessionId, 10);
 
-      // Extract historical context from TimescaleDB if a machine is selected
+      // Extract historical context from TimescaleDB if a primary machine is selected
+      // Disable timescale if multiple machines to avoid context overflow, live context is enough
       let formattedTimescaledData = null;
-      if (resolvedMachineId) {
-        formattedTimescaledData = await nlpContextService.getHistoricalContext(resolvedMachineId);
+      if (resolvedMachineIds.length === 1) {
+        formattedTimescaledData = await nlpContextService.getHistoricalContext(primaryMachineId);
         if (formattedTimescaledData) {
-          logger.info(`[Chat] Injected historical context for ${resolvedMachineId}`);
+          logger.info(`[Chat] Injected historical context for ${primaryMachineId}`);
         }
       }
 
       const nlpPayload = {
         query,
-        machine_ids: resolvedMachineId ? [resolvedMachineId] : [],
+        machine_ids: resolvedMachineIds,
         session_id: activeSessionId,
         history: history.slice(0, -1),
         mode: 'auto',
@@ -82,7 +100,7 @@ const chatController = {
         "assistant",
         nlpData.answer,
         nlpData.citations || null,
-        resolvedMachineId,
+        primaryMachineId,
       );
 
       await chatService.updateSessionTimestamp(activeSessionId);
@@ -95,16 +113,16 @@ const chatController = {
       );
 
       let machineStatus = null;
-      if (resolvedMachineId) {
+      if (primaryMachineId) {
         try {
           const redisClient = require("../config/redisClient");
           const cached = await redisClient.get(
-            `machine:${resolvedMachineId}:prediction`,
+            `machine:${primaryMachineId}:prediction`,
           );
           if (cached) {
             const pred = JSON.parse(cached);
             machineStatus = {
-              machine_id: resolvedMachineId,
+              machine_id: primaryMachineId,
               classification: pred.classification,
               health_score: pred.health_score,
               rul_days: pred.rul_days,
@@ -132,7 +150,7 @@ const chatController = {
           nlpData.live_context_used || nlpData.has_live_context || false,
         query_mode: nlpData.mode || nlpData.query_mode,
         confidence: nlpData.confidence,
-        machine_id: resolvedMachineId,
+        machine_id: primaryMachineId,
         processing_time_ms: nlpData.latency_ms || nlpData.processing_time_ms,
         provider_used: nlpData.provider_used,
         model_used: nlpData.model_used,

@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-05-14T17:46:37.676098",
+  "project": "Lapis AI Predictive Maintenance",
+  "phase": "Fase 10 — Artifact Export",
+  "total_files": 6,
+  "files": {
+    "classifier_final.pkl": {
+      "size_kb": 1716.36,
+      "size_mb": 1.6761
+    },
+    "classifier_model_card.json": {
+      "size_kb": 1.94,
+      "size_mb": 0.0019
+    },
+    "preprocessing_pipeline.pkl": {
+      "size_kb": 6.01,
+      "size_mb": 0.0059
+    },
+    "rul_predictor_final.keras": {
+      "size_kb": 610.41,
+      "size_mb": 0.5961
+    },
+    "rul_predictor_model_card.json": {
+      "size_kb": 2.03,
+      "size_mb": 0.002
+    },
+    "scaler_final.pkl": {
+      "size_kb": 4.28,
+      "size_mb": 0.0042
+    }
+  }
+}

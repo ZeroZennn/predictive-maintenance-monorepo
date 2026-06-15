@@ -236,9 +236,25 @@ class PromptBuilder:
         has_live_ctx = bool(live_context_data)
         live_text    = ""
         if has_live_ctx:
-            live_text = "\n".join(
-                lc.to_prompt_text() for lc in live_context_data  # type: ignore[union-attr]
-            )
+            if len(live_context_data) > 5:
+                # Format compact table for fleet-wide queries
+                lines = ["[KONDISI REAL-TIME SEMUA MESIN]"]
+                lines.append("| Mesin | Status | ML Prediksi | Suhu (°C) | Getaran | Tekanan | RUL (hari) | Alert Aktif |")
+                lines.append("|-------|--------|-------------|-----------|---------|---------|------------|-------------|")
+                for lc in live_context_data:
+                    alerts = ", ".join(lc.active_alerts) if lc.active_alerts else "-"
+                    rul = f"{lc.rul_days:.1f}" if lc.rul_days is not None else "N/A"
+                    suhu = f"{lc.temperature_c}" if lc.temperature_c is not None else "N/A"
+                    getaran = f"{lc.vibration_mms}" if lc.vibration_mms is not None else "N/A"
+                    tekanan = f"{lc.pressure_psi}" if lc.pressure_psi is not None else "N/A"
+                    lines.append(
+                        f"| {lc.machine_id} | {lc.status} | {lc.ml_prediction} | {suhu} | {getaran} | {tekanan} | {rul} | {alerts} |"
+                    )
+                live_text = "\n".join(lines)
+            else:
+                live_text = "\n".join(
+                    lc.to_prompt_text() for lc in live_context_data  # type: ignore[union-attr]
+                )
 
         # Susun user_prompt dalam urutan prioritas
         parts: List[str] = []

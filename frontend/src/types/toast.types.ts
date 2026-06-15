@@ -1,4 +1,4 @@
-export type ToastSeverity = "WARNING" | "CRITICAL" | "INFO";
+export type ToastSeverity = "WARNING" | "CRITICAL" | "INFO" | "SUCCESS";
 
 export interface ToastAlert {
   id: string;

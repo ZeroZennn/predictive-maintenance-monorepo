@@ -8,7 +8,7 @@ import clsx from "clsx";
 
 export function SimulatorControlPanel() {
   const { isOpen, togglePanel } = useSimulatorStore();
-  const addAlert = useToastStore((state) => state.addAlert);
+  const { addAlert, dismissAllAlerts, clearAllAlerts } = useToastStore();
 
   const [dateStr, setDateStr] = useState<string>("2025-07-01");
   const [hour, setHour] = useState<number>(0);
@@ -92,6 +92,7 @@ export function SimulatorControlPanel() {
     try {
       await apiClient.post("/api/simulator/stop");
       setIsRunning(false);
+      dismissAllAlerts();
       addAlert({
         machine_id: "SYS",
         severity: "INFO",
@@ -120,6 +121,7 @@ export function SimulatorControlPanel() {
     setIsResetting(true);
     try {
       await apiClient.post("/api/simulator/reset");
+      clearAllAlerts();
       addAlert({
         machine_id: "SYS",
         severity: "INFO",

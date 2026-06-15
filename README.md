@@ -53,9 +53,11 @@ PRIME hadir sebagai jawaban atas gap tersebut. Dibangun di atas arsitektur monor
 | 🤖 **Health Status Classifier** | Model XGBoost mengklasifikasikan status mesin menjadi `HEALTHY`, `WARNING`, atau `CRITICAL` dari data sensor real-time (threshold optimal 0.60) |
 | ⏱️ **RUL Predictor** | Model LSTM memprediksi Remaining Useful Life (sisa umur pakai) dalam satuan **hari** — hanya aktif ketika status `WARNING` atau `CRITICAL` |
 | 📡 **Real-time Dashboard** | Dashboard Next.js dengan Socket.IO: 8 sensor gauge, health badge, RUL banner, anomaly timeline, dan maintenance scheduler update real-time |
-| 🔔 **Smart Alert System** | Alert otomatis berdasarkan klasifikasi ML — severity `critical` hanya saat CRITICAL, `warning` saat WARNING (tidak tumpang-tindih) |
+| 🔔 **Smart Alert System** | Redesain sistem alert persisten dengan halaman histori khusus (`/alerts`) dan non-intrusive bottom ticker untuk notifikasi urgent (WARNING/CRITICAL) |
 | 📅 **Maintenance Scheduler** | Auto-generate jadwal perawatan berdasarkan prediksi kritis — tampil di Triage Center Scheduler secara real-time via WebSocket |
-| 💬 **AI Copilot (RAG)** | Asisten teknis cerdas berbasis dokumen SOP pabrik menggunakan Retrieval-Augmented Generation *(🔄 In Development)* |
+| 💬 **AI Copilot (RAG)** | Asisten teknis AI dengan arsitektur Hybrid Retrieval RAG (Dense + BM25) yang bisa membaca SOP pabrik dan tersinkronisasi dengan status *real-time* mesin |
+| 📑 **Document & Admin Panel** | Manajemen pengguna dan dokumen SOP terpusat, fitur preview & download dokumen, serta pipeline vector embedding otomatis |
+| 📝 **Logs & Reports** | Halaman log komprehensif untuk pelacakan histori sistem, chat, dan maintenance |
 
 ---
 
@@ -81,9 +83,9 @@ PRIME hadir sebagai jawaban atas gap tersebut. Dibangun di atas arsitektur monor
   ┌──────────────────┐                   ┌──────────────────────┐
   │   ML Service     │                   │   NLP / RAG Engine   │
   │   (Port 8000)    │                   │   (Port 8001)        │
-  │  XGBoost V2      │                   │  🔄 In Development   │
-  │  LSTM V2 (RUL)   │                   └──────────────────────┘
-  └──────────────────┘
+  │  XGBoost V2      │                   │  FastAPI + Qdrant    │
+  │  LSTM V2 (RUL)   │                   │  Hybrid Dense + BM25 │
+  └──────────────────┘                   └──────────────────────┘
          │
          ▼
   ┌──────────────────────────────────────────────┐
@@ -108,7 +110,7 @@ PRIME hadir sebagai jawaban atas gap tersebut. Dibangun di atas arsitektur monor
 |---|---|
 | **Backend API** | Orkestrasi pusat — menerima data sensor, mendispatch ke ML/NLP, menyimpan ke DB, dan menyiarkan update real-time via Socket.IO |
 | **ML Service** | Microservice FastAPI (Python) yang menjalankan XGBoost (classifier) dan LSTM (RUL predictor) secara cascade |
-| **NLP Engine** | Microservice RAG yang mengindeks dokumen SOP dan merespons query teknis *(In Development)* |
+| **NLP Engine** | Microservice RAG (FastAPI) yang mengindeks SOP ke Vector DB (Qdrant) dan menjawab pertanyaan menggunakan OpenAI GPT-4o-mini |
 | **Frontend Dashboard** | Interface Next.js untuk visualisasi telemetri, status mesin, jadwal maintenance, dan akses AI Copilot |
 
 ---
@@ -142,7 +144,7 @@ Status: ✅ **Production Ready**
 
 ### 🖥️ Backend Service (Reynaldi)
 
-Status: ✅ **Active — Fase 7/9**
+Status: ✅ **Production Ready**
 
 | Layer | Teknologi |
 |---|---|
@@ -168,8 +170,10 @@ Status: ✅ **Active — Fase 7/9**
 | `GET` | `/api/telemetry/anomaly/:machine_id` | Anomaly timeline dari DB |
 | `GET` | `/api/maintenance/schedules` | Daftar jadwal maintenance |
 | `GET` | `/api/maintenance/kpis/:machine_id` | KPI maintenance per mesin |
-| `POST` | `/api/nlp/chat` | Query AI Copilot |
-| `GET` | `/api/admin/users` | Manajemen user (Admin only) |
+| `POST` | `/api/nlp/chat` | Proxy query AI Copilot ke NLP Service |
+| `GET` | `/api/admin/users` | Manajemen user dashboard (Admin only) |
+| `GET` | `/api/admin/documents` | Sinkronisasi metadata dokumen & preview |
+| `GET` | `/api/logs` | Fetch histori aktivitas dan chat |
 
 **WebSocket Events (Socket.IO):**
 
@@ -187,9 +191,26 @@ Status: ✅ **Active — Fase 7/9**
 
 ### 💬 NLP / RAG Engine (Aqsa)
 
-Status: 🔄 **In Development**
+Status: ✅ **Active — System Integrated**
 
-> Modul ini akan mengimplementasikan Retrieval-Augmented Generation untuk menjawab pertanyaan teknis berbasis dokumen SOP pabrik. Backend sudah menyediakan proxy endpoint `/api/nlp/chat` dan `/api/nlp/health` yang siap dikoneksi.
+Modul ini menyediakan kapabilitas Retrieval-Augmented Generation (RAG) untuk AI Copilot Lapis AI.
+
+| Layer | Teknologi |
+|---|---|
+| Runtime | Python 3.12+ |
+| Web Framework | FastAPI, Uvicorn, Pydantic |
+| Vector Database | Qdrant (In-Memory / Persistent) |
+| Embedding Model | `intfloat/multilingual-e5-base` (HuggingFace) |
+| Sparse Retrieval | BM25 (untuk Hybrid Search) |
+| LLM Generator | OpenAI `gpt-4o-mini` |
+| Evaluation | RAGAS Framework (Context Precision, Recall, Faithfulness) |
+
+**Fitur NLP:**
+- **Hybrid Search**: Kombinasi Dense Retrieval (Semantik) dan Sparse Retrieval (Keyword) dengan *Reciprocal Rank Fusion (RRF)*.
+- **Context-Free Intent Bypass**: Deteksi otomatis untuk sapaan atau percakapan umum yang tidak memerlukan pencarian dokumen, mengurangi latensi.
+- **Context Deduplication**: Menghilangkan redundansi hasil *retrieval* untuk mengoptimalkan token window LLM.
+- **Real-Time Machine Synchronization**: Context bot disuntikkan dengan status live sensor mesin jika user menanyakan performa mesin *real-time*.
+- **Document Ingestion Pipeline**: Ekstraksi PDF dinamis dengan sistem *chunking* canggih.
 
 ---
 
@@ -201,11 +222,11 @@ Status: ✅ **Active — System Integrated**
 |---|---|
 | Framework | Next.js 15 (App Router, TypeScript) |
 | Styling | Tailwind CSS + Custom Design System |
-| State Management | Zustand (machineStore, maintenanceStore, toastStore) |
+| State Management | Zustand dengan *Persist Middleware* (machineStore, maintenanceStore, toastStore, copilotStore) |
 | Real-time | Socket.IO Client via ws-manager.ts |
 | Charting | Recharts (LineChart telemetry, gauge sensor) |
-| Animation | CSS animate-pulse + custom keyframes |
-| UI Features | Custom modals, global toast alerts, reactive scheduler |
+| Animation | Framer Motion & custom CSS keyframes (untuk UI Copilot & Alerts) |
+| UI Features | Admin Dashboard Analytics, Document Preview Modal, Bottom Urgent Alert Ticker, Persistent Notification History (`/alerts`) |
 
 ---
 
@@ -254,9 +275,11 @@ predictive-maintenance-monorepo/
 │   │   │   └── (app)/
 │   │   │       ├── dashboard/        # Halaman monitoring utama
 │   │   │       ├── scheduler/        # Maintenance scheduler & calendar
-│   │   │       ├── debug/            # WebSocket stream debugger / Logs
+│   │   │       ├── alerts/           # Persistent notification history
+│   │   │       ├── logs/             # System and activity logs
+│   │   │       ├── debug/            # WebSocket stream debugger
 │   │   │       ├── copilot-hub/      # AI Copilot interface
-│   │   │       └── admin/            # Admin Panel & Role-based routes
+│   │   │       └── admin/            # Admin Panel (Users & Documents)
 │   │   ├── components/               # UI components per fitur
 │   │   │   ├── dashboard/            # SensorCard, TelemetryChart, AnomalyTimeline, etc.
 │   │   │   ├── scheduler/            # CalendarView, TaskDetailCard, SchedulerModals
@@ -272,15 +295,14 @@ predictive-maintenance-monorepo/
 │   ├── .env.local                    # Frontend env (BACKEND_URL, SKIP_AUTH, MOCK_ROLE)
 │   └── package.json
 │
+├── nlp/                              # NLP & RAG Engine (Aqsa)
+│   ├── api/                          # FastAPI Endpoints (chat, ingest, documents)
+│   ├── core/                         # Configuration & logging
+│   ├── data/                         # Persistent storage untuk upload PDF dan Qdrant DB
+│   ├── embeddings/                   # Ingestion Pipeline, Text Splitter, Vector Store
+│   ├── prompting/                    # System Prompts & Intent Router
+│   └── tests/                        # Skrip evaluasi performa dengan RAGAS
 ├── history_docs/                     # Arsip laporan & dokumentasi progres proyek
-├── docker-compose.yml                # Orkestrasi infrastructure services
-├── .env.example                      # Template environment variables
-├── INTEGRATION_DASHBOARD_CHECKLIST.md  # Checklist integrasi E2E
-├── INTEGRATION_DASHBOARD_BACKLOG.md    # Backlog & progress tracker
-└── README.md                         # ← Anda di sini
-```
-
-> **Catatan:** Folder `nlp/` untuk NLP/RAG Engine akan ditambahkan seiring perkembangan modul tersebut.
 
 ---
 
@@ -492,8 +514,8 @@ Hasil evaluasi model pada test set (data tidak digunakan selama training):
 | Role | Nama | Modul | Status |
 |---|---|---|---|
 | 🤖 ML Engineer | **Zikran** | Machine Learning Engine | ✅ Production Ready |
-| 🖥️ Backend Engineer | **Reynaldi** | Backend Service & Orchestration | ✅ Active |
-| 💬 NLP Engineer | **Aqsa** | RAG & Knowledge Base | 🔄 In Development |
+| 🖥️ Backend Engineer | **Reynaldi** | Backend Service & Orchestration | ✅ Production Ready |
+| 💬 NLP Engineer | **Aqsa** | RAG & Knowledge Base | ✅ System Integrated |
 | 📊 Frontend Engineer | **Amir** | Dashboard & UI | ✅ System Integrated |
 
 ---

@@ -1,0 +1,114 @@
+{
+  "timestamp": "20260612_151852",
+  "cases_evaluated": 5,
+  "scores_mean": {
+    "faithfulness": 0.3059,
+    "answer_relevancy": 0.3695,
+    "context_precision": 0.6393,
+    "context_recall": 0.2,
+    "context_entity_recall": 0.15,
+    "answer_correctness": 0.3121,
+    "answer_similarity": 0.9099
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Kapan saja M-01 dilakukan maintenance?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode September 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 20.8 jam dengan total biaya pemeliharaan sebesar Rp 18.182.570. Masalah utama bulan ini berpusat pada komponen Sensor dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode September 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 20.8 jam dengan total biaya pemeliharaan sebesar Rp 18.182.570. Masalah utama bulan ini berpusat pada komponen Sensor dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut."
+      ],
+      "response": "Mesin M-01 telah menjalani pemeliharaan pada beberapa periode sebagai berikut:\n\n1. **September 2025**:\n   - Total aktivitas pemeliharaan: 3 (2 Preventive, 1 Corrective)\n   - Total downtime: 20.8 jam\n   - Masalah utama: Komponen Sensor dan Belt\n\n2. **Agustus 2025**:\n   - Total aktivitas pemeliharaan: 6 (2 Preventive, 2 Corrective)\n   - Total downtime: 100.7 jam\n   - Masalah utama: Komponen Seal dan Motor\n\n3. **November 2025**:\n   - Total aktivitas pemeliharaan: 5 (2 Preventive, 1 Corrective)\n   - Total downtime: 87.8 jam\n   - Masalah utama: Komponen Bearing dan Belt\n\nJika ada kebutuhan lebih lanjut mengenai detail atau tindakan yang diperlukan, silakan beri tahu. Data ini diambil dari dokumen yang relevan, yaitu DOC-20260607-256, DOC-20260607-515, DOC-20260607-827, DOC-20260607-339, DOC-20260607-345, DOC-20260607-620, DOC-20260607-216, dan DOC-20260607-330.",
+      "reference": "Berdasarkan riwayat pemeliharaan, mesin M-01 dilakukan maintenance pada bulan Juli, Agustus, September, Oktober, November, dan Desember 2025. Mesin ini mengalami sejumlah tindakan preventive maupun corrective setiap bulannya.",
+      "faithfulness": 0.7222222222222222,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.9999999999875,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.4063033869147554,
+      "answer_similarity": 0.9329058553513293
+    },
+    {
+      "user_input": "Apa saja emergency event yang pernah terjadi pada mesin M-01?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode September 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 20.8 jam dengan total biaya pemeliharaan sebesar Rp 18.182.570. Masalah utama bulan ini berpusat pada komponen Sensor dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode September 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 20.8 jam dengan total biaya pemeliharaan sebesar Rp 18.182.570. Masalah utama bulan ini berpusat pada komponen Sensor dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode September 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 20.8 jam dengan total biaya pemeliharaan sebesar Rp 18.182.570. Masalah utama bulan ini berpusat pada komponen Sensor dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode November 2025. Terjadi total 5 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 87.8 jam dengan total biaya pemeliharaan sebesar Rp 44.562.496. Masalah utama bulan ini berpusat pada komponen Bearing dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Juli 2025. Terjadi total 7 aktivitas pemeliharaan yang terdiri dari 5 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 58.0 jam dengan total biaya pemeliharaan sebesar Rp 18.434.465. Masalah utama bulan ini berpusat pada komponen Sensor dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Juli 2025. Terjadi total 7 aktivitas pemeliharaan yang terdiri dari 5 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 58.0 jam dengan total biaya pemeliharaan sebesar Rp 18.434.465. Masalah utama bulan ini berpusat pada komponen Sensor dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut."
+      ],
+      "response": "Maaf, saya tidak memiliki informasi tentang emergency event yang pernah terjadi pada mesin M-01. Data yang tersedia hanya mencakup laporan pemeliharaan bulanan dan kondisi real-time mesin. Untuk informasi lebih lanjut mengenai kejadian darurat, silakan cek langsung ke dokumen atau menghubungi supervisor. \n\nJika ada pertanyaan lain seputar pemeliharaan atau kondisi mesin, saya siap membantu. Data yang saya miliki berasal dari 8 dokumen berikut: \n1. DOC-20260607-216-Laporan_M-01_September_2025\n2. DOC-20260607-330-Laporan_M-01_September_2025\n3. DOC-20260607-881-Laporan_M-01_September_2025\n4. DOC-20260607-256-Laporan_M-01_November_2025\n5. DOC-20260607-515-Laporan_M-01_November_2025\n6. DOC-20260607-827-Laporan_M-01_November_2025\n7. DOC-20260607-435-Laporan_M-01_Juli_2025\n8. DOC-20260607-575-Laporan_M-01_Juli_2025",
+      "reference": "Pada mesin M-01, terdapat beberapa event perbaikan corrective terkait dengan kebocoran komponen seal, perbaikan valve, penggantian motor, serta perbaikan bearing.",
+      "faithfulness": 0.07692307692307693,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.19642857141875,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.21676032861387862,
+      "answer_similarity": 0.8669152879268928
+    },
+    {
+      "user_input": "Berapa total downtime mesin M-01 pada bulan Agustus 2025?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Agustus 2025\nTotal_Downtime: 100.7 Jam\nTotal_Cost: Rp 96.709.373\nLog_Count: 6 (2 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Agustus 2025\nTotal_Downtime: 100.7 Jam\nTotal_Cost: Rp 96.709.373\nLog_Count: 6 (2 Corrective, 2 Preventive)",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Agustus 2025\nTotal_Downtime: 100.7 Jam\nTotal_Cost: Rp 96.709.373\nLog_Count: 6 (2 Corrective, 2 Preventive)"
+      ],
+      "response": "Total downtime mesin M-01 pada bulan Agustus 2025 mencapai 100.7 jam. Informasi ini konsisten di semua laporan yang tersedia, yaitu dalam DOC-20260607-339, DOC-20260607-345, dan DOC-20260607-620. \n\nJika ada pertanyaan lebih lanjut mengenai pemeliharaan atau kondisi mesin, silakan tanyakan!",
+      "reference": "Total downtime mesin M-01 pada bulan Agustus 2025 adalah 100.7 jam.",
+      "faithfulness": 0.2857142857142857,
+      "answer_relevancy": 0.9211077490064558,
+      "context_precision": 0.9999999999833333,
+      "context_recall": 1.0,
+      "context_entity_recall": 0.6666666644444444,
+      "answer_correctness": 0.48945976499269833,
+      "answer_similarity": 0.9583048123329932
+    },
+    {
+      "user_input": "Apa fungsi utama mesin M-01?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Oktober 2025. Terjadi total 1 aktivitas pemeliharaan yang terdiri dari 0 tindakan Preventive dan 0 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 38.0 jam dengan total biaya pemeliharaan sebesar Rp 13.678.071. Masalah utama bulan ini berpusat pada komponen Bearing, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Oktober 2025\nTotal_Downtime: 38.0 Jam\nTotal_Cost: Rp 13.678.071\nLog_Count: 1 (0 Corrective, 0 Preventive)",
+        "[TIMELINE PEMELIHARAAN]\n10/10/2025 (Log ID: ML-0205): Dilakukan tindakan Emergency. Teknisi mencatat bahwa kegagalan sistem pendingin kritis. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 38.0 jam dengan biaya Rp 13.678.071."
+      ],
+      "response": "Maaf, informasi mengenai fungsi utama mesin M-01 tidak tersedia dalam sistem. Saya sarankan untuk memeriksa dokumen teknis yang relevan atau bertanya langsung kepada supervisor atau tim teknis untuk mendapatkan penjelasan lebih lanjut. Jika ada pertanyaan lain seputar pemeliharaan atau kondisi mesin, saya siap membantu!",
+      "reference": "Mesin M-01 adalah sistem terintegrasi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis yang dirancang untuk industri FMCG. Mesin dilengkapi sensor IoT untuk memantau performa motor, hidrolik, dan bearing.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.08333333326388888,
+      "answer_correctness": 0.21279047410811164,
+      "answer_similarity": 0.8510127889844378
+    },
+    {
+      "user_input": "Berapa biaya maintenance mesin M-01 pada Juli 2025?",
+      "retrieved_contexts": [
+        "Aktivitas ini memakan waktu downtime 4.3 jam dengan biaya Rp 904.478. 20/07/2025 (Log ID: ML-0500): Dilakukan tindakan Preventive. Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 2.0 jam dengan biaya Rp 2.874.865. 21/07/2025 (Log ID: ML-0082): Dilakukan tindakan Preventive. Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter.",
+        "Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 2.1 jam dengan biaya Rp 2.749.730. 21/07/2025 (Log ID: ML-0190): Dilakukan tindakan Preventive. Teknisi mencatat bahwa lubrikasi komponen, cek belt. Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini memakan waktu downtime 6.4 jam dengan biaya Rp 2.815.382.",
+        "Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 5.2 jam dengan biaya Rp 1.252.610. 12/07/2025 (Log ID: ML-0095): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 4.3 jam dengan biaya Rp 904.478.",
+        "[TIMELINE PEMELIHARAAN]\n01/07/2025 (Log ID: ML-0383): Dilakukan tindakan Corrective. Teknisi mencatat bahwa sensor rusak, ganti sensor baru. Part yang diganti pada sistem tercatat sebagai Motor. Aktivitas ini menyebabkan downtime selama 17.7 jam dengan biaya Rp 3.306.114. 11/07/2025 (Log ID: ML-0084): Dilakukan tindakan Preventive. Teknisi mencatat bahwa kalibrasi sensor, bersihkan filter."
+      ],
+      "response": "Biaya pemeliharaan mesin M-01 pada Juli 2025 terdiri dari beberapa kegiatan yang tercatat. Berikut adalah rincian biaya dari masing-masing aktivitas:\n\n1. **11/07/2025 (Log ID: ML-0084)**: Tindakan Preventive dengan biaya Rp 2.874.865.\n2. **12/07/2025 (Log ID: ML-0095)**: Tindakan Preventive dengan biaya Rp 1.252.610.\n3. **01/07/2025 (Log ID: ML-0383)**: Tindakan Corrective dengan biaya Rp 3.306.114.\n\nTotal biaya pemeliharaan untuk Juli 2025 adalah:\n- Rp 2.874.865 + Rp 1.252.610 + Rp 3.306.114 = Rp 7.433.589.\n\nDengan demikian, total biaya maintenance mesin M-01 pada Juli 2025 adalah Rp 7.433.589. \n\nReferensi dari rincian biaya diambil dari dokumen laporan pemeliharaan (Doc ID: DOC-20260607-435).",
+      "reference": "Total biaya maintenance mesin M-01 pada bulan Juli 2025 adalah Rp 10.596.065.",
+      "faithfulness": 0.4444444444444444,
+      "answer_relevancy": 0.9262421991842644,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.23514159867321738,
+      "answer_similarity": 0.9405734497870064
+    }
+  ]
+}

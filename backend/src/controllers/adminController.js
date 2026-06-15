@@ -24,11 +24,25 @@ const adminController = {
          ORDER BY created_at DESC`,
       );
 
+      // Normalize to frontend AdminUser shape:
+      // name  ← username
+      // status ← is_active ? 'ACTIVE' : 'INACTIVE'
+      // role  ← uppercase
+      // user_id ← id (as string)
+      const users = result.rows.map(u => ({
+        user_id: String(u.id),
+        name: u.username,
+        email: u.email,
+        role: u.role ? u.role.toUpperCase() : u.role,
+        status: u.is_active ? 'ACTIVE' : 'INACTIVE',
+        created_at: u.created_at,
+      }));
+
       return res.status(200).json({
         status: "success",
         data: {
-          users: result.rows,
-          total: result.rows.length,
+          users,
+          total: users.length,
         },
       });
     } catch (err) {
@@ -42,22 +56,34 @@ const adminController = {
    */
   async createUser(req, res, next) {
     try {
-      const { username, email, password, role } = req.body;
+      // Accept 'name' from frontend (maps to 'username' in DB)
+      const { name, username, email, password, role } = req.body;
+      const usernameValue = name || username;
 
       const password_hash = await authService.hashPassword(password);
 
       const result = await pgPool.query(
         `INSERT INTO users (username, email, password_hash, role)
          VALUES ($1, $2, $3, $4)
-         RETURNING id, username, email, role`,
-        [username, email, password_hash, role],
+         RETURNING id, username, email, role, is_active, created_at`,
+        [usernameValue, email, password_hash, role ? role.toLowerCase() : 'technician'],
       );
 
       logger.info(`[Admin] User created: ${email} (${role})`);
 
+      const u = result.rows[0];
       return res.status(201).json({
         status: "success",
-        data: { user: result.rows[0] },
+        data: {
+          user: {
+            user_id: String(u.id),
+            name: u.username,
+            email: u.email,
+            role: u.role ? u.role.toUpperCase() : u.role,
+            status: u.is_active ? 'ACTIVE' : 'INACTIVE',
+            created_at: u.created_at,
+          },
+        },
       });
     } catch (err) {
       // Unique constraint violation - duplicate email or username
@@ -78,15 +104,29 @@ const adminController = {
   async updateUser(req, res, next) {
     try {
       const id = req.params.id;
-      const { username, email, role, is_active } = req.body;
+      // Accept 'name' from frontend, map to 'username'. Accept 'status' → 'is_active'
+      const { name, username, email, role, status, is_active } = req.body;
+      const usernameValue = name || username;
+      const isActiveValue = is_active !== undefined
+        ? is_active
+        : (status === 'ACTIVE' ? true : status === 'INACTIVE' ? false : undefined);
 
       const result = await pgPool.query(
         `UPDATE users
-         SET username = $1, email = $2, role = $3,
-             is_active = $4, updated_at = NOW()
+         SET username = COALESCE($1, username),
+             email = COALESCE($2, email),
+             role = COALESCE($3, role),
+             is_active = COALESCE($4, is_active),
+             updated_at = NOW()
          WHERE id = $5
-         RETURNING id, username, email, role, is_active`,
-        [username, email, role, is_active, id],
+         RETURNING id, username, email, role, is_active, created_at`,
+        [
+          usernameValue || null,
+          email || null,
+          role ? role.toLowerCase() : null,
+          isActiveValue !== undefined ? isActiveValue : null,
+          id,
+        ],
       );
 
       if (result.rowCount === 0) {
@@ -96,9 +136,19 @@ const adminController = {
         });
       }
 
+      const u = result.rows[0];
       return res.status(200).json({
         status: "success",
-        data: { user: result.rows[0] },
+        data: {
+          user: {
+            user_id: String(u.id),
+            name: u.username,
+            email: u.email,
+            role: u.role ? u.role.toUpperCase() : u.role,
+            status: u.is_active ? 'ACTIVE' : 'INACTIVE',
+            created_at: u.created_at,
+          },
+        },
       });
     } catch (err) {
       next(err);
@@ -270,12 +320,51 @@ const adminController = {
   async getDocuments(req, res, next) {
     try {
       const result = await pgPool.query(
-        "SELECT * FROM documents ORDER BY uploaded_at DESC",
+        `SELECT document_id, filename, original_name,
+                file_format, file_size, status,
+                chunks_count, doc_type, label,
+                uploaded_at, ready_at, error_message
+         FROM documents
+         ORDER BY uploaded_at DESC`,
       );
 
+      // Normalize to frontend AdminDocument shape:
+      // document_id  ← document_id
+      // filename     ← original_name (user-friendly)
+      // file_type    ← file_format (mapped to PDF/DOCX/TXT uppercase)
+      // file_size_kb ← file_size / 1024
+      // status       ← UPPERCASE: READY | PROCESSING | FAILED
+      // uploaded_at  ← uploaded_at
+      const statusMap = {
+        indexed: 'READY',
+        ready: 'READY',
+        processing: 'PROCESSING',
+        failed: 'FAILED',
+        pending: 'PROCESSING',
+      };
+
+      const formatMap = {
+        'application/pdf': 'PDF',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+        'text/plain': 'TXT',
+      };
+
       const documents = result.rows.map(doc => ({
-        ...doc,
-        status: doc.status === 'indexed' ? 'ready' : doc.status
+        document_id: doc.document_id || String(doc.id),
+        filename: doc.original_name || doc.filename,
+        file_type: formatMap[doc.file_format]
+          || (doc.file_format || '').toUpperCase().substring(0, 4)
+          || 'PDF',
+        file_size_kb: doc.file_size
+          ? parseFloat((doc.file_size / 1024).toFixed(1))
+          : 0,
+        status: statusMap[doc.status] || doc.status?.toUpperCase() || 'PROCESSING',
+        chunks_count: doc.chunks_count || 0,
+        doc_type: doc.doc_type || 'manual',
+        label: doc.label,
+        uploaded_at: doc.uploaded_at,
+        ready_at: doc.ready_at,
+        error_message: doc.error_message,
       }));
 
       return res.status(200).json({
