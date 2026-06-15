@@ -1,0 +1,94 @@
+{
+  "timestamp": "20260612_164756",
+  "cases_evaluated": 5,
+  "scores_mean": {
+    "faithfulness": 0.7096,
+    "answer_relevancy": 0.9201,
+    "context_precision": 0.9,
+    "context_recall": 1.0,
+    "answer_correctness": 0.5785,
+    "answer_similarity": 0.9571
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Berapa total biaya maintenance mesin M-01 pada bulan Juli 2025?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Juli 2025. Terjadi total 7 aktivitas pemeliharaan yang terdiri dari 5 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 58.0 jam dengan total biaya pemeliharaan sebesar Rp 18.434.465. Masalah utama bulan ini berpusat pada komponen Sensor dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Juli 2025\nTotal_Downtime: 58.0 Jam\nTotal_Cost: Rp 18.434.465\nLog_Count: 7 (2 Corrective, 5 Preventive)"
+      ],
+      "response": "Total biaya pemeliharaan untuk mesin M-01 pada bulan Juli 2025 adalah sebesar Rp 18.434.465. Pada bulan tersebut, terdapat 7 aktivitas pemeliharaan yang terdiri dari 5 tindakan preventif dan 2 tindakan korektif. Total downtime mesin selama bulan ini mencapai 58 jam, dengan masalah utama yang berfokus pada komponen sensor dan motor.\n\nInformasi ini diambil dari dokumen DOC-20260607-435-Laporan_M-01_Juli_2025. Jika ada pertanyaan lebih lanjut terkait pemeliharaan, silakan ditanyakan.",
+      "reference": "Berdasarkan laporan pemeliharaan, total biaya maintenance mesin M-01 pada bulan Juli 2025 adalah sebesar Rp 18.434.465 dengan total 7 aktivitas pemeliharaan.",
+      "faithfulness": 0.75,
+      "answer_relevancy": 0.9097865297066509,
+      "context_precision": 0.99999999995,
+      "context_recall": 1.0,
+      "answer_correctness": 0.5426197661752654,
+      "answer_similarity": 0.970438193459773
+    },
+    {
+      "user_input": "Berapa total downtime mesin M-01 pada bulan Agustus 2025?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode Agustus 2025. Terjadi total 6 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 100.7 jam dengan total biaya pemeliharaan sebesar Rp 96.709.373. Masalah utama bulan ini berpusat pada komponen Seal dan Motor, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: Agustus 2025\nTotal_Downtime: 100.7 Jam\nTotal_Cost: Rp 96.709.373\nLog_Count: 6 (2 Corrective, 2 Preventive)"
+      ],
+      "response": "Total downtime mesin M-01 pada bulan Agustus 2025 mencapai 100.7 jam. Angka ini merupakan hasil dari total 6 aktivitas pemeliharaan, yang terdiri dari 2 tindakan preventif dan 2 tindakan korektif. Jika Anda memerlukan informasi lebih lanjut mengenai biaya atau detail aktivitas pemeliharaan, silakan tanyakan.\n\nReferensi: DOC-20260607-339-Laporan_M-01_Agustus_2025.",
+      "reference": "Total downtime mesin M-01 pada bulan Agustus 2025 mencapai 100.7 jam. Hal ini disebabkan oleh 6 aktivitas pemeliharaan yang berpusat pada komponen Seal dan Motor.",
+      "faithfulness": 0.6,
+      "answer_relevancy": 0.9214393052700648,
+      "context_precision": 0.99999999995,
+      "context_recall": 1.0,
+      "answer_correctness": 0.5426922520447033,
+      "answer_similarity": 0.9708414415148893
+    },
+    {
+      "user_input": "Apa komponen utama yang menjadi masalah pada pemeliharaan mesin M-01 di bulan September 2025?",
+      "retrieved_contexts": [
+        "[SUMMARY]\nLaporan pemeliharaan bulanan untuk Mesin M-01 pada periode September 2025. Terjadi total 3 aktivitas pemeliharaan yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective. Total downtime mesin selama bulan ini mencapai 20.8 jam dengan total biaya pemeliharaan sebesar Rp 18.182.570. Masalah utama bulan ini berpusat pada komponen Sensor dan Belt, yang menyebabkan jadwal pemeliharaan terfokus pada perbaikan atau pergantian komponen tersebut.",
+        "[TIMELINE PEMELIHARAAN]\n15/09/2025 (Log ID: ML-0026): Dilakukan tindakan Preventive. Teknisi mencatat bahwa lubrikasi komponen, cek belt. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini memakan waktu downtime 7.3 jam dengan biaya Rp 1.739.175.\n18/09/2025 (Log ID: ML-0253): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Sensor. Aktivitas ini menyebabkan downtime selama 10.3 jam dengan biaya Rp 13.642.161.\n20/09/2025 (Log ID: ML-0125): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 3.2 jam dengan biaya Rp 2.801.234.",
+        "[METADATA]\nMachine_ID: M-01\nPeriode: September 2025\nTotal_Downtime: 20.8 Jam\nTotal_Cost: Rp 18.182.570\nLog_Count: 3 (1 Corrective, 2 Preventive)"
+      ],
+      "response": "Dalam pemeliharaan mesin M-01 pada bulan September 2025, komponen utama yang menjadi masalah adalah Sensor dan Belt. Pemeliharaan terfokus pada perbaikan atau pergantian kedua komponen ini, yang terlihat dari catatan pemeliharaan yang mencakup 2 tindakan Preventive dan 1 tindakan Corrective yang terkait dengan komponen tersebut. \n\nUntuk lebih jelasnya, berikut adalah rincian aktivitas yang terkait:\n1. Tindakan Preventive pada 15/09/2025 yang mencakup penggantian Sensor dan lubrikasi komponen.\n2. Tindakan Corrective pada 18/09/2025 di mana Sensor juga diganti akibat kebocoran pressure line.\n3. Tindakan Preventive pada 20/09/2025 yang berfokus pada penggantian Belt.\n\nTotal downtime untuk bulan ini mencapai 20.8 jam dengan total biaya pemeliharaan sebesar Rp 18.182.570. Informasi ini dapat diakses lebih lanjut dalam dokumen laporan pemeliharaan (Doc ID: DOC-20260607-330-Laporan_M-01_September_2025).",
+      "reference": "Berdasarkan laporan bulan September 2025, masalah utama pemeliharaan mesin M-01 berpusat pada komponen Sensor dan Belt.",
+      "faithfulness": 0.8888888888888888,
+      "answer_relevancy": 0.916301083699151,
+      "context_precision": 0.99999999995,
+      "context_recall": 1.0,
+      "answer_correctness": 0.6101095005377704,
+      "answer_similarity": 0.9404192913650276
+    },
+    {
+      "user_input": "Berapa banyak aktivitas pemeliharaan Preventive dan Corrective pada mesin M-01 di bulan November 2025?",
+      "retrieved_contexts": [
+        "[TIMELINE PEMELIHARAAN]\n04/11/2025 (Log ID: ML-0339): Dilakukan tindakan Preventive. Teknisi mencatat bahwa ganti filter udara, cek bearing. Part yang diganti pada sistem tercatat sebagai Bearing. Aktivitas ini memakan waktu downtime 5.0 jam dengan biaya Rp 2.323.582. 10/11/2025 (Log ID: ML-0230): Dilakukan tindakan Emergency. Teknisi mencatat bahwa kebocoran besar pada hydraulic system.",
+        "Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327. 23/11/2025 (Log ID: ML-0181): Dilakukan tindakan Preventive. Teknisi mencatat bahwa inspeksi rutin, ganti oli. Part yang diganti pada sistem tercatat sebagai Valve. Aktivitas ini memakan waktu downtime 3.2 jam dengan biaya Rp 728.959. 26/11/2025 (Log ID: ML-0222): Dilakukan tindakan Emergency. Teknisi mencatat bahwa short circuit pada panel kontrol. Part yang diganti pada sistem tercatat sebagai Filter.",
+        "Teknisi mencatat bahwa kebocoran besar pada hydraulic system. Part yang diganti pada sistem tercatat sebagai Belt. Aktivitas ini memakan waktu downtime 21.7 jam dengan biaya Rp 13.696.714. 12/11/2025 (Log ID: ML-0154): Dilakukan tindakan Corrective. Teknisi mencatat bahwa kebocoran pressure line, ganti seal. Part yang diganti pada sistem tercatat sebagai Seal. Aktivitas ini menyebabkan downtime selama 19.0 jam dengan biaya Rp 6.729.327.",
+        "Part yang diganti pada sistem tercatat sebagai Filter. Aktivitas ini memakan waktu downtime 38.9 jam dengan biaya Rp 21.083.914."
+      ],
+      "response": "Pada bulan November 2025, terdapat beberapa aktivitas pemeliharaan yang dilakukan pada mesin M-01. Aktivitas tersebut adalah sebagai berikut:\n\n1. **Preventive**:\n   - 23/11/2025 (Log ID: ML-0181): Inspeksi rutin dan ganti oli, dengan downtime 3.2 jam dan biaya Rp 728.959.\n   - 04/11/2025 (Log ID: ML-0339): Ganti filter udara dan cek bearing, dengan downtime 5.0 jam dan biaya Rp 2.323.582.\n\n2. **Corrective**:\n   - 12/11/2025 (Log ID: ML-0154): Kebocoran pressure line, ganti seal, dengan downtime 19.0 jam dan biaya Rp 6.729.327.\n   - 10/11/2025 (Log ID: ML-0230): Kebocoran besar pada hydraulic system, dengan downtime 19.0 jam dan biaya Rp 6.729.327.\n\nJadi, di bulan November 2025, terdapat **2 aktivitas Preventive** dan **2 aktivitas Corrective** yang telah dilakukan pada mesin M-01. Jika ada pertanyaan lebih lanjut atau perlu informasi tambahan, silakan menghubungi saya. Sumber informasi ini berasal dari dokumen laporan pemeliharaan (Doc ID: DOC-20260607-515).",
+      "reference": "Pada bulan November 2025, terjadi total 5 aktivitas pemeliharaan pada mesin M-01, yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective.",
+      "faithfulness": 0.9090909090909091,
+      "answer_relevancy": 0.9492786346897452,
+      "context_precision": 0.49999999995,
+      "context_recall": 1.0,
+      "answer_correctness": 0.5821083711330345,
+      "answer_similarity": 0.9438717135146435
+    },
+    {
+      "user_input": "Berapa batas kritis suhu operasional (temperature) pada mesin M-01?",
+      "retrieved_contexts": [
+        "Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke\ndalam botol dan penutupan (capping) secara otomatis. Mesin ini dilengkapi dengan\nsensor IoT untuk memantau performa komponen kritis seperti motor penggerak, sistem\nhidrolik, dan bearing poros utama. Spesifikasi Teknis & Batas Operasional (Threshold)\nSuhu Operasional (Temperature):\nNormal: 65°C - 75°C\nBatas Peringatan (Warning): 80°C\nBatas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor).",
+        "Spesifikasi Teknis & Batas Operasional (Threshold)\nSuhu Operasional (Temperature):\nNormal: 65°C - 75°C\nBatas Peringatan (Warning): 80°C\nBatas Kritis (Critical/Shut-off): >95°C (Risiko overheat pada motor). Getaran (Vibration):\nNormal: 0.35 - 0.55 mm/s\nBatas Kritis: >1.0 mm/s (Indikasi kerusakan bearing atau poros tidak presisi). Tekanan Udara (Pressure):\nNormal: 98 - 105 PSI\nBatas Kritis: >115 PSI (Risiko kebocoran pada seal atau katup/valve). Kecepatan Putaran (RPM):\nStandar Produksi: 2300 - 2500 RPM. Mode High-Speed: Maksimal 3500$RPM.",
+        "Buku Manual Operasional Mesin M-01 (Filling & Capping)\n\nIndustri: FMCG - Produksi Air Minum Kemasan (PT Tirta Segar)\nModel Mesin: M-01 MasterFiller Series\nVersi Dokumen: 2025.1-PRO\n\n1. Deskripsi Umum Mesin\nMesin M-01 adalah sistem terintegrasi yang berfungsi untuk pengisian (filling) cairan ke\ndalam botol dan penutupan (capping) secara otomatis.",
+        "Mode High-Speed: Maksimal 3500$RPM. Prosedur Pemeliharaan\nInspeksi Rutin\nDilakukan setiap 500 jam operasional. Tindakan: Penggantian oli pelumas, pembersihan filter udara, dan pengecekan\nkoneksi elektrikal. Pengecekan Komponen Transmisi\nPemeriksaan ketegangan sabuk (belt) dan kondisi pulley. Jika ditemukan retakan halus pada belt, segera lakukan penggantian sebelum putus."
+      ],
+      "response": "Batas kritis suhu operasional pada mesin M-01 adalah lebih dari 95°C. Jika suhu melebihi batas ini, terdapat risiko overheat pada motor. Pastikan untuk memantau suhu mesin secara rutin agar tetap dalam batas normal dan menghindari kerusakan. \n\nReferensi dapat ditemukan dalam Buku Manual M-01 (Doc ID: DOC-20260607-403-Buku_Manual_M01).",
+      "reference": "Batas kritis (Critical/Shut-off) suhu operasional pada mesin M-01 adalah >95°C, yang dapat menyebabkan risiko overheat pada motor.",
+      "faithfulness": 0.4,
+      "answer_relevancy": 0.9036429041314308,
+      "context_precision": 0.99999999995,
+      "context_recall": 1.0,
+      "answer_correctness": 0.614998938381684,
+      "answer_similarity": 0.9600053312580868
+    }
+  ]
+}
