@@ -128,15 +128,19 @@ Status: ✅ **Production Ready**
 | ML Service | FastAPI, Uvicorn, Pydantic |
 | Container | Docker (`Dockerfile.ml`), `lapis-ml-service` |
 
-**Model yang di-deploy:**
+**Model dan Artefak Final yang di-deploy (`models/final/`):**
 
 | Artefak | Deskripsi |
 |---|---|
 | `classifier_final.pkl` | XGBoost V2 — Health Status Classifier (threshold 0.60) |
-| `rul_predictor_final.h5` | LSTM V2 — RUL Predictor (SEQ_LEN=24, 69 fitur) |
+| `rul_predictor_final.keras` | LSTM V2 — RUL Predictor (SEQ_LEN=24, 69 fitur) |
 | `preprocessing_pipeline.pkl` | sklearn Pipeline (FeatureEngineeringTransformer + StandardScaler) |
+| `scaler_final.pkl` | StandardScaler (standalone) |
+| `*_model_card.json` | Metadata & batasan penggunaan untuk masing-masing model |
 
-📖 Detail lengkap → [`machine_learning/README_ML.md`](./machine_learning/README_ML.md)
+> **Catatan Pipeline:** Folder `machine_learning/notebooks/` berisi eksekusi *End-to-End Pipeline* lengkap dari fase *Ingestion* data hingga *Export* artefak final yang siap di-*run* ulang.
+
+📖 Detail panduan *setup*, eksekusi *pipeline*, dan *API Contract* → [`machine_learning/README_ML.md`](./machine_learning/README_ML.md)
 
 ---
 
@@ -243,8 +247,10 @@ predictive-maintenance-monorepo/
 │   ├── models/
 │   │   └── final/                    # Artefak model siap deploy
 │   │       ├── classifier_final.pkl
-│   │       ├── rul_predictor_final.h5
-│   │       └── preprocessing_pipeline.pkl
+│   │       ├── rul_predictor_final.keras
+│   │       ├── preprocessing_pipeline.pkl
+│   │       ├── scaler_final.pkl
+│   │       └── *_model_card.json
 │   ├── Dockerfile.ml
 │   └── requirements.txt
 │
