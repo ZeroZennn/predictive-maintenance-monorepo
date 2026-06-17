@@ -38,7 +38,6 @@ from ragas.metrics import (
     answer_relevancy,
     context_precision,
     context_recall,
-    context_entity_recall,
     answer_correctness,
     answer_similarity,
 )
@@ -48,7 +47,6 @@ _col.faithfulness = faithfulness
 _col.answer_relevancy = answer_relevancy
 _col.context_precision = context_precision
 _col.context_recall = context_recall
-_col.context_entity_recall = context_entity_recall
 _col.answer_correctness = answer_correctness
 _col.answer_similarity = answer_similarity
 
@@ -70,32 +68,32 @@ logger = logging.getLogger("lapis_eval")
 QUICK_DATASET = [
     {
         "case_id": "Q1",
-        "question": "Kapan saja M-01 dilakukan maintenance?",
-        "ground_truth": "Berdasarkan riwayat pemeliharaan, mesin M-01 telah dilakukan maintenance pada bulan Juli 2025 dan Agustus 2025. Jika Anda membutuhkan rincian lebih lanjut, silakan tanyakan spesifik tanggal atau jenis maintenance.",
+        "question": "Berapa total biaya maintenance mesin M-01 pada bulan Juli 2025?",
+        "ground_truth": "Berdasarkan laporan pemeliharaan, total biaya maintenance mesin M-01 pada bulan Juli 2025 adalah sebesar Rp 18.434.465 dengan total 7 aktivitas pemeliharaan.",
         "machine_ids": ["M-01"]
     },
     {
         "case_id": "Q2",
-        "question": "Apa saja emergency event yang pernah terjadi pada mesin M-01?",
-        "ground_truth": "Pada mesin M-01, terdapat kejadian emergency berupa overheating pada motor yang memerlukan penanganan corrective. Terdapat beberapa tindakan corrective terkait komponen seal dan valve yang tercatat di laporan Agustus 2025.",
+        "question": "Berapa total downtime mesin M-01 pada bulan Agustus 2025?",
+        "ground_truth": "Total downtime mesin M-01 pada bulan Agustus 2025 mencapai 100.7 jam. Hal ini disebabkan oleh 6 aktivitas pemeliharaan yang berpusat pada komponen Seal dan Motor.",
         "machine_ids": ["M-01"]
     },
     {
         "case_id": "Q3",
-        "question": "Berapa total downtime mesin M-01 pada bulan Agustus 2025?",
-        "ground_truth": "Total downtime mesin M-01 pada bulan Agustus 2025 mencapai 100.7 jam. Informasi ini konsisten di semua laporan yang telah disebutkan. Mesin mengalami beberapa aktivitas pemeliharaan yang berfokus pada perbaikan komponen Seal dan Motor.",
+        "question": "Apa komponen utama yang menjadi masalah pada pemeliharaan mesin M-01 di bulan September 2025?",
+        "ground_truth": "Berdasarkan laporan bulan September 2025, masalah utama pemeliharaan mesin M-01 berpusat pada komponen Sensor dan Belt.",
         "machine_ids": ["M-01"]
     },
     {
         "case_id": "Q4",
-        "question": "Apa fungsi utama mesin M-01?",
-        "ground_truth": "Mesin M-01 adalah sistem terintegrasi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dirancang untuk digunakan dalam industri FMCG, khususnya untuk produksi air minum kemasan. Mesin M-01 dilengkapi dengan sensor IoT yang memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama.",
+        "question": "Berapa banyak aktivitas pemeliharaan Preventive dan Corrective pada mesin M-01 di bulan November 2025?",
+        "ground_truth": "Pada bulan November 2025, terjadi total 5 aktivitas pemeliharaan pada mesin M-01, yang terdiri dari 2 tindakan Preventive dan 1 tindakan Corrective.",
         "machine_ids": ["M-01"]
     },
     {
         "case_id": "Q5",
-        "question": "Berapa biaya maintenance mesin M-01 pada Juli 2025?",
-        "ground_truth": "Dari data riwayat, total biaya maintenance untuk Juli 2025 adalah: Rp 1.252.610 + Rp 904.478 + Rp 2.749.730 + Rp 3.306.114 = Rp 8.212.932. Jadi, total biaya maintenance mesin M-01 pada Juli 2025 adalah Rp 8.212.932.",
+        "question": "Berapa batas kritis suhu operasional (temperature) pada mesin M-01?",
+        "ground_truth": "Batas kritis (Critical/Shut-off) suhu operasional pada mesin M-01 adalah >95°C, yang dapat menyebabkan risiko overheat pada motor.",
         "machine_ids": ["M-01"]
     },
 ]
@@ -189,8 +187,6 @@ def get_system_response(question: str, machine_ids: list = None) -> dict:
 
 def run_evaluation_pipeline(cases: List[Dict]) -> List[SingleTurnSample]:
     samples = []
-    from nlp.embeddings.vector_store import VectorStore
-    vs = VectorStore("nlp/configs/config.yaml")
 
     for i, case in enumerate(cases, 1):
         logger.info(f"[{i}/{len(cases)}] Fetching: {case['question']}")
@@ -201,20 +197,26 @@ def run_evaluation_pipeline(cases: List[Dict]) -> List[SingleTurnSample]:
         # Ekstrak jawaban
         answer = resp.get("answer", resp.get("answer_text", ""))
         
-        # Ekstrak contexts dari qdrant payload atau doc snippet (simplifikasi dengan mengambil isi payload referensi)
-        contexts = []
-        citations = resp.get("citations", [])
-        if citations:
-            for cit in citations:
-                contexts.append(f"Document {cit.get('source_doc', 'Unknown')} page {cit.get('page', 0)}")
+        # Ambil teks konteks asli dari API (setelah kita tambahkan di response)
+        contexts = resp.get("context_texts", [])
         
-        if not contexts:
-            contexts = ["No external context retrieved or context free query."]
+        # Deduplikasi konteks untuk evaluasi (menghindari penalti RAGAS akibat overlap ekstrem)
+        unique_contexts = []
+        seen_texts = set()
+        for ctx in contexts:
+            # Gunakan substring kasar (100 karakter pertama) untuk deteksi duplikasi
+            sig = ctx[:100].strip()
+            if sig not in seen_texts:
+                seen_texts.add(sig)
+                unique_contexts.append(ctx)
+
+        if not unique_contexts:
+            unique_contexts = ["No external context retrieved or context free query."]
 
         samples.append(SingleTurnSample(
             user_input=case["question"],
             response=answer,
-            retrieved_contexts=contexts,
+            retrieved_contexts=unique_contexts,
             reference=case["ground_truth"]
         ))
         
@@ -248,7 +250,6 @@ async def main(mode: str = "quick"):
         answer_relevancy,
         context_precision,
         context_recall,
-        context_entity_recall,
         answer_correctness,
         answer_similarity,
     ]

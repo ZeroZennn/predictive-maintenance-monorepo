@@ -1,0 +1,75 @@
+{
+  "model_id": "classifier_final",
+  "model_type": "XGBoost Classifier (Multi-class)",
+  "task": "Health Status Classification",
+  "version": "v2.0-threshold-tuned",
+  "file": "classifier_final.pkl",
+  "exported_at": "2026-05-14T17:46:35.620357",
+  "framework": "XGBoost",
+  "input": {
+    "description": "Output dari preprocessing_pipeline.transform()",
+    "shape": "(-1, 69)",
+    "dtype": "float64"
+  },
+  "output": {
+    "method": "predict_proba(X) → apply threshold → label",
+    "classes": {
+      "0": "HEALTHY",
+      "1": "WARNING",
+      "2": "CRITICAL"
+    },
+    "probability_threshold": {
+      "WARNING": 0.6,
+      "CRITICAL": 0.5,
+      "note": "WARNING threshold di-tune dari default 0.50 ke 0.60 untuk minimasi false alarm operasional"
+    }
+  },
+  "performance": {
+    "f1_macro_val": 0.9894,
+    "f1_macro_test": 0.9906,
+    "f1_warning_val": 0.9818,
+    "f1_warning_test": 0.9856,
+    "f1_critical_val": 0.9868,
+    "f1_critical_test": 0.9866,
+    "accuracy_val": 0.9982,
+    "accuracy_test": 0.9974,
+    "inference_time_ms": 12.76
+  },
+  "deployment_constraints": [
+    "WAJIB gunakan predict_proba(), bukan predict()",
+    "WAJIB terapkan WARNING threshold = 0.60 setelah predict_proba()",
+    "Input WAJIB melalui preprocessing_pipeline.transform() terlebih dahulu",
+    "TIDAK mendukung batch size > 1 untuk real-time inference (gunakan single row)"
+  ],
+  "training_metadata": {
+    "train_machines": [
+      "M-01",
+      "M-02",
+      "M-03",
+      "M-04",
+      "M-05",
+      "M-06",
+      "M-07",
+      "M-08",
+      "M-09",
+      "M-10",
+      "M-11",
+      "M-12",
+      "M-13",
+      "M-14"
+    ],
+    "val_machines": [
+      "M-15",
+      "M-16",
+      "M-17"
+    ],
+    "test_machines": [
+      "M-18",
+      "M-19",
+      "M-20"
+    ],
+    "smote_applied": true,
+    "smote_target_per_minority_class": 4000,
+    "scaler": "StandardScaler (fit on train machines only)"
+  }
+}

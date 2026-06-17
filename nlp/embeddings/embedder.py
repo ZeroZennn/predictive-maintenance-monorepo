@@ -42,6 +42,7 @@ class EmbeddingModel:
         self.query_prefix    = emb_cfg["query_prefix"]
         self.passage_prefix  = emb_cfg["passage_prefix"]
         self.dimension       = emb_cfg["dimension"]
+        self.backend         = emb_cfg.get("backend", "torch")
 
         self.model_name: Optional[str] = None  # diisi saat load_model()
         self._loaded: bool = False
@@ -74,7 +75,11 @@ class EmbeddingModel:
             torch.set_num_threads(4)
             self.logger.info("PyTorch CPU threads restricted to 4")
             
-            self.__class__._model = SentenceTransformer(self.primary_model)
+            kwargs = {}
+            if self.backend == "onnx":
+                kwargs["backend"] = "onnx"
+
+            self.__class__._model = SentenceTransformer(self.primary_model, **kwargs)
             self.model_name = self.primary_model
             self._loaded = True
             elapsed = time.time() - t_start
@@ -93,7 +98,10 @@ class EmbeddingModel:
                 self.fallback_model,
             )
             try:
-                self.__class__._model = SentenceTransformer(self.fallback_model)
+                kwargs = {}
+                if self.backend == "onnx":
+                    kwargs["backend"] = "onnx"
+                self.__class__._model = SentenceTransformer(self.fallback_model, **kwargs)
                 self.model_name = self.fallback_model
                 self._loaded = True
                 elapsed = time.time() - t_start

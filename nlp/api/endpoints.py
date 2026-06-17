@@ -115,6 +115,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
                 "answer": sc["response"],
                 "action_suggestions": [],
                 "citations": [],
+                "context_texts": [],
                 "live_context_used": False,
                 "live_context_data": [],
                 "mode": sc["intent"],
@@ -186,6 +187,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
 
         # 5. Format output
         citations      = extractor.extract_citations(results)
+        context_texts  = [r.text_content for r in results]
         
         # Opsi C: Post-processing citations sebagai safety net
         if route_mode == "general" and not machine_ids:
@@ -206,6 +208,7 @@ async def query_endpoint(request: QueryRequest) -> QueryResponse:
             answer             = llm_response.answer,
             action_suggestions = llm_response.action_suggestions,
             citations          = citations,
+            context_texts      = context_texts,
             live_context_used  = live_context_used,
             live_context_data  = live_snapshots if live_snapshots else None,
             mode               = route_mode,

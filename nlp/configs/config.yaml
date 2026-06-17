@@ -25,12 +25,13 @@ chunking:
   similarity_threshold: 0.75
   strategy: hybrid_semantic
 embedding:
-  batch_size: 32
-  dimension: 768
-  fallback_model: sentence-transformers/paraphrase-multilingual-mpnet-base-v2
+  batch_size: 16
+  dimension: 384
+  fallback_model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
   passage_prefix: 'passage: '
-  primary_model: intfloat/multilingual-e5-base
+  primary_model: intfloat/multilingual-e5-small
   query_prefix: 'query: '
+  backend: 'onnx'
 ingestion:
   encoding: utf-8
   ocr_fallback: true
@@ -49,9 +50,8 @@ llm:
   fallback_model: mock-v1
   fallback_provider: mock
   max_tokens: 4096
-  nvidia_base_url: https://integrate.api.nvidia.com/v1
-  primary_model: deepseek-ai/deepseek-v4-flash
-  primary_provider: nvidia
+  primary_model: gpt-4o-mini
+  primary_provider: openai
   temperature: 0.7
 paths:
   data_processed: nlp/data/processed

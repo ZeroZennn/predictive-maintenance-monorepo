@@ -1,0 +1,114 @@
+{
+  "timestamp": "20260608_045133",
+  "cases_evaluated": 5,
+  "scores_mean": {
+    "faithfulness": 0.1087,
+    "answer_relevancy": 0.5453,
+    "context_precision": 0.2667,
+    "context_recall": 0.0,
+    "context_entity_recall": 0.0,
+    "answer_correctness": 0.3217,
+    "answer_similarity": 0.9172
+  },
+  "scores_per_case": [
+    {
+      "user_input": "Kapan saja M-01 dilakukan maintenance?",
+      "retrieved_contexts": [
+        "Document DOC-20260607-256-Laporan_M-01_November_2025.pdf page 0",
+        "Document DOC-20260607-515-Laporan_M-01_November_2025.pdf page 0",
+        "Document DOC-20260607-827-Laporan_M-01_November_2025.pdf page 0",
+        "Document DOC-20260607-339-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-345-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-620-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-216-Laporan_M-01_September_2025.pdf page 0",
+        "Document DOC-20260607-330-Laporan_M-01_September_2025.pdf page 0"
+      ],
+      "response": "Mesin M-01 telah menjalani pemeliharaan pada beberapa periode terakhir. Berikut adalah ringkasan pemeliharaan yang dilakukan:\n\n1. **Agustus 2025**:\n   - Total aktivitas pemeliharaan: 6\n   - Tindakan: 2 Preventive, 2 Corrective\n   - Total downtime: 100.7 jam\n   - Biaya pemeliharaan: Rp 96.709.373\n   - Masalah utama: Komponen Seal dan Motor.\n\n2. **September 2025**:\n   - Total aktivitas pemeliharaan: 3\n   - Tindakan: 2 Preventive, 1 Corrective\n   - Total downtime: 20.8 jam\n   - Biaya pemeliharaan: Rp 18.182.570\n   - Masalah utama: Komponen Sensor dan Belt.\n\n3. **November 2025**:\n   - Total aktivitas pemeliharaan: 5\n   - Tindakan: 2 Preventive, 1 Corrective\n   - Total downtime: 87.8 jam\n   - Biaya pemeliharaan: Rp 44.562.496\n   - Masalah utama: Komponen Bearing dan Belt.\n\nSebagai catatan, setiap periode pemeliharaan berfokus pada komponen yang berbeda dan mencakup tindakan pencegahan serta perbaikan. Jika ada pertanyaan lebih lanjut tentang detail spesifik dari masing-masing pemeliharaan, silakan tanyakan.\n\nDokumen referensi yang digunakan: \n1. DOC-20260607-256-Laporan_M-01_November_2025\n2. DOC-20260607-515-Laporan_M-01_November_2025\n3. DOC-20260607-827-Laporan_M-01_November_2025\n4. DOC-20260607-339-Laporan_M-01_Agustus_2025\n5. DOC-20260607-345-Laporan_M-01_Agustus_2025\n6. DOC-20260607-620-Laporan_M-01_Agustus_2025\n7. DOC-20260607-216-Laporan_M-01_September_2025\n8. DOC-20260607-330-Laporan_M-01_September_2025",
+      "reference": "Berdasarkan riwayat pemeliharaan, mesin M-01 telah dilakukan maintenance pada bulan Juli 2025 dan Agustus 2025. Jika Anda membutuhkan rincian lebih lanjut, silakan tanyakan spesifik tanggal atau jenis maintenance.",
+      "faithfulness": 0.10526315789473684,
+      "answer_relevancy": 0.8789598597313454,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.29691148706119186,
+      "answer_similarity": 0.9267763830273761
+    },
+    {
+      "user_input": "Apa saja emergency event yang pernah terjadi pada mesin M-01?",
+      "retrieved_contexts": [
+        "Document DOC-20260607-216-Laporan_M-01_September_2025.pdf page 0",
+        "Document DOC-20260607-330-Laporan_M-01_September_2025.pdf page 0",
+        "Document DOC-20260607-881-Laporan_M-01_September_2025.pdf page 0",
+        "Document DOC-20260607-256-Laporan_M-01_November_2025.pdf page 0",
+        "Document DOC-20260607-515-Laporan_M-01_November_2025.pdf page 0",
+        "Document DOC-20260607-827-Laporan_M-01_November_2025.pdf page 0",
+        "Document DOC-20260607-435-Laporan_M-01_Juli_2025.pdf page 0",
+        "Document DOC-20260607-575-Laporan_M-01_Juli_2025.pdf page 0"
+      ],
+      "response": "Maaf, tetapi informasi mengenai emergency event yang pernah terjadi pada mesin M-01 tidak tersedia dalam sistem saat ini. Saya sarankan untuk memeriksa dokumen pemeliharaan atau berkonsultasi langsung dengan supervisor atau tim teknis untuk mendapatkan informasi yang lebih mendetail. \n\nNamun, saya dapat memberikan ringkasan pemeliharaan terbaru. Selama bulan September 2025, mesin M-01 mengalami total 3 aktivitas pemeliharaan, dengan downtime mencapai 20.8 jam dan fokus pada perbaikan komponen Sensor dan Belt. Untuk bulan November 2025, terdapat 5 aktivitas pemeliharaan dengan total downtime 87.8 jam, berfokus pada komponen Bearing dan Belt. Jika ada pertanyaan lain seputar mesin atau pemeliharaan, silakan tanyakan! \n\nReferensi yang bisa dicek: \n1. DOC-20260607-216-Laporan_M-01_September_2025\n2. DOC-20260607-330-Laporan_M-01_September_2025\n3. DOC-20260607-881-Laporan_M-01_September_2025\n4. DOC-20260607-256-Laporan_M-01_November_2025\n5. DOC-20260607-515-Laporan_M-01_November_2025\n6. DOC-20260607-827-Laporan_M-01_November_2025\n7. DOC-20260607-435-Laporan_M-01_Juli_2025\n8. DOC-20260607-575-Laporan_M-01_Juli_2025",
+      "reference": "Pada mesin M-01, terdapat kejadian emergency berupa overheating pada motor yang memerlukan penanganan corrective. Terdapat beberapa tindakan corrective terkait komponen seal dan valve yang tercatat di laporan Agustus 2025.",
+      "faithfulness": 0.09090909090909091,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.3333333333,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.22267742912659605,
+      "answer_similarity": 0.8907023205811322
+    },
+    {
+      "user_input": "Berapa total downtime mesin M-01 pada bulan Agustus 2025?",
+      "retrieved_contexts": [
+        "Document DOC-20260607-339-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-345-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-620-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-620-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-339-Laporan_M-01_Agustus_2025.pdf page 0",
+        "Document DOC-20260607-345-Laporan_M-01_Agustus_2025.pdf page 0"
+      ],
+      "response": "Total downtime mesin M-01 pada bulan Agustus 2025 mencapai 100.7 jam. Hal ini dihasilkan dari laporan pemeliharaan yang mencatat total 6 aktivitas, terdiri dari 2 tindakan Preventive dan 2 tindakan Corrective. Penyebab utama dari downtime ini berfokus pada komponen Seal dan Motor.\n\nInformasi lebih lanjut dapat ditemukan dalam dokumen:\n1. DOC-20260607-339-Laporan_M-01_Agustus_2025\n2. DOC-20260607-345-Laporan_M-01_Agustus_2025\n3. DOC-20260607-620-Laporan_M-01_Agustus_2025",
+      "reference": "Total downtime mesin M-01 pada bulan Agustus 2025 mencapai 100.7 jam. Informasi ini konsisten di semua laporan yang telah disebutkan. Mesin mengalami beberapa aktivitas pemeliharaan yang berfokus pada perbaikan komponen Seal dan Motor.",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.9212182677609921,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.5239803782577394,
+      "answer_similarity": 0.9709459462184842
+    },
+    {
+      "user_input": "Apa fungsi utama mesin M-01?",
+      "retrieved_contexts": [
+        "Document DOC-20260607-771-Laporan_M-01_Oktober_2025.pdf page 1",
+        "Document DOC-20260607-771-Laporan_M-01_Oktober_2025.pdf page 1",
+        "Document DOC-20260607-771-Laporan_M-01_Oktober_2025.pdf page 0"
+      ],
+      "response": "Maaf, tetapi informasi mengenai fungsi utama mesin M-01 tidak tersedia dalam sistem. Saya hanya dapat memberikan informasi terkait kondisi, pemeliharaan, dan data teknis mesin. Untuk mendapatkan detail lebih lanjut, silakan cek dokumen terkait atau tanyakan kepada supervisor Anda. Jika ada pertanyaan lain seputar mesin atau pemeliharaan, saya siap membantu!",
+      "reference": "Mesin M-01 adalah sistem terintegrasi untuk pengisian (filling) cairan ke dalam botol dan penutupan (capping) secara otomatis. Mesin ini dirancang untuk digunakan dalam industri FMCG, khususnya untuk produksi air minum kemasan. Mesin M-01 dilengkapi dengan sensor IoT yang memantau performa komponen kritis seperti motor penggerak, sistem hidrolik, dan bearing poros utama.",
+      "faithfulness": 0.125,
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.21275892813538447,
+      "answer_similarity": 0.8509590435732759
+    },
+    {
+      "user_input": "Berapa biaya maintenance mesin M-01 pada Juli 2025?",
+      "retrieved_contexts": [
+        "Document DOC-20260607-435-Laporan_M-01_Juli_2025.pdf page 0",
+        "Document DOC-20260607-435-Laporan_M-01_Juli_2025.pdf page 0",
+        "Document DOC-20260607-435-Laporan_M-01_Juli_2025.pdf page 0",
+        "Document DOC-20260607-435-Laporan_M-01_Juli_2025.pdf page 1"
+      ],
+      "response": "Biaya pemeliharaan mesin M-01 pada Juli 2025 terdiri dari beberapa aktivitas yang tercatat dalam log. Berikut adalah rincian biayanya:\n\n1. **Log ID: ML-0095** (12/07/2025):\n   - Tindakan: Preventive\n   - Biaya: Rp 1.252.610\n\n2. **Log ID: ML-0084** (11/07/2025):\n   - Tindakan: Preventive\n   - Biaya: Rp 2.874.865\n\n3. **Log ID: ML-0500** (20/07/2025):\n   - Tindakan: Preventive\n   - Biaya: Rp 904.478\n\n4. **Log ID: ML-0190** (21/07/2025):\n   - Tindakan: Preventive\n   - Biaya: Rp 2.749.730\n\n5. **Log ID: ML-0082** (21/07/2025):\n   - Tindakan: Preventive\n   - Biaya: Rp 2.815.382\n\nTotal biaya pemeliharaan mesin M-01 pada Juli 2025 adalah:\nRp 1.252.610 + Rp 2.874.865 + Rp 904.478 + Rp 2.749.730 + Rp 2.815.382 = Rp 10.596.065.\n\nDengan demikian, total biaya maintenance mesin M-01 pada bulan Juli 2025 adalah Rp 10.596.065. Semua data ini diambil dari laporan pemeliharaan yang tersedia (Doc ID: DOC-20260607-435-Laporan_M-01_Juli_2025).",
+      "reference": "Dari data riwayat, total biaya maintenance untuk Juli 2025 adalah: Rp 1.252.610 + Rp 904.478 + Rp 2.749.730 + Rp 3.306.114 = Rp 8.212.932. Jadi, total biaya maintenance mesin M-01 pada Juli 2025 adalah Rp 8.212.932.",
+      "faithfulness": 0.2222222222222222,
+      "answer_relevancy": 0.9262421991842644,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.0,
+      "context_entity_recall": 0.0,
+      "answer_correctness": 0.3519862273805498,
+      "answer_similarity": 0.9464940538061447
+    }
+  ]
+}
