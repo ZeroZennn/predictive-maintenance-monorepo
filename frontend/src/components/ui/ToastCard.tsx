@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { X, AlertTriangle, AlertOctagon, Info } from "lucide-react";
+import { X, AlertTriangle, AlertOctagon, Info, CheckCircle } from "lucide-react";
 import type { ToastAlert } from "@/types";
 
 // =============================================================================
@@ -40,6 +40,14 @@ const severityConfig = {
     iconColorClass: "text-lapis-muted",
     bgClass: "bg-lapis-surface",
     titleColorClass: "text-lapis-text",
+    shadowClass: "",
+  },
+  SUCCESS: {
+    Icon: CheckCircle,
+    borderClass: "border-green-500/50",
+    iconColorClass: "text-green-400",
+    bgClass: "bg-green-500/10",
+    titleColorClass: "text-green-400",
     shadowClass: "",
   },
 } as const;

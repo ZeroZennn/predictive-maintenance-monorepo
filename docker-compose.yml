@@ -20,6 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: lapis_backend
     restart: unless-stopped
+    mem_limit: 200m
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     environment:
@@ -44,6 +45,7 @@ services:
       dockerfile: Dockerfile
     container_name: lapis_frontend
     restart: unless-stopped
+    mem_limit: 150m
     ports:
       - "3001:3000"
     depends_on:
@@ -56,6 +58,7 @@ services:
     image: qdrant/qdrant:v1.10.1
     container_name: lapis_qdrant
     restart: unless-stopped
+    mem_limit: 200m
     ports:
       - "6333:6333"
     volumes:
@@ -74,10 +77,15 @@ services:
       context: ./machine_learning
       dockerfile: Dockerfile.ml
     container_name: lapis-ml-service
+    mem_limit: 500m
     ports:
       - "${ML_ENGINE_PORT:-8000}:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - TF_NUM_INTEROP_THREADS=1
+      - TF_NUM_INTRAOP_THREADS=1
+      - OMP_NUM_THREADS=1
+      - TF_FORCE_GPU_ALLOW_GROWTH=true
     healthcheck:
       test:
         [
@@ -99,6 +107,7 @@ services:
       context: .
       dockerfile: nlp/Dockerfile.nlp
     container_name: lapis-nlp-service
+    mem_limit: 450m
     ports:
       - "${NLP_ENGINE_PORT:-8001}:8001"
     env_file:
@@ -135,6 +144,7 @@ services:
     image: postgres:15-alpine
     container_name: lapis_postgres
     restart: unless-stopped
+    mem_limit: 300m
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-lapis_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lapis_secret}
