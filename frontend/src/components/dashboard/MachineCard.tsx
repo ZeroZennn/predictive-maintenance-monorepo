@@ -57,10 +57,7 @@ export default function MachineCard({
             src={`/assets/machines/M3D.png`}
             alt={`Machine ${machine?.id || machineId}`}
             fill
-            className={clsx(
-              "object-contain transition-all duration-300",
-              isActive && "scale-[1.35] drop-shadow-2xl"
-            )}
+            className="object-contain transition-all duration-300"
             onError={(e) => {
               // Fallback jika image belum ada
               const target = e.target as HTMLImageElement;
