@@ -23,8 +23,11 @@ export default function CopilotHubPage() {
 
   // Local Session for this component if needed, or we just rely on store session if available.
   // The user requirement says "Pastikan session_id dan history conversation ter-handle dengan cara yang sama"
-  // CopilotSlidingPanel uses local state for session: const [sessionId] = useState(() => crypto.randomUUID());
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId] = useState(() => 
+    (typeof crypto !== 'undefined' && crypto.randomUUID) 
+      ? crypto.randomUUID() 
+      : Math.random().toString(36).substring(2) + Date.now().toString(36)
+  );
   const [previewTarget, setPreviewTarget] = useState<{documentId: string, filename: string} | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
