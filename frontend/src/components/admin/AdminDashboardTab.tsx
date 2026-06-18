@@ -70,7 +70,7 @@ export default function AdminDashboardTab() {
   const [documents, setDocuments] = useState<AdminDocument[]>([])
   const [recentLogs, setRecentLogs] = useState<MaintenanceLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
 
   const machines = useMachineStore(s => s.machines)
   const tasks = useMaintenanceStore(s => s.tasks)
@@ -157,7 +157,7 @@ export default function AdminDashboardTab() {
         <div>
           <h1 className="text-lg font-black text-white tracking-tight">System Analytics</h1>
           <p className="text-[11px] text-lapis-muted mt-0.5">
-            Real-time overview · Refreshed {lastRefresh.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+            Real-time overview {lastRefresh ? `· Refreshed ${lastRefresh.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}` : ''}
           </p>
         </div>
         <div className="flex items-center gap-2">
