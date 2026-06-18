@@ -40,7 +40,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ── Pre-download HuggingFace Models saat Build Time ───────────
 # Agar container tidak perlu download ~1.2GB model saat runtime.
 COPY nlp/scripts/download_models.py /tmp/download_models.py
-RUN python /tmp/download_models.py && rm /tmp/download_models.py
+# RUN python /tmp/download_models.py && rm /tmp/download_models.py
 
 # ── Copy Source Code ──────────────────────────────────────────
 COPY nlp/__init__.py   ./nlp/__init__.py

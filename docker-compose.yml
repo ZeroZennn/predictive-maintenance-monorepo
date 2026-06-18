@@ -145,6 +145,7 @@ services:
       - nlp_qdrant_data:/app/nlp/data/vector_db/qdrant
       - ./nlp/data/raw:/app/nlp/data/raw
       - ./nlp/data/processed:/app/nlp/data/processed
+      - ./hf_cache:/app/.cache/huggingface
       - uploads_data:/app/uploads
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/nlp/health')"]
