@@ -1,0 +1,7 @@
+prime-ai.site {
+    reverse_proxy lapis_frontend:3000
+}
+
+api.prime-ai.site {
+    reverse_proxy lapis_backend:3000
+}
