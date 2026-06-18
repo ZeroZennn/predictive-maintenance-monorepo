@@ -46,6 +46,8 @@ services:
     container_name: lapis_frontend
     restart: unless-stopped
     mem_limit: 150m
+    environment:
+      - INTERNAL_BACKEND_URL=http://backend:3000
     ports:
       - "3001:3000"
     depends_on:

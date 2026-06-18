@@ -11,7 +11,7 @@ export async function loginAction(formData: FormData) {
     return { error: "Email and password are required" };
   }
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+  const backendUrl = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
   try {
     const res = await fetch(`${backendUrl}/api/auth/login`, {
