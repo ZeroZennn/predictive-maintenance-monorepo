@@ -53,28 +53,17 @@ export default function MachineCard({
       {/* Machine illustration area */}
       <div className="w-full flex items-center justify-center mt-1 mb-2">
         <div className="relative w-32 h-28">
-          {isActive ? (
-            <video
-              src="/assets/machines/m_animated.webm"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-contain scale-[1.35] drop-shadow-2xl"
-            />
-          ) : (
-            <Image
-              src={`/assets/machines/M3D.png`}
-              alt={`Machine ${machine?.id || machineId}`}
-              fill
-              className="object-contain"
-              onError={(e) => {
-                // Fallback jika image belum ada
-                const target = e.target as HTMLImageElement;
-                target.style.display = "none";
-              }}
-            />
-          )}
+          <Image
+            src={`/assets/machines/M3D.png`}
+            alt={`Machine ${machine?.id || machineId}`}
+            fill
+            className="object-contain transition-all duration-300"
+            onError={(e) => {
+              // Fallback jika image belum ada
+              const target = e.target as HTMLImageElement;
+              target.style.display = "none";
+            }}
+          />
           {/* Fallback placeholder jika image belum ada */}
           <div className="absolute inset-0 flex items-center justify-center -z-10">
             <span className="text-lapis-neon font-bold text-xs opacity-40">

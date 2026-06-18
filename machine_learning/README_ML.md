@@ -99,6 +99,48 @@ machine_learning/
 
 ---
 
+## 🧪 Menjalankan End-to-End Pipeline di Notebook
+
+Jika Anda ingin menjalankan atau men-training ulang model dari awal (dari data mentah hingga menjadi *artifact* `.pkl` dan `.keras`), ikuti panduan eksekusi pipeline berikut:
+
+### Syarat Pra-Eksekusi
+1. Pastikan Anda sudah mengaktifkan *virtual environment* dan semua *dependencies* di `requirements.txt` sudah terinstal, termasuk Jupyter.
+2. Pastikan file data mentah (`sensor_readings.csv`, `maintenance_logs.csv`, dll) sudah berada di dalam folder `data/raw/`. (Catatan: Anda harus meletakkan data secara manual karena folder ini di-ignore oleh Git).
+3. Buka Jupyter Notebook (atau JupyterLab / VS Code) di dalam direktori `machine_learning/`.
+
+### Urutan Eksekusi Pipeline (Berbasis Notebook)
+Desain *pipeline* ML pada proyek ini bersifat modular. Setiap fase membaca input dari direktori sebelumnya, memprosesnya, lalu menyimpan output *intermediate* di folder `data/interim/` atau `data/processed/`. Output inilah yang kemudian akan di-*load* oleh notebook pada fase berikutnya.
+
+Jalankan notebook secara berurutan sesuai nomor direktori:
+
+1. **`notebooks/00_environment_check.ipynb`**
+   - Verifikasi versi Python, *library*, dan deteksi ketersediaan GPU (untuk TensorFlow).
+2. **`notebooks/fase_1_ingestion/`**
+   - Membaca data mentah dari `data/raw/`, melakukan pembersihan dasar, dan validasi format *timestamp*.
+3. **`notebooks/fase_2_eda/`** *(Opsional)*
+   - Eksplorasi Data Analisis (EDA) untuk memvisualisasikan tren sensor, korelasi, dan mengidentifikasi *outliers*.
+4. **`notebooks/fase_3_label_engineering/`**
+   - Membuat logika pelabelan *Failure* untuk klasifikasi (`HEALTHY`, `WARNING`, `CRITICAL`) dan menghitung target *Remaining Useful Life* (RUL).
+5. **`notebooks/fase_4_feature_engineering/`**
+   - Melakukan ekstraksi fitur prediktif (*rolling mean, std, lag features*, selisih antar sensor).
+6. **`notebooks/fase_5_preprocessing/`**
+   - Membangun dan melatih `FeatureEngineeringTransformer` dan *Scaler*. Melakukan penanganan nilai kosong (*missing values*).
+7. **`notebooks/fase_6_imbalance/`**
+   - Penanganan kelas yang tidak seimbang (*imbalanced data*) menggunakan teknik oversampling/undersampling atau *class weights*.
+8. **`notebooks/fase_7_splitting/`**
+   - Memecah data menjadi himpunan latih (*Train*), validasi (*Validation*), dan uji (*Test*) (umumnya berbasis *time-series split*).
+9. **`notebooks/fase_8_modeling/`**
+   - **Inti dari pipeline:** Melatih Model 1 (XGBoost/LightGBM Classifier) dan Model 2 (LSTM/GRU RUL Predictor).
+10. **`notebooks/fase_9_evaluation/`**
+    - Mengevaluasi performa model menggunakan *Confusion Matrix*, *Precision/Recall*, *RMSE*, dan optimasi threshold.
+11. **`notebooks/fase_10_export/`**
+    - Menyimpan model terbaik, *pipeline transformer*, dan *scaler* ke folder `models/final/` beserta metadata (`model_card.json`).
+
+> [!TIP]
+> **Jalankan *Cell* secara berurutan**: Selalu lakukan "Restart Kernel & Run All" di dalam setiap notebook untuk memastikan tidak ada *state* memori yang tertinggal dan hasilnya dapat direproduksi (*reproducible*).
+
+---
+
 ## 🐳 Menjalankan ML Service (HTTP)
 
 ML Service dapat dijalankan sebagai HTTP server yang menerima request dari Backend:
