@@ -75,11 +75,7 @@ class EmbeddingModel:
             torch.set_num_threads(4)
             self.logger.info("PyTorch CPU threads restricted to 4")
             
-            kwargs = {}
-            if self.backend == "onnx":
-                kwargs["backend"] = "onnx"
-
-            self.__class__._model = SentenceTransformer(self.primary_model, **kwargs)
+            self.__class__._model = SentenceTransformer(self.primary_model)
             self.model_name = self.primary_model
             self._loaded = True
             elapsed = time.time() - t_start
@@ -98,10 +94,7 @@ class EmbeddingModel:
                 self.fallback_model,
             )
             try:
-                kwargs = {}
-                if self.backend == "onnx":
-                    kwargs["backend"] = "onnx"
-                self.__class__._model = SentenceTransformer(self.fallback_model, **kwargs)
+                self.__class__._model = SentenceTransformer(self.fallback_model)
                 self.model_name = self.fallback_model
                 self._loaded = True
                 elapsed = time.time() - t_start
