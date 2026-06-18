@@ -33,7 +33,8 @@ export async function loginAction(formData: FormData) {
     const cookieStore = await cookies();
     cookieStore.set("lapis_token", token, {
       httpOnly: false, // Accessible from client if needed, but safer as true. Middleware can read it either way.
-      secure: process.env.NODE_ENV === "production",
+      // secure: false is required to allow login via HTTP (IP address)
+      secure: false,
       path: "/",
       maxAge: 7 * 24 * 60 * 60, // 7 days
     });
