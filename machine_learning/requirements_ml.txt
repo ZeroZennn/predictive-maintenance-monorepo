@@ -12,7 +12,7 @@ scikit-learn==1.5.0
 imbalanced-learn==0.14.1
 xgboost==3.2.0
 lightgbm==4.6.0
-tensorflow==2.15.0
+# tensorflow==2.15.0 (installed directly in Dockerfile.ml as tensorflow-cpu)
 h5py==3.16.0
 joblib==1.4.2
 pyarrow==24.0.0
@@ -22,7 +22,8 @@ ipykernel==6.29.4
 jupyterlab==4.2.1
 
 # ML Service (FastAPI HTTP wrapper — src/app.py)
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
+# Installed directly in Dockerfile.ml
+# fastapi==0.104.1
+# uvicorn[standard]==0.24.0
+# pydantic==2.5.0
 httpx==0.28.1

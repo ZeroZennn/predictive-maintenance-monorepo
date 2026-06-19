@@ -15,9 +15,10 @@ nltk==3.8.1
 langdetect==1.0.9
 
 # --- Embedding & ML ---
-sentence-transformers==3.0.1
-torch==2.3.0
-transformers==4.41.2
+# NOTE: Installed explicitly in Dockerfile to use CPU versions
+# sentence-transformers==3.0.1
+# torch==2.3.0
+# transformers==4.41.2
 
 # --- Numpy (pinned <2 for torch compatibility) ---
 numpy>=1.24,<2.0
