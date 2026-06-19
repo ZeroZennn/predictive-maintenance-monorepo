@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir --upgrade pip
 # Dipisah agar Docker cache layer ini secara independen.
 # TF 2.15.0 menggunakan Keras 2 secara native — tidak butuh tf-keras
 RUN pip install --no-cache-dir \
-    tensorflow==2.15.0
+    tensorflow-cpu==2.15.0
 
 # ── Layer 3: Framework dependencies ──────────────────────────
 RUN pip install --no-cache-dir \
@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir \
 # Constraint file memastikan pip tidak upgrade/downgrade tensorflow
 # saat meng-install dependensi lain dari requirements_ml.txt
 COPY requirements_ml.txt .
-RUN printf 'tensorflow==2.15.0\n' > /tmp/tf_constraint.txt && \
+RUN printf 'tensorflow-cpu==2.15.0\n' > /tmp/tf_constraint.txt && \
     pip install --no-cache-dir -r requirements_ml.txt \
         --constraint /tmp/tf_constraint.txt
 
