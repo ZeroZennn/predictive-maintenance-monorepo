@@ -98,7 +98,6 @@ services:
       context: ./machine_learning
       dockerfile: Dockerfile.ml
     container_name: lapis-ml-service
-    mem_limit: 800m
     ports:
       - "${ML_ENGINE_PORT:-8000}:8000"
     environment:
@@ -128,7 +127,6 @@ services:
       context: .
       dockerfile: nlp/Dockerfile.nlp
     container_name: lapis-nlp-service
-    mem_limit: 700m
     ports:
       - "${NLP_ENGINE_PORT:-8001}:8001"
     env_file:
