@@ -55,23 +55,7 @@ services:
       - backend
     networks:
       - lapis_network
-
-  caddy:
-    profiles: ["app"]
-    image: caddy:2-alpine
-    container_name: lapis_caddy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - lapis_network
     depends_on:
-      - frontend
       - backend
 
   # Infrastructure Services (Selalu aktif)
@@ -255,8 +239,6 @@ volumes:
   nlp_qdrant_data:
     driver: local
   uploads_data:
-  caddy_data:
-  caddy_config:
     driver: local
 
 # Networks
