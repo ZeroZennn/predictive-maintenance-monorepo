@@ -55,8 +55,6 @@ services:
       - backend
     networks:
       - lapis_network
-    depends_on:
-      - backend
 
   # Infrastructure Services (Selalu aktif)
   qdrant:
