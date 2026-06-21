@@ -484,9 +484,26 @@ async def health_endpoint() -> HealthResponse:
     except Exception as e:
         _log.error("Health check error: %s", e)
         return HealthResponse(
-            status          = "error",
-            vector_db       = "error",
-            embedding_model = "error",
-            llm_provider    = "unknown",
-            llm_status      = "error",
+            status       = "unhealthy",
+            uptime       = time.time() - _start_time,
+            version      = "1.0.0",
+            model_loaded = False,
+            error        = str(e),
         )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ENDPOINT 4 — DELETE
+# ══════════════════════════════════════════════════════════════════════════════
+
+@router.delete(
+    "/documents/{document_id}",
+    summary     = "Hapus dokumen",
+    description = "Hapus dokumen dari Vector DB (Placeholder)",
+)
+async def delete_document_endpoint(document_id: str):
+    """Hapus dokumen dari Qdrant (To Be Implemented)."""
+    _log = logging.getLogger("endpoints.delete")
+    _log.info("Request hapus dokumen diterima: %s", document_id)
+    # TODO: Implement Qdrant delete by metadata document_id
+    return {"status": "success", "message": f"Document {document_id} deletion triggered."}
