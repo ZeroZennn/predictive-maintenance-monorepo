@@ -54,7 +54,7 @@ class VectorStore:
 
         if qdrant_url:
             # Docker / production: koneksi ke Qdrant server via URL
-            self.client = QdrantClient(url=qdrant_url)
+            self.client = QdrantClient(url=qdrant_url, timeout=60.0)
             self.logger.info("Qdrant: server mode (env) → %s", qdrant_url)
         elif self.mode == "memory":
             self.client = QdrantClient(":memory:")
