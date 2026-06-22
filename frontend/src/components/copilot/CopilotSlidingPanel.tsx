@@ -132,7 +132,7 @@ export default function CopilotSlidingPanel() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-white tracking-wide">
-                    AI CO-PILOT
+                    AI ASSISTANT
                   </span>
                   <div className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-lapis-neon animate-pulse" />

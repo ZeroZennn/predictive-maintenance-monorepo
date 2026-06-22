@@ -55,12 +55,24 @@ export default function DocumentManagementTab() {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // DATA FETCH
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  useEffect(() => {
+  const fetchDocs = useCallback(() => {
     fetchDocuments()
       .then(setDocuments)
       .catch(() => setDocuments(MOCK_DOCUMENTS))
       .finally(() => setIsLoading(false))
   }, [])
+
+  useEffect(() => {
+    fetchDocs()
+  }, [fetchDocs])
+
+  useEffect(() => {
+    const hasProcessing = documents.some(d => d.status?.toUpperCase() === 'PROCESSING')
+    if (hasProcessing) {
+      const interval = setInterval(fetchDocs, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [documents, fetchDocs])
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // UPLOAD HANDLER
@@ -418,7 +430,7 @@ export default function DocumentManagementTab() {
                         `}>
                           <StatusIcon className={`
                             w-3 h-3 flex-shrink-0
-                            ${doc.status === 'PROCESSING' ? 'animate-spin' : ''}
+                            ${doc.status?.toUpperCase() === 'PROCESSING' ? 'animate-spin' : ''}
                           `} />
                           {statusCfg.label}
                         </div>
@@ -448,8 +460,8 @@ export default function DocumentManagementTab() {
                           </button>
                           <button
                             onClick={() => setDeleteTarget(doc)}
-                            disabled={doc.status === 'PROCESSING'}
-                            title={doc.status === 'PROCESSING'
+                            disabled={doc.status?.toUpperCase() === 'PROCESSING'}
+                            title={doc.status?.toUpperCase() === 'PROCESSING'
                               ? 'Tidak bisa hapus saat processing'
                               : 'Hapus dokumen'}
                             className="p-1.5 rounded-lg

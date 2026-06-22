@@ -19,7 +19,7 @@ export default function TheaterSection() {
     },
     {
       id: "03",
-      title: "AI Copilot (RAG)",
+      title: "AI Assistant (RAG)",
       desc: "SOP pabrik di ujung jari Anda. Asisten teknis cerdas berbasis LLM yang mengindeks dokumen panduan manual, memberikan rekomendasi perbaikan instan dan langkah troubleshooting berbasis konteks operasional.",
       isActive: false,
     },
