@@ -29,7 +29,8 @@ RUN pip install --no-cache-dir \
     torch==2.3.0+cpu --index-url https://download.pytorch.org/whl/cpu
 
 # ── Layer 3: Install Sentence-Transformers & Transformers ─────
-RUN pip install --no-cache-dir \
+RUN pip install --no-cache-dir "numpy<2.0" && \
+    pip install --no-cache-dir \
     sentence-transformers==3.0.1 \
     transformers==4.41.2
 
