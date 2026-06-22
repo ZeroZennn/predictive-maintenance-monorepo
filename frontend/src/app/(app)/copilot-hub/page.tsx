@@ -95,21 +95,34 @@ export default function CopilotHubPage() {
       <SopDocumentPanel />
 
       {/* Panel Kanan — Chat Area */}
-      <div className="flex flex-col flex-1 overflow-hidden bg-lapis-surface/40 rounded-3xl border border-lapis-border shadow-2xl backdrop-blur-sm">
+      <div className="flex flex-col flex-1 overflow-hidden bg-[#1A2121] rounded-3xl border border-lapis-border shadow-2xl">
         {/* Header */}
-        <div className="flex items-center gap-3.5 px-5 py-5 border-b border-lapis-border/50 bg-gradient-to-b from-[#2B3739] to-[#1C2626] flex-shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-lapis-neon/10 border border-lapis-neon/30 flex items-center justify-center">
-            <Bot className="w-4 h-4 text-lapis-neon" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold uppercase tracking-[0.25em] text-white">
-              PRAM AI - Asisten Teknisi
-            </span>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-lapis-border bg-lapis-surface shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lapis-neon/20 to-lapis-surface border border-lapis-neon/50 flex items-center justify-center">
+              <Bot className="w-5 h-5 text-lapis-neon" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-extrabold uppercase tracking-widest text-white">
+                PRAM AI
+              </span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                <span className="text-[10px] uppercase tracking-wider text-green-400 font-bold">
+                  Online & Ready
+                </span>
+              </div>
+            </div>
+            {activeMachineContext && (
+              <span className="ml-1 text-[10px] px-2 py-0.5 rounded-md bg-lapis-neon/10 text-lapis-neon border border-lapis-neon/20 font-bold">
+                {activeMachineContext}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Message List */}
-        <div className="flex-1 overflow-y-auto px-10 py-8 space-y-8 scrollbar-thin scrollbar-thumb-lapis-border scrollbar-track-transparent bg-[#3D4A4C]">
+        <div className="flex-1 overflow-y-auto px-10 py-8 space-y-8 scrollbar-thin scrollbar-thumb-lapis-border scrollbar-track-transparent bg-gradient-to-b from-transparent to-black/20">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full gap-5 opacity-20 grayscale">
               <div className="w-20 h-20 rounded-full bg-lapis-border/10 flex items-center justify-center border border-lapis-border/30">

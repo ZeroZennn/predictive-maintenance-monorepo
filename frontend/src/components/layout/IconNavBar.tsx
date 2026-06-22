@@ -22,7 +22,7 @@ import { useSimulatorStore, useToastStore } from "@/stores";
 
 const TECHNICIAN_NAV_ITEMS = [
   { icon: LayoutDashboard, href: ROUTES.DASHBOARD, label: "Dashboard" },
-  { icon: Bot, href: ROUTES.COPILOT_HUB, label: "AI Copilot" },
+  { icon: Bot, href: ROUTES.COPILOT_HUB, label: "AI Assistant" },
   { icon: Calendar, href: ROUTES.SCHEDULER, label: "Scheduler" },
   { icon: ClipboardList, href: ROUTES.LOGS, label: "Reports" },
   { icon: Terminal, href: ROUTES.DEBUG, label: "Debug Stream" },
@@ -137,18 +137,20 @@ export default function IconNavBar() {
             </div>
           )}
         </Link>
-        <button
-          onClick={toggleSimulator}
-          className={clsx(
-            "w-10 h-10 md:w-12 md:h-12 rounded-lg",
-            "flex items-center justify-center",
-            "text-amber-400 hover:text-white hover:bg-amber-400/20",
-            "transition-all duration-200 cursor-pointer"
-          )}
-          title="Simulator Control Panel"
-        >
-          <Sliders size={16} />
-        </button>
+        {role === "ADMIN" && (
+          <button
+            onClick={toggleSimulator}
+            className={clsx(
+              "w-10 h-10 md:w-12 md:h-12 rounded-lg",
+              "flex items-center justify-center",
+              "text-amber-400 hover:text-white hover:bg-amber-400/20",
+              "transition-all duration-200 cursor-pointer"
+            )}
+            title="Simulator Control Panel"
+          >
+            <Sliders size={16} />
+          </button>
+        )}
         <Link
           href={ROUTES.SETTINGS}
           className={clsx(

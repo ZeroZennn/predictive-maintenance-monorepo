@@ -155,65 +155,67 @@ export default function SettingsPage() {
         </section>
 
         {/* NOTIFICATIONS & PREFERENCES */}
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            <Bell size={20} className="text-lapis-neon" />
-            Notifications & System
-          </h2>
-          <div className="bg-lapis-surface border border-lapis-border rounded-xl shadow-xl overflow-hidden divide-y divide-lapis-border">
+        {false && (
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <Bell size={20} className="text-lapis-neon" />
+              Notifications & System
+            </h2>
+            <div className="bg-lapis-surface border border-lapis-border rounded-xl shadow-xl overflow-hidden divide-y divide-lapis-border">
 
-            <div className="p-4 md:p-6 flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-base font-medium text-white">Critical Alerts Notification</h3>
-                <p className="text-sm text-lapis-muted mt-1">Receive system toast alerts and sound chimes when a machine hits CRITICAL.</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" defaultChecked />
-                <div className="w-11 h-6 bg-lapis-background peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-lapis-neon"></div>
-              </label>
-            </div>
-
-            <div className="p-4 md:p-6 flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-base font-medium text-white">Predictive Maintenance Reminders</h3>
-                <p className="text-sm text-lapis-muted mt-1">Get early warnings when ML Model detects anomalies (WARNING status).</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" defaultChecked />
-                <div className="w-11 h-6 bg-lapis-background peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-lapis-neon"></div>
-              </label>
-            </div>
-
-            <div className="p-4 md:p-6 flex items-center justify-between gap-4 group cursor-pointer hover:bg-lapis-card transition-colors">
-              <div className="flex items-center gap-3">
-                <Database size={20} className="text-lapis-muted group-hover:text-lapis-neon transition-colors" />
+              <div className="p-4 md:p-6 flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-base font-medium text-white">Data Retention Policy</h3>
-                  <p className="text-sm text-lapis-muted mt-1">Configure how long telemetry logs are kept in TimescaleDB.</p>
+                  <h3 className="text-base font-medium text-white">Critical Alerts Notification</h3>
+                  <p className="text-sm text-lapis-muted mt-1">Receive system toast alerts and sound chimes when a machine hits CRITICAL.</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <div className="w-11 h-6 bg-lapis-background peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-lapis-neon"></div>
+                </label>
+              </div>
+
+              <div className="p-4 md:p-6 flex items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-medium text-white">Predictive Maintenance Reminders</h3>
+                  <p className="text-sm text-lapis-muted mt-1">Get early warnings when ML Model detects anomalies (WARNING status).</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <div className="w-11 h-6 bg-lapis-background peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-lapis-neon"></div>
+                </label>
+              </div>
+
+              <div className="p-4 md:p-6 flex items-center justify-between gap-4 group cursor-pointer hover:bg-lapis-card transition-colors">
+                <div className="flex items-center gap-3">
+                  <Database size={20} className="text-lapis-muted group-hover:text-lapis-neon transition-colors" />
+                  <div>
+                    <h3 className="text-base font-medium text-white">Data Retention Policy</h3>
+                    <p className="text-sm text-lapis-muted mt-1">Configure how long telemetry logs are kept in TimescaleDB.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-lapis-muted bg-lapis-background px-2 py-1 rounded">30 Days</span>
+                  <ChevronRight size={16} className="text-lapis-muted" />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-lapis-muted bg-lapis-background px-2 py-1 rounded">30 Days</span>
-                <ChevronRight size={16} className="text-lapis-muted" />
-              </div>
-            </div>
 
-            <div className="p-4 md:p-6 flex items-center justify-between gap-4 group cursor-pointer hover:bg-lapis-card transition-colors">
-              <div className="flex items-center gap-3">
-                <Clock size={20} className="text-lapis-muted group-hover:text-lapis-neon transition-colors" />
-                <div>
-                  <h3 className="text-base font-medium text-white">Dashboard Auto-Refresh</h3>
-                  <p className="text-sm text-lapis-muted mt-1">Adjust the update interval for KPI metrics (excluding real-time streams).</p>
+              <div className="p-4 md:p-6 flex items-center justify-between gap-4 group cursor-pointer hover:bg-lapis-card transition-colors">
+                <div className="flex items-center gap-3">
+                  <Clock size={20} className="text-lapis-muted group-hover:text-lapis-neon transition-colors" />
+                  <div>
+                    <h3 className="text-base font-medium text-white">Dashboard Auto-Refresh</h3>
+                    <p className="text-sm text-lapis-muted mt-1">Adjust the update interval for KPI metrics (excluding real-time streams).</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-lapis-muted bg-lapis-background px-2 py-1 rounded">5 Min</span>
+                  <ChevronRight size={16} className="text-lapis-muted" />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-lapis-muted bg-lapis-background px-2 py-1 rounded">5 Min</span>
-                <ChevronRight size={16} className="text-lapis-muted" />
-              </div>
-            </div>
 
-          </div>
-        </section>
+            </div>
+          </section>
+        )}
 
       </div>
     </div>

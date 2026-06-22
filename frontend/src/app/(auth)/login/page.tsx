@@ -69,12 +69,6 @@ export default function LoginPage() {
           {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
-
-      <div className="mt-6 text-xs text-lapis-muted text-center space-y-1">
-        <p>Demo Accounts:</p>
-        <p>Admin: admin@lapis-ai.com / Admin@Lapis123</p>
-        <p>Tech: tech01@lapis-ai.com / Tech@Lapis123</p>
-      </div>
     </div>
   );
 }
