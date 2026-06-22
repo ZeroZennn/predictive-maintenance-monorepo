@@ -5,7 +5,7 @@ import { fetchDocuments, uploadDocument, deleteDocument } from '@/lib/api'
 import type { AdminDocument } from '@/types'
 import { ConfirmDeleteModal } from './index'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileText, FileType, File, Trash2, CheckCircle, AlertCircle, Loader2, CloudUpload, Eye } from 'lucide-react'
+import { Upload, FileText, FileType, File, Trash2, CheckCircle, AlertCircle, Loader2, CloudUpload, Eye, Search } from 'lucide-react'
 import DocumentPreviewModal from '@/components/ui/DocumentPreviewModal'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -50,7 +50,15 @@ export default function DocumentManagementTab() {
   const [deleteTarget, setDeleteTarget] = useState<AdminDocument | null>(null)
   const [previewTarget, setPreviewTarget] = useState<AdminDocument | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // DERIVED STATE
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const filteredDocs = documents.filter(doc => 
+    doc.filename.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // DATA FETCH
@@ -340,6 +348,20 @@ export default function DocumentManagementTab() {
           </AnimatePresence>
         </div>
 
+        {/* ── Filter & Search Bar ── */}
+        <div className="px-4 md:px-6 mt-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lapis-muted" />
+            <input
+              type="text"
+              placeholder="Cari berdasarkan nama file..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#101617] border border-lapis-border/30 rounded-lg pl-9 pr-4 py-2.5 text-xs text-lapis-text focus:outline-none focus:border-lapis-neon/50 focus:ring-1 focus:ring-lapis-neon/20 transition-all placeholder:text-lapis-muted/50"
+            />
+          </div>
+        </div>
+
         {/* ── Tabel Dokumen ── */}
         <div className="flex-1 overflow-auto px-4 md:px-6 pt-2
                         scrollbar-thin 
@@ -373,15 +395,15 @@ export default function DocumentManagementTab() {
                     ))}
                   </tr>
                 ))
-              ) : documents.length === 0 ? (
+              ) : filteredDocs.length === 0 ? (
                 <tr className="bg-[#101617]">
                   <td colSpan={7}
                     className="px-4 py-12 text-center text-lapis-muted">
-                    Belum ada dokumen terunggah
+                    {searchQuery ? 'Dokumen yang dicari tidak ditemukan.' : 'Belum ada dokumen terunggah'}
                   </td>
                 </tr>
               ) : (
-                documents.map((doc, index) => {
+                filteredDocs.map((doc, index) => {
                   const FileIcon = getFileIcon(doc.file_type)
                   const statusCfg =
                     STATUS_CONFIG[
