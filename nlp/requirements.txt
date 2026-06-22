@@ -20,8 +20,10 @@ langdetect==1.0.9
 # torch==2.3.0
 # transformers==4.41.2
 
-# --- Numpy (pinned <2 for torch compatibility) ---
+# --- Numpy & Data Science (pinned for <2.0 compatibility) ---
 numpy>=1.24,<2.0
+scipy<1.13.0
+scikit-learn<1.5.0
 
 # --- Vector Database ---
 qdrant-client==1.10.1
